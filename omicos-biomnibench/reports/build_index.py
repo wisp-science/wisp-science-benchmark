@@ -32,6 +32,7 @@ LABELS = {
     "wisp-deepseek-flash-vision": "DeepSeek Flash",
     "wisp-deepseek-v4-pro": "DeepSeek v4-pro",
     "wisp-gpt-5.6-sol": "GPT-5.6",
+    "wisp-gemini-3.8-flash": "Gemini 3.8 Flash",
 }
 
 HERE = Path(__file__).resolve().parent

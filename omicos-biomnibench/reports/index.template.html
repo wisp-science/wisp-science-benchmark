@@ -322,6 +322,14 @@
     .mini tbody tr.is-hl td { background: color-mix(in srgb, var(--gold) 22%, var(--plate)); }
     .mini tbody tr:hover td { background: color-mix(in srgb, var(--gold-soft) 28%, var(--plate)); }
 
+    button.score {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      cursor: pointer;
+    }
     .score {
       font-family: var(--mono);
       font-size: 12px;
@@ -330,6 +338,8 @@
       justify-content: flex-end;
       gap: 6px;
     }
+    button.score:hover { text-decoration: underline; }
+    .mini tbody tr { cursor: pointer; }
     .dot {
       width: 9px;
       height: 9px;
@@ -439,6 +449,90 @@
     }
     #tip .k { font-family: var(--mono); font-size: 11px; opacity: .8; }
 
+    .sheet[hidden] { display: none; }
+    .sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+    }
+    .sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(19, 36, 28, .35);
+    }
+    .sheet-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: min(640px, 100%);
+      background: var(--plate);
+      color: var(--ink);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 16px 18px 10px;
+      border-bottom: 1px solid var(--edge);
+    }
+    .sheet-head h3 {
+      font-family: var(--display);
+      font-size: 1.15rem;
+      letter-spacing: -.03em;
+      margin: 0;
+    }
+    .sheet-x {
+      appearance: none;
+      border: 1px solid var(--edge);
+      background: transparent;
+      color: var(--ink);
+      font: 500 12px/1 var(--mono);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .sheet-meta {
+      padding: 10px 18px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .sheet-body {
+      padding: 0 18px 24px;
+      overflow: auto;
+      flex: 1;
+    }
+    .sheet-body h4 {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 16px 0 8px;
+    }
+    .notes, .answer, .err {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 13.5px;
+      line-height: 1.55;
+      margin: 0;
+    }
+    .answer {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--plate-2);
+      border: 1px solid var(--edge);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .err { color: var(--fail); }
+
     footer.foot {
       margin-top: 36px;
       padding-top: 18px;
@@ -484,6 +578,7 @@
     <details class="card compare" id="compare">
       <summary data-i18n="compare_title"></summary>
       <div class="compare-body">
+        <p class="caption" data-i18n="click_cell" style="margin:0 0 12px;color:var(--muted);font-size:13px"></p>
         <div class="filters" role="tablist">
           <button type="button" data-filter="all" aria-pressed="true" data-i18n="filter_all"></button>
           <button type="button" data-filter="split" aria-pressed="false" data-i18n="filter_split"></button>
@@ -511,6 +606,24 @@
     </footer>
   </div>
   <div id="tip" role="tooltip"></div>
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <aside class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="sheet-head">
+        <h3 id="sheet-title"></h3>
+        <button type="button" class="sheet-x" data-close data-i18n="close"></button>
+      </div>
+      <div class="sheet-meta" id="sheet-meta"></div>
+      <div class="sheet-body">
+        <h4 data-i18n="judge_notes"></h4>
+        <p class="notes" id="sheet-notes"></p>
+        <h4 data-i18n="error_word" id="sheet-err-h" hidden></h4>
+        <p class="err" id="sheet-err" hidden></p>
+        <h4 data-i18n="model_answer"></h4>
+        <pre class="answer" id="sheet-answer"></pre>
+      </div>
+    </aside>
+  </div>
   <script type="application/json" id="bench-data">@@BENCH_DATA@@</script>
   <script>
     const DATA = JSON.parse(document.getElementById("bench-data").textContent);
@@ -535,6 +648,14 @@
         close_row: "收起",
         detail_caption: "按来源论文分组。颜色深浅是 0–1 分，金圈为及格。点圆孔会滚到下面这张逐题表。",
         compare_title: "逐题对比（所有模型）",
+        click_cell: "点某个分数，查看该题的模型作答和评审意见（来自各 run 的 matrix.csv）。",
+        judge_notes: "评审意见",
+        model_answer: "模型作答",
+        close: "关闭",
+        error_word: "错误",
+        source_csv: "来自 matrix.csv",
+        trace_missing: "读不到 cells.json。请用 GitHub Pages 或本地 HTTP 打开本页，不要直接双击 HTML。",
+        loading: "正在载入作答…",
         filter_all: "全部 50 题",
         filter_split: "模型有分歧",
         filter_fail: "全员不及格",
@@ -544,7 +665,7 @@
         pass_word: "及格",
         fail_word: "不及格",
         min: "分钟",
-        tools: "次",
+        tools: "次工具",
         score_word: "得分",
         foot_protocol: "答题方固定为 wisp-science（backend wisp），评审模型固定为 deepseek-v4-pro；不同评审模型给出的分数不可直接横向比较。",
         foot_build: "本页由 omicos-biomnibench/reports/build_index.py 汇总各次 run 的 matrix.csv 生成（生成日期 @@GENERATED_AT@@）。新增模型：将 biology-bench 产出的报告目录放入 reports/ 后重新运行该脚本。",
@@ -568,6 +689,14 @@
         close_row: "Close",
         detail_caption: "Grouped by source paper. Fill is the 0–1 score; a gold ring marks a pass. Click a well to jump to that row in the table.",
         compare_title: "Per-task comparison (all models)",
+        click_cell: "Click a score to read that run’s answer and judge notes (from each run’s matrix.csv).",
+        judge_notes: "Judge notes",
+        model_answer: "Model answer",
+        close: "Close",
+        error_word: "Error",
+        source_csv: "from matrix.csv",
+        trace_missing: "Could not load cells.json. Open this page over GitHub Pages or a local HTTP server, not as a file://.",
+        loading: "Loading answer…",
         filter_all: "All 50 tasks",
         filter_split: "Models disagree",
         filter_fail: "No model passed",
@@ -697,7 +826,7 @@
       const rows = DATA.tasks.map((task) => {
         const c = cell(modelId, task.id) || {};
         const passed = !!c.pass;
-        return `<tr data-task="${task.id}">
+        return `<tr data-model="${modelId}" data-task="${task.id}">
           <td>${task.id}</td>
           <td>DA-${task.paper}</td>
           <td><span class="score"><i class="dot ${passed ? "pass" : ""}" style="background:${scoreColor(c.score, passed)}"></i>${fmtScore(c.score)}</span></td>
@@ -793,7 +922,7 @@
           const score = c ? c.score : null;
           const passed = !!(c && c.pass);
           const isBest = score != null && score === hi && hi >= 0;
-          return `<td><span class="score ${isBest ? "best" : ""}"><i class="dot ${passed ? "pass" : ""}" style="background:${scoreColor(score, passed)}"></i>${fmtScore(score)}</span></td>`;
+          return `<td><button type="button" class="score ${isBest ? "best" : ""}" data-model="${m.id}" data-task="${task.id}"><i class="dot ${passed ? "pass" : ""}" style="background:${scoreColor(score, passed)}"></i>${fmtScore(score)}</button></td>`;
         }).join("");
         const sp = scores.length ? (Math.max(...scores) - Math.min(...scores)).toFixed(2) : "—";
         return `<tr data-task="${task.id}"><td>${task.id}</td><td>DA-${task.paper}</td>${cells}<td class="score">${sp}</td></tr>`;
@@ -832,8 +961,62 @@
       document.querySelectorAll(".mini tbody tr, table.matrix tbody tr").forEach((tr) => {
         tr.classList.toggle("is-hl", tr.dataset.task === taskId);
       });
-      const row = document.querySelector(`.mini tbody tr[data-task="${taskId}"]`);
-      if (row) row.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
+    let TRACES = null;
+    let tracesPromise = null;
+    function loadTraces() {
+      if (TRACES) return Promise.resolve(TRACES);
+      if (!tracesPromise) {
+        tracesPromise = fetch("cells.json")
+          .then((r) => {
+            if (!r.ok) throw new Error(String(r.status));
+            return r.json();
+          })
+          .then((j) => {
+            TRACES = j;
+            return j;
+          });
+      }
+      return tracesPromise;
+    }
+
+    function openCell(modelId, taskId) {
+      hideTip();
+      const m = DATA.models.find((x) => x.id === modelId);
+      const task = DATA.tasks.find((x) => x.id === taskId);
+      const c = cell(modelId, taskId) || {};
+      const sheet = document.getElementById("sheet");
+      document.getElementById("sheet-title").textContent = `${m.label} · ${taskId}`;
+      document.getElementById("sheet-meta").textContent =
+        `DA-${task.paper} · ${fmtScore(c.score)} ${c.pass ? t("pass_word") : t("fail_word")} · ${fmtMin(c.elapsed_s)} ${t("min")} · ${c.tool_calls ?? "—"} ${t("tools")} · ${t("source_csv")}`;
+      document.getElementById("sheet-notes").textContent = t("loading");
+      document.getElementById("sheet-answer").textContent = "";
+      const errH = document.getElementById("sheet-err-h");
+      const errP = document.getElementById("sheet-err");
+      errH.hidden = true;
+      errP.hidden = true;
+      sheet.hidden = false;
+      document.body.style.overflow = "hidden";
+      highlightTask(taskId);
+      loadTraces().then((tr) => {
+        const rec = ((tr[modelId] || {})[taskId]) || {};
+        document.getElementById("sheet-notes").textContent = rec.notes || "—";
+        document.getElementById("sheet-answer").textContent = rec.answer || "—";
+        if (rec.error) {
+          errH.hidden = false;
+          errP.hidden = false;
+          errP.textContent = rec.error;
+        }
+      }).catch(() => {
+        document.getElementById("sheet-notes").textContent = t("trace_missing");
+        document.getElementById("sheet-answer").textContent = "";
+      });
+    }
+
+    function closeSheet() {
+      document.getElementById("sheet").hidden = true;
+      document.body.style.overflow = "";
     }
 
     document.querySelector(".lang").addEventListener("click", (e) => {
@@ -845,6 +1028,16 @@
     });
 
     document.getElementById("rank").addEventListener("click", (e) => {
+      const well = e.target.closest(".well");
+      if (well) {
+        openCell(well.dataset.model, well.dataset.task);
+        return;
+      }
+      const mini = e.target.closest(".mini tbody tr[data-model][data-task]");
+      if (mini) {
+        openCell(mini.dataset.model, mini.dataset.task);
+        return;
+      }
       const th = e.target.closest("th[data-rsort]");
       if (th) {
         const key = th.dataset.rsort;
@@ -874,12 +1067,6 @@
     document.getElementById("rank").addEventListener("pointerout", (e) => {
       if (!e.relatedTarget || !e.relatedTarget.closest?.(".well")) hideTip();
     });
-    document.getElementById("rank").addEventListener("click", (e) => {
-      const well = e.target.closest(".well");
-      if (!well) return;
-      highlightTask(well.dataset.task);
-    });
-
     document.querySelector(".filters").addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-filter]");
       if (!btn) return;
@@ -890,6 +1077,11 @@
       renderMatrix();
     });
     document.getElementById("matrix").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-model][data-task]");
+      if (btn) {
+        openCell(btn.dataset.model, btn.dataset.task);
+        return;
+      }
       const th = e.target.closest("th[data-msort]");
       if (!th) return;
       const key = th.dataset.msort;
@@ -899,6 +1091,13 @@
         state.matrixDir = key === "task" || key === "paper" ? 1 : -1;
       }
       renderMatrix();
+    });
+
+    document.getElementById("sheet").addEventListener("click", (e) => {
+      if (e.target.closest("[data-close]")) closeSheet();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeSheet();
     });
 
     render();

@@ -97,6 +97,10 @@ def load_run(csv_path: Path) -> list[dict]:
                     "score": score,
                     "elapsed_s": parse_float(raw.get("elapsed_s")),
                     "tool_calls": parse_int(raw.get("tool_calls")),
+                    "grade_mode": raw.get("grade_mode") or "",
+                    "answer": raw.get("final_answer") or "",
+                    "notes": raw.get("grader_notes") or "",
+                    "error": raw.get("error") or "",
                 }
             )
     rows.sort(key=lambda r: task_sort_key(r["task"]))
@@ -163,19 +167,26 @@ def collect(reports_dir: Path) -> dict:
     ]
 
     cells: dict[str, dict[str, dict]] = {}
+    traces: dict[str, dict[str, dict]] = {}
     for run_id, rows in runs.items():
-        cells[run_id] = {
-            row["task"]: {
+        cells[run_id] = {}
+        traces[run_id] = {}
+        for row in rows:
+            cells[run_id][row["task"]] = {
                 "score": row["score"],
                 "pass": row["pass"],
                 "elapsed_s": row["elapsed_s"],
                 "tool_calls": row["tool_calls"],
                 "status": row["status"],
             }
-            for row in rows
-        }
+            traces[run_id][row["task"]] = {
+                "grade_mode": row["grade_mode"],
+                "answer": row["answer"],
+                "notes": row["notes"],
+                "error": row["error"],
+            }
 
-    return {
+    board = {
         "generated_at": date.today().isoformat(),
         "generated_ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "protocol": {
@@ -195,6 +206,7 @@ def collect(reports_dir: Path) -> dict:
         "tasks": tasks,
         "cells": cells,
     }
+    return board, traces
 
 
 def render(data: dict) -> str:
@@ -225,15 +237,22 @@ def main() -> None:
     )
     args = parser.parse_args()
     reports_dir = args.reports_dir.resolve()
-    data = collect(reports_dir)
+    data, traces = collect(reports_dir)
     html = render(data)
+    traces_json = json.dumps(traces, ensure_ascii=False, separators=(",", ":"))
 
     outs = args.out or [HERE / "index.html", REPO_ROOT / "docs" / "index.html"]
     for out in outs:
         out = out.resolve()
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html, encoding="utf-8")
-        print(f"wrote {out}  ({data['protocol']['n_models']} models, {data['protocol']['n_tasks']} tasks)")
+        cells_path = out.parent / "cells.json"
+        cells_path.write_text(traces_json, encoding="utf-8")
+        print(
+            f"wrote {out}  ({data['protocol']['n_models']} models, "
+            f"{data['protocol']['n_tasks']} tasks)"
+        )
+        print(f"wrote {cells_path}  ({cells_path.stat().st_size:,} bytes)")
 
     nojekyll = REPO_ROOT / "docs" / ".nojekyll"
     if (REPO_ROOT / "docs").is_dir():

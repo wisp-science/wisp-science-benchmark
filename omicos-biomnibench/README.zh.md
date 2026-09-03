@@ -6,6 +6,20 @@
 
 三个工作树放在 `~/benchmark/` 下（不在本仓库内）。下文命令按这个布局写。环境变量模板见本目录 [`.env.example`](.env.example)。
 
+## 榜单页面
+
+HTML 榜单从 `reports/<run-id>/matrix.csv` 生成：
+
+```bash
+python omicos-biomnibench/reports/build_index.py
+```
+
+会写出 `omicos-biomnibench/reports/index.html`（本地打开）和 `docs/index.html`（GitHub Pages：仓库 `/docs`，或走 Pages workflow）。新模型把 `biology-bench report` 的目录丢进 `reports/`，再跑一次脚本。
+
+在线：https://wisp-science.github.io/wisp-science-benchmark/
+
+Pages 只需开一次：仓库 **Settings → Pages → Source: GitHub Actions**（走 `.github/workflows/pages.yml`）。或者 **Deploy from a branch → `main` / `/docs`**。
+
 ## 概览
 
 | Repo | 角色 | 说明 |

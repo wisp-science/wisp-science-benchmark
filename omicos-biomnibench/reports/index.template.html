@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wisp × BiomniBench-DA</title>
+  <meta name="description" content="Wisp Science on BiomniBench-DA. Same 50 tasks, same DeepSeek v4-pro judge, swapped agent models. Pass = score ≥ 0.70.">
+  <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-mono:400,500|ibm-plex-sans:400,500,600,700|syne:700,800">
+  <style>
+    :root {
+      --tile: #d5e2da;
+      --tile-2: #c7d6cd;
+      --ink: #13241c;
+      --muted: #4d675b;
+      --plate: #f3f7f4;
+      --plate-2: #e8efe9;
+      --edge: #b7c8bc;
+      --pass: #1a7a62;
+      --pass-ink: #0d4a3c;
+      --fail: #8e3d55;
+      --gold: #c4962a;
+      --gold-soft: #e8d08a;
+      --focus: #245a86;
+      --empty: #c9d5cc;
+      --shadow: 0 18px 40px rgba(19, 36, 28, .12);
+      --display: "Syne", "Bahnschrift", "Arial Narrow", "PingFang SC", sans-serif;
+      --body: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      --radius-plate: 28px;
+      --well: 18px;
+      --well-gap: 4px;
+      --cluster-gap: 14px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --tile: #11181a;
+        --tile-2: #0c1214;
+        --ink: #e7f1eb;
+        --muted: #9bb0a5;
+        --plate: #18211d;
+        --plate-2: #121a17;
+        --edge: #2c3b34;
+        --pass: #4ec9b6;
+        --pass-ink: #b7eee4;
+        --fail: #e07a9a;
+        --gold: #e6c15a;
+        --gold-soft: #7a6428;
+        --focus: #7eb4e0;
+        --empty: #2a3832;
+        --shadow: 0 18px 40px rgba(0, 0, 0, .45);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { color-scheme: light dark; }
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.5;
+      background:
+        radial-gradient(1200px 480px at 12% -10%, rgba(196, 150, 42, .10), transparent 55%),
+        repeating-linear-gradient(
+          90deg,
+          var(--tile) 0 28px,
+          var(--tile-2) 28px 29px
+        );
+    }
+
+    a { color: var(--focus); text-underline-offset: 3px; }
+    a:hover { color: var(--pass); }
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .skip {
+      position: absolute;
+      left: 12px;
+      top: -40px;
+      background: var(--plate);
+      padding: 6px 10px;
+      z-index: 20;
+    }
+    .skip:focus { top: 12px; }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 64px;
+    }
+
+    header.top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-end;
+      margin-bottom: 22px;
+    }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
+    h1 {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      letter-spacing: -.04em;
+      line-height: .95;
+      margin: 0;
+    }
+    h1 span.times {
+      color: var(--gold);
+      font-weight: 700;
+      padding: 0 .08em;
+    }
+    .lede {
+      max-width: 46rem;
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+    .lede strong { color: var(--ink); font-weight: 600; }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .lang {
+      display: inline-flex;
+      border: 1px solid var(--edge);
+      background: var(--plate);
+      border-radius: 999px;
+      padding: 3px;
+    }
+    .lang button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: 500 12px/1 var(--mono);
+      padding: 6px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .lang button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--plate);
+    }
+
+    .plate {
+      background: linear-gradient(180deg, var(--plate), var(--plate-2));
+      border: 1px solid var(--edge);
+      border-radius: var(--radius-plate);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.55);
+      padding: 18px 18px 16px;
+      margin: 8px 0 28px;
+    }
+    .plate-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin: 0 6px 12px;
+      flex-wrap: wrap;
+    }
+    .fig-label {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .fig-label b { color: var(--ink); font-weight: 500; }
+    .legend {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .swatch {
+      width: var(--well);
+      height: var(--well);
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
+      box-shadow: inset 0 2px 3px rgba(19,36,28,.2);
+    }
+    .swatch.pass {
+      background: var(--pass);
+      box-shadow: 0 0 0 1.5px var(--gold), inset 0 2px 3px rgba(19,36,28,.2);
+    }
+    .swatch.fail { background: hsl(340 38% 62%); }
+    .swatch.empty { background: var(--empty); }
+
+    .filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 0 6px 14px;
+    }
+    .filters button {
+      appearance: none;
+      border: 1px solid var(--edge);
+      background: transparent;
+      color: var(--muted);
+      font: 500 12px/1 var(--mono);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .filters button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--plate);
+      border-color: var(--ink);
+    }
+
+    .plate-scroll {
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      padding-bottom: 6px;
+    }
+    .band + .band {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--edge);
+    }
+    .plate-head, .lane {
+      display: flex;
+      align-items: center;
+      min-width: max-content;
+    }
+    .plate-head { margin-bottom: 6px; }
+    .lane + .lane { margin-top: 10px; }
+    .lane-meta {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      flex: 0 0 196px;
+      padding: 4px 14px 4px 6px;
+      background: linear-gradient(90deg, var(--plate) 78%, transparent);
+    }
+    .plate-head .lane-meta { height: 18px; }
+    .rank {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+    .model-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .model-stats {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .model-stats b { color: var(--ink); font-weight: 500; }
+
+    .clusters {
+      display: flex;
+      gap: var(--cluster-gap);
+      align-items: center;
+      padding-right: 8px;
+    }
+    .cluster {
+      display: flex;
+      gap: var(--well-gap);
+      width: max(3.2em, calc(var(--n) * var(--well) + (var(--n) - 1) * var(--well-gap)));
+      flex: 0 0 auto;
+      justify-content: center;
+    }
+    .plate-head .cluster { justify-content: center; }
+    .cluster-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .lane .cluster-label { display: none; }
+
+    .well {
+      width: var(--well);
+      height: var(--well);
+      border-radius: 50%;
+      border: 1px solid rgba(19, 36, 28, .12);
+      padding: 0;
+      cursor: pointer;
+      background: var(--empty);
+      box-shadow: inset 0 2px 3px rgba(19, 36, 28, .18);
+      flex: 0 0 var(--well);
+      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    }
+    .well.is-pass {
+      box-shadow:
+        0 0 0 1.5px var(--gold),
+        inset 0 2px 3px rgba(19, 36, 28, .22);
+    }
+    .well:hover, .well:focus-visible {
+      transform: scale(1.35);
+      z-index: 3;
+    }
+    .well.is-dim { opacity: .18; }
+
+    .caption {
+      margin: 12px 6px 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    h2 {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.35rem;
+      letter-spacing: -.03em;
+      margin: 0 0 10px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--edge);
+      border-radius: 16px;
+      background: var(--plate);
+      box-shadow: var(--shadow);
+    }
+    table.matrix {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 720px;
+      font-variant-numeric: tabular-nums;
+    }
+    table.matrix th, table.matrix td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--edge);
+      text-align: right;
+      font-size: 13px;
+    }
+    table.matrix th {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-align: right;
+      position: sticky;
+      top: 0;
+      background: var(--plate);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    table.matrix th:first-child,
+    table.matrix td:first-child,
+    table.matrix th:nth-child(2),
+    table.matrix td:nth-child(2) {
+      text-align: left;
+    }
+    table.matrix th:first-child, table.matrix td:first-child {
+      position: sticky;
+      left: 0;
+      background: var(--plate);
+      z-index: 1;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    table.matrix thead th:first-child { z-index: 3; }
+    table.matrix tbody tr:hover td { background: color-mix(in srgb, var(--gold-soft) 28%, var(--plate)); }
+    table.matrix tbody tr.is-hl td {
+      background: color-mix(in srgb, var(--gold) 22%, var(--plate));
+    }
+    table.matrix th[aria-sort="ascending"]::after { content: " ↑"; }
+    table.matrix th[aria-sort="descending"]::after { content: " ↓"; }
+    .score {
+      font-family: var(--mono);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: inset 0 1px 1px rgba(19,36,28,.25);
+    }
+    .dot.pass { box-shadow: 0 0 0 1.5px var(--gold), inset 0 1px 1px rgba(19,36,28,.25); }
+    .best { font-weight: 600; }
+
+    #tip {
+      position: fixed;
+      z-index: 30;
+      pointer-events: none;
+      background: var(--ink);
+      color: var(--plate);
+      font-size: 12px;
+      line-height: 1.45;
+      padding: 8px 10px;
+      border-radius: 10px;
+      max-width: 240px;
+      transform: translate(12px, 12px);
+      box-shadow: 0 10px 24px rgba(19,36,28,.28);
+      display: none;
+    }
+    #tip .k { font-family: var(--mono); font-size: 11px; opacity: .8; }
+    #tip b { font-weight: 650; }
+
+    footer.foot {
+      margin-top: 36px;
+      padding-top: 18px;
+      border-top: 1px dashed var(--edge);
+      color: var(--muted);
+      font-size: 13px;
+      display: grid;
+      gap: 8px;
+    }
+    footer.foot code {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 720px) {
+      .wrap { width: calc(100% - 20px); padding-top: 18px; }
+      header.top { flex-direction: column; align-items: flex-start; }
+      :root { --well: 16px; --cluster-gap: 10px; }
+      h1 { font-size: 2rem; }
+      .plate-head { display: none; }
+      .band + .band { margin-top: 8px; padding-top: 4px; border-top: 0; }
+      .lane {
+        flex-direction: column;
+        align-items: stretch;
+        min-width: 0;
+        gap: 8px;
+      }
+      .lane + .lane { margin-top: 16px; }
+      .lane-meta {
+        position: static;
+        flex: none;
+        width: auto;
+        background: none;
+        padding: 0 4px;
+      }
+      .clusters { flex-wrap: wrap; width: 100%; }
+      .cluster {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: auto;
+      }
+      .lane .cluster-label {
+        display: block;
+        flex: 1 0 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .well { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#matrix">Skip to per-task table</a>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <p class="eyebrow">omicos-biomnibench</p>
+        <h1>Wisp <span class="times" aria-hidden="true">×</span> BiomniBench-DA</h1>
+        <p class="lede" data-i18n="lede"></p>
+      </div>
+      <div class="controls">
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="filters" role="tablist" aria-label="Task filter">
+      <button type="button" data-filter="all" aria-pressed="true" data-i18n="filter_all"></button>
+      <button type="button" data-filter="split" aria-pressed="false" data-i18n="filter_split"></button>
+      <button type="button" data-filter="fail" aria-pressed="false" data-i18n="filter_fail"></button>
+      <button type="button" data-filter="unique" aria-pressed="false" data-i18n="filter_unique"></button>
+    </div>
+
+    <section class="plate" aria-labelledby="fig1">
+      <div class="plate-bar">
+        <div class="fig-label" id="fig1"><b>Fig. 1</b> · <span data-i18n="fig_title"></span></div>
+        <div class="legend">
+          <span><i class="swatch pass"></i><span data-i18n="leg_pass"></span></span>
+          <span><i class="swatch fail"></i><span data-i18n="leg_fail"></span></span>
+          <span><i class="swatch empty"></i>0</span>
+        </div>
+      </div>
+      <div class="plate-scroll" id="plate"></div>
+      <p class="caption" data-i18n="fig_caption"></p>
+    </section>
+
+    <section aria-labelledby="matrix-h">
+      <h2 id="matrix-h" data-i18n="table_title"></h2>
+      <div class="table-wrap">
+        <table class="matrix" id="matrix"></table>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <div data-i18n="foot_protocol"></div>
+      <div data-i18n="foot_build"></div>
+      <div>
+        <a href="https://github.com/xuzhougeng/wisp-science">wisp-science</a>
+        ·
+        <a href="https://huggingface.co/datasets/phylobio/BiomniBench-DA">BiomniBench-DA</a>
+        ·
+        <a href="https://github.com/wisp-science/wisp-science-benchmark">benchmark repo</a>
+        ·
+        <a href="https://github.com/wisp-science/wisp-science-benchmark/blob/main/omicos-biomnibench/README.md">protocol</a>
+      </div>
+    </footer>
+  </div>
+  <div id="tip" role="tooltip"></div>
+  <script type="application/json" id="bench-data">@@BENCH_DATA@@</script>
+  <script>
+    const DATA = JSON.parse(document.getElementById("bench-data").textContent);
+    const THRESHOLD = DATA.protocol.pass_threshold;
+    const I18N = {
+      zh: {
+        lede: "同一套 50 道 BiomniBench-DA 公开题，同一个 DeepSeek v4-pro judge，只换 Wisp 背后的模型。及格线 score ≥ 0.70。孔的填充是 rubric 分，金圈是及格。",
+        fig_title: "按来源论文排布的 assay plate",
+        fig_caption: "每一行是一个模型，每一孔是一道题，按 DA 论文编号分组。填充饱和度 = 0–1 分；金圈 = 及格。排名先看及格数，均分作并列时的次序。",
+        filter_all: "全部 50 题",
+        filter_split: "模型有分歧",
+        filter_fail: "全员不及格",
+        filter_unique: "仅一模型及格",
+        table_title: "逐题分数",
+        leg_pass: "及格 ≥ 0.70",
+        leg_fail: "不及格",
+        col_task: "题目",
+        col_paper: "论文",
+        col_spread: "极差",
+        pass_word: "及格",
+        fail_word: "不及格",
+        min: "分钟",
+        tools: "次工具",
+        mean: "均分",
+        acc: "正确率",
+        foot_protocol: "Agent 是 wisp-science（backend wisp）。Judge 固定 deepseek-v4-pro。不同 judge 的分数不能横比。",
+        foot_build: "页面由 omicos-biomnibench/reports/build_index.py 从各 run 的 matrix.csv 生成。生成日期 @@GENERATED_AT@@。新模型：把 biology-bench report 产出的目录放进 reports/，再跑一次脚本。",
+      },
+      en: {
+        lede: "Same 50 public BiomniBench-DA tasks, same DeepSeek v4-pro judge, only the Wisp agent model changes. Pass = score ≥ 0.70. Well fill is the rubric score; a gold ring marks a pass.",
+        fig_title: "Assay plate grouped by source paper",
+        fig_caption: "One lane per model, one well per task, clustered by DA paper id. Fill encodes the 0–1 score; gold ring = pass. Ranked by passes, then mean score.",
+        filter_all: "All 50 tasks",
+        filter_split: "Models disagree",
+        filter_fail: "No model passed",
+        filter_unique: "Only one passed",
+        table_title: "Per-task scores",
+        leg_pass: "pass ≥ 0.70",
+        leg_fail: "fail",
+        col_task: "task",
+        col_paper: "paper",
+        col_spread: "range",
+        pass_word: "pass",
+        fail_word: "fail",
+        min: "min",
+        tools: "tools",
+        mean: "mean",
+        acc: "accuracy",
+        foot_protocol: "Agent: wisp-science (backend wisp). Judge fixed at deepseek-v4-pro. Scores from different judges are not comparable.",
+        foot_build: "Built by omicos-biomnibench/reports/build_index.py from each run’s matrix.csv. Generated @@GENERATED_AT@@. To add a model, drop the biology-bench report folder into reports/ and rerun the script.",
+      },
+    };
+
+    const state = {
+      lang: localStorage.getItem("biomni-lang") || "zh",
+      filter: "all",
+      sortKey: "task",
+      sortDir: 1,
+    };
+
+    function t(key) {
+      return I18N[state.lang][key];
+    }
+
+    function fmtScore(v, digits) {
+      return v == null ? "—" : Number(v).toFixed(digits == null ? 2 : digits);
+    }
+    function fmtPct(v) {
+      return (v * 100).toFixed(0) + "%";
+    }
+    function fmtMin(seconds) {
+      if (seconds == null) return "—";
+      return (seconds / 60).toFixed(1);
+    }
+    function cell(modelId, taskId) {
+      return (DATA.cells[modelId] || {})[taskId] || null;
+    }
+    function paperGroups() {
+      const groups = [];
+      let cur = null;
+      for (const task of DATA.tasks) {
+        if (!cur || cur.paper !== task.paper) {
+          cur = { paper: task.paper, tasks: [] };
+          groups.push(cur);
+        }
+        cur.tasks.push(task);
+      }
+      return groups;
+    }
+    function chunkGroups(groups) {
+      const total = groups.reduce((sum, g) => sum + g.tasks.length, 0);
+      const target = Math.ceil(total / 2);
+      const rows = [];
+      let cur = [];
+      let n = 0;
+      for (const g of groups) {
+        if (cur.length && n >= target) {
+          rows.push(cur);
+          cur = [];
+          n = 0;
+        }
+        cur.push(g);
+        n += g.tasks.length;
+      }
+      if (cur.length) rows.push(cur);
+      return rows;
+    }
+    function verdict(taskId) {
+      const vals = DATA.models.map((m) => {
+        const c = cell(m.id, taskId);
+        return !!(c && c.pass);
+      });
+      const n = vals.filter(Boolean).length;
+      if (n === 0) return "fail";
+      if (n === DATA.models.length) return "all";
+      if (n === 1) return "unique";
+      return "split";
+    }
+    function matchFilter(taskId) {
+      const v = verdict(taskId);
+      if (state.filter === "all") return true;
+      if (state.filter === "fail") return v === "fail";
+      if (state.filter === "unique") return v === "unique";
+      if (state.filter === "split") return v === "split" || v === "unique";
+      return true;
+    }
+    function scoreColor(score, passed) {
+      if (score == null) return "var(--empty)";
+      if (passed) {
+        const t = Math.min(1, Math.max(0, (score - THRESHOLD) / (1 - THRESHOLD)));
+        const l = 46 - t * 16;
+        const s = 58 + t * 12;
+        return "hsl(162 " + s + "% " + l + "%)";
+      }
+      const t = Math.min(1, Math.max(0, score / THRESHOLD));
+      const l = 74 - t * 20;
+      const s = 16 + t * 28;
+      return "hsl(340 " + s + "% " + l + "%)";
+    }
+
+    function applyI18n() {
+      document.documentElement.lang = state.lang === "zh" ? "zh-CN" : "en";
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        el.innerHTML = t(el.getAttribute("data-i18n"));
+      });
+      document.querySelectorAll(".lang button").forEach((btn) => {
+        btn.setAttribute("aria-pressed", btn.dataset.lang === state.lang ? "true" : "false");
+      });
+    }
+
+    function renderPlate() {
+      const plate = document.getElementById("plate");
+      const groupsAll = paperGroups();
+      const bands = window.matchMedia("(max-width: 720px)").matches
+        ? [groupsAll]
+        : chunkGroups(groupsAll);
+      plate.innerHTML = bands.map((groups, bandIdx) => {
+        const headClusters = groups.map((g) => {
+          return `<div class="cluster" style="--n:${g.tasks.length}"><span class="cluster-label">DA-${g.paper}</span></div>`;
+        }).join("");
+        const lanes = DATA.models.map((m, idx) => {
+          const clusters = groups.map((g) => {
+            const wells = g.tasks.map((task) => {
+              const c = cell(m.id, task.id);
+              const score = c ? c.score : null;
+              const passed = !!(c && c.pass);
+              const dim = matchFilter(task.id) ? "" : " is-dim";
+              const ring = passed ? " is-pass" : "";
+              return `<button type="button" class="well${ring}${dim}" data-model="${m.id}" data-task="${task.id}" style="background:${scoreColor(score, passed)}" aria-label="${m.label} ${task.id} ${fmtScore(score)}"></button>`;
+            }).join("");
+            return `<div class="cluster" style="--n:${g.tasks.length}"><span class="cluster-label">DA-${g.paper}</span>${wells}</div>`;
+          }).join("");
+          const meta = bandIdx === 0
+            ? `<div class="rank">${idx + 1}</div>
+               <div class="model-name">${m.label}</div>
+               <div class="model-stats"><b>${m.passed}/${m.ran}</b> · ${fmtPct(m.accuracy)} · ${t("mean")} ${fmtScore(m.mean_score, 3)} · ${fmtMin(m.median_elapsed_s)} ${t("min")}</div>`
+            : `<div class="model-name">${m.label}</div>`;
+          return `<div class="lane" data-model="${m.id}">
+            <div class="lane-meta">${meta}</div>
+            <div class="clusters">${clusters}</div>
+          </div>`;
+        }).join("");
+        return `<div class="band">
+          <div class="plate-head">
+            <div class="lane-meta"></div>
+            <div class="clusters">${headClusters}</div>
+          </div>
+          ${lanes}
+        </div>`;
+      }).join("");
+    }
+
+    function bestScore(taskId) {
+      let best = -1;
+      for (const m of DATA.models) {
+        const c = cell(m.id, taskId);
+        if (c && c.score != null && c.score > best) best = c.score;
+      }
+      return best;
+    }
+
+    function renderTable() {
+      const table = document.getElementById("matrix");
+      const modelHeads = DATA.models.map((m) =>
+        `<th data-sort="${m.id}" ${state.sortKey === m.id ? `aria-sort="${state.sortDir > 0 ? "ascending" : "descending"}"` : ""}>${m.label}</th>`
+      ).join("");
+      const head = `<thead><tr>
+        <th data-sort="task" ${state.sortKey === "task" ? `aria-sort="${state.sortDir > 0 ? "ascending" : "descending"}"` : ""}>${t("col_task")}</th>
+        <th data-sort="paper" ${state.sortKey === "paper" ? `aria-sort="${state.sortDir > 0 ? "ascending" : "descending"}"` : ""}>${t("col_paper")}</th>
+        ${modelHeads}
+        <th data-sort="spread" ${state.sortKey === "spread" ? `aria-sort="${state.sortDir > 0 ? "ascending" : "descending"}"` : ""}>${t("col_spread")}</th>
+      </tr></thead>`;
+
+      const rows = DATA.tasks.filter((task) => matchFilter(task.id)).slice();
+      rows.sort((a, b) => {
+        const dir = state.sortDir;
+        const key = state.sortKey;
+        if (key === "task") return a.id.localeCompare(b.id, "en", { numeric: true }) * dir;
+        if (key === "paper") return (Number(a.paper) - Number(b.paper) || a.id.localeCompare(b.id)) * dir;
+        if (key === "spread") return (spread(a.id) - spread(b.id)) * dir;
+        const sa = cell(key, a.id)?.score;
+        const sb = cell(key, b.id)?.score;
+        return ((sa ?? -1) - (sb ?? -1)) * dir;
+      });
+
+      const body = rows.map((task) => {
+        const scores = DATA.models.map((m) => cell(m.id, task.id)?.score).filter((v) => v != null);
+        const hi = bestScore(task.id);
+        const cells = DATA.models.map((m) => {
+          const c = cell(m.id, task.id);
+          const score = c ? c.score : null;
+          const passed = !!(c && c.pass);
+          const isBest = score != null && score === hi && hi >= 0;
+          return `<td><span class="score ${isBest ? "best" : ""}"><i class="dot ${passed ? "pass" : ""}" style="background:${scoreColor(score, passed)}"></i>${fmtScore(score)}</span></td>`;
+        }).join("");
+        const sp = scores.length ? (Math.max(...scores) - Math.min(...scores)).toFixed(2) : "—";
+        return `<tr data-task="${task.id}"><td>${task.id}</td><td>DA-${task.paper}</td>${cells}<td class="score">${sp}</td></tr>`;
+      }).join("");
+
+      table.innerHTML = head + `<tbody>${body}</tbody>`;
+    }
+
+    function spread(taskId) {
+      const scores = DATA.models.map((m) => cell(m.id, taskId)?.score).filter((v) => v != null);
+      if (!scores.length) return 0;
+      return Math.max(...scores) - Math.min(...scores);
+    }
+
+    function render() {
+      applyI18n();
+      renderPlate();
+      renderTable();
+    }
+
+    function showTip(event, modelId, taskId) {
+      const tip = document.getElementById("tip");
+      const m = DATA.models.find((x) => x.id === modelId);
+      const task = DATA.tasks.find((x) => x.id === taskId);
+      const c = cell(modelId, taskId);
+      if (!c) return;
+      const passed = c.pass ? t("pass_word") : t("fail_word");
+      tip.innerHTML = `<div><b>${m.label}</b> · ${taskId} · DA-${task.paper}</div>
+        <div class="k">${fmtScore(c.score)} · ${passed}</div>
+        <div class="k">${fmtMin(c.elapsed_s)} ${t("min")} · ${c.tool_calls ?? "—"} ${t("tools")}</div>`;
+      tip.style.display = "block";
+      moveTip(event);
+    }
+    function moveTip(event) {
+      const tip = document.getElementById("tip");
+      const x = Math.min(event.clientX, window.innerWidth - 220);
+      const y = Math.min(event.clientY, window.innerHeight - 90);
+      tip.style.left = x + "px";
+      tip.style.top = y + "px";
+    }
+    function hideTip() {
+      document.getElementById("tip").style.display = "none";
+    }
+
+    function highlightTask(taskId) {
+      document.querySelectorAll("table.matrix tbody tr").forEach((tr) => {
+        tr.classList.toggle("is-hl", tr.dataset.task === taskId);
+      });
+      const row = document.querySelector(`table.matrix tbody tr[data-task="${taskId}"]`);
+      if (row) row.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
+    document.querySelector(".lang").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-lang]");
+      if (!btn) return;
+      state.lang = btn.dataset.lang;
+      localStorage.setItem("biomni-lang", state.lang);
+      render();
+    });
+    document.querySelector(".filters").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-filter]");
+      if (!btn) return;
+      state.filter = btn.dataset.filter;
+      document.querySelectorAll(".filters button").forEach((b) => {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+      render();
+    });
+    document.getElementById("plate").addEventListener("pointerover", (e) => {
+      const well = e.target.closest(".well");
+      if (!well) return;
+      showTip(e, well.dataset.model, well.dataset.task);
+    });
+    document.getElementById("plate").addEventListener("pointermove", (e) => {
+      if (e.target.closest(".well")) moveTip(e);
+    });
+    document.getElementById("plate").addEventListener("pointerout", (e) => {
+      if (!e.relatedTarget || !e.relatedTarget.closest?.(".well")) hideTip();
+    });
+    document.getElementById("plate").addEventListener("click", (e) => {
+      const well = e.target.closest(".well");
+      if (!well) return;
+      highlightTask(well.dataset.task);
+    });
+    document.getElementById("matrix").addEventListener("click", (e) => {
+      const th = e.target.closest("th[data-sort]");
+      if (!th) return;
+      const key = th.dataset.sort;
+      if (state.sortKey === key) state.sortDir *= -1;
+      else {
+        state.sortKey = key;
+        state.sortDir = key === "task" || key === "paper" ? 1 : -1;
+      }
+      renderTable();
+    });
+
+    render();
+    window.addEventListener("resize", () => { renderPlate(); });
+  </script>
+</body>
+</html>

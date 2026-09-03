@@ -1,0 +1,1721 @@
+run_id,backend_id,task_id,paper,status,correct,score,grade_mode,final_answer,grader_notes,error,elapsed_s,tool_calls,input_tokens,output_tokens
+wisp-kimi-k3,wisp,da-1-3,1,ok,True,0.82,deepseek,"FINAL ANSWER — da-1-3: Cell-subset distribution across tumor, adjacent normal, and blood in the CRC anti-PD-1 cohort (GSE236581)
+
+COMPARTMENT COMPOSITION (957,342 cells across 22 patients: Tumor 279,886 / Normal 260,294 / Blood 417,162)
+
+Peripheral blood is a circulating-immune compartment: T cells 67.1% (naive CD4 c01_CCR7 / c02_SELL, CD8 Temra c24_CX3CR1), myeloid 12.4% (CD14+ and FCGR3A+ monocytes), ILC/NK 9.7% (c35_ILC_FCGR3A), B cells 10.3%; epithelial (0.35%) and stromal (0.14%) cells are essentially absent.
+
+Tumor and adjacent-normal mucosa are both epithelium-rich (Epi 28.2% tumor vs 35.6% normal), but their immune infiltrates diverge: tumor is relatively enriched in T cells (42.5% vs 27.9%) and myeloid cells (4.1% vs 1.8%), while normal mucosa carries more B/plasma cells (24.9% vs 17.0%, dominated by homeostatic IgA plasma cells c46_PlasmaB_IGHA1) and differentiated gut epithelium (colonocytes c84_CA2/c85_SLC26A3, goblet c87_MUC2, tuft, EEC). Composition differs profoundly by tissue (chi-square = 301,664, dof=10, p≈0).
+
+CELL TYPES SPECIFICALLY AND HIGHLY ENRICHED ONLY IN THE TUMOR MICROENVIRONMENT
+
+Using the Ro/e tissue-enrichment index per subtype plus sample-level one-sided Mann-Whitney tests (Tumor vs Normal / Blood, BH-FDR < 0.01), the strictly TME-specific subsets are:
+
+1. c79_Fibro_FAP — FAP+ cancer-associated fibroblasts: Ro/e 3.38; 98.8% of this subtype sits in tumor (1.0% of tumor cells vs 0.01% normal, 0% blood).
+2. c64_Mph_SPP1 — SPP1+ tumor-associated macrophages: Ro/e 3.37; 98.4% tumor-restricted.
+3. c70_Endo_COL4A1 — COL4A1+ tumor endothelium: Ro/e 3.32; 97.2% tumor-restricted, with proliferating c71_Endo_MKI67 endothelium (96.6%) — markers of tumor angiogenesis.
+4. c09_CD4_Th1_CXCL13_HAVCR2 — CXCL13+ tumor-reactive helper/dysfunctional CD4 T cells: Ro/e 3.29; 96.3% tumor-restricted (plus related c08_CD4_Tfh_CXCL13_IL6ST, Ro/e 2.36).
+5. c23_CD8_Tex_LAYN — LAYN+ exhausted CD8 T cells: Ro/e 3.26; 95.4% tumor-restricted; the MOST ABUNDANT strictly TME subset (4.1% of all tumor cells vs 0.2% normal, ~0% blood).
+6. c63_Mph_CCL20 — CCL20+ tumor macrophages: Ro/e 3.17; 92.8% tumor-restricted (with c62_Mph_S100A8 as a further tumor-biased myeloid state).
+7. c13_CD4_Treg_TNFRSF9 — activated 4-1BB+ tumor Tregs: Ro/e 3.01; 87.9% tumor-restricted (2.9% of tumor cells).
+8. c55_pDC_GZMB (Ro/e 2.99) and c60_cDC_LAMP3 (mature LAMP3+ migratory DCs, Ro/e 2.81) — tumor-enriched dendritic cell states.
+9. c07_CD4_Th17_CTSH — tumor Th17 cells: Ro/e 2.90; 84.9% tumor-restricted.
+10. c91_Epi_Tumor — the malignant epithelial cells themselves: Ro/e 2.80; 82% tumor-restricted (7.6% of tumor cells); the 18% found in ""Normal"" samples reflects tumor-edge/field-cancerization contamination of adjacent biopsies.
+
+These subsets form a coherent TME: malignant epithelium supported by FAP+ CAFs and COL4A1+ neo-vasculature, myeloid suppression by SPP1+/CCL20+ TAMs, and a tumor-confined chronically-stimulated T-cell compartment (exhausted CD8, activated Tregs, CXCL13+ helpers) — precisely the states targeted by anti-PD-1. None recirculate in blood, indicating they are locally generated tissue states.
+
+LONGITUDINAL PATTERN (descriptive): malignant epithelium falls from 12.3% of tumor cells at baseline to 1.8% at late on-treatment stage; TME-specific immune/stromal states (Tex_LAYN 3.6%->5.9%, Th1_CXCL13 0.6%->2.0%, Fibro_FAP 0.3%->2.1%) expand during early treatment (stages II-III) before contracting, consistent with therapy-induced TME remodelling.
+
+LIMITATIONS: frequencies are compositional (relative, not absolute); rare subsets have limited sample-level power (c53_Neu_CXCR2 failed validation despite Ro/e 3.1 and was excluded); treatment stages mix regimens (Pembrolizumab +/- CapeOx) and responses; conclusions rest on the provided cell annotations (raw count matrix not re-analyzed).
+
+Supporting figure: figures/celltype_tissue_enrichment.png. Full methods, code and statistics in trace.md.","The agent performed a rigorous and mostly correct tissue distribution analysis using Ro/e and sample-level validation, but omitted the baseline-only filter and failed to explicitly implement and count the strict tumor-specificity triple filter, with somewhat limited functional annotation and translational discussion.",,494.80776145495474,32,0,0
+wisp-kimi-k3,wisp,da-1-4,1,ok,True,0.79,deepseek,"For each of the 22 patients in the GSE236581 CRC anti-PD-1 cohort, I computed the baseline
+(pre-treatment, Treatment = ""I"") proportion of each of the 91 cell subtypes (SubCellType)
+among all cells of that patient's tumor sample, and correlated each subtype's proportion
+with the patient's Tumor Regression Ratio (clinical.xlsx) using Spearman rank correlation.
+
+ANSWER: The correlations are predominantly POSITIVE for immune-effector/exhaustion subtypes
+and NEGATIVE for normal-epithelial subtypes.
+
+Six subtypes showed nominally significant (p < 0.05) correlations:
+
+POSITIVE correlations (higher baseline proportion -> greater tumor regression):
+  - c23_CD8_Tex_LAYN   (exhausted LAYN+ CD8 T cells):      Spearman r = +0.51, p = 0.016
+  - c13_CD4_Treg_TNFRSF9 (activated 4-1BB+ Tregs):         r = +0.47, p = 0.027
+  - c10_CD4_Temra_GZMB (cytotoxic GZMB+ CD4 T cells):      r = +0.48, p = 0.023
+  - c82_SMC_MYH11      (contractile smooth muscle):        r = +0.54, p = 0.010
+  - c68_Endo_FABP5     (vascular endothelium):             r = +0.50, p = 0.017
+
+NEGATIVE correlation (higher baseline proportion -> less tumor regression):
+  - c87_Goblet_MUC2    (normal MUC2+ goblet cells):        r = -0.46, p = 0.030
+
+The signs are stable to the choice of proportion denominator (same top hits when proportions
+are computed within each major cell type) and to leave-one-out resampling. Supporting the
+continuous correlation, baseline c23_CD8_Tex_LAYN fractions are ~16x higher in responders
+(CR/PR) than in non-responders (SD) (median 2.1% vs 0.13%, Mann-Whitney p = 0.021), while
+c87_Goblet_MUC2 is ~4x higher in non-responders (median 9.5% vs 2.3%, p = 0.069).
+
+IMPLICATION: Tumors that regress most under anti-PD-1 (with or without CapeOx) already
+contain, before treatment, an inflamed ""hot"" microenvironment enriched for antigen-experienced,
+checkpoint-restrained cytotoxic lymphocytes -- LAYN+ exhausted (i.e. tumor-reactive) CD8 T
+cells, cytotoxic CD4 T cells, and recently activated TNFRSF9+ Tregs. This supports the model
+that PD-1 blockade unleashes pre-existing anti-tumor immunity rather than creating it de novo.
+Conversely, tumors dominated by normal differentiated (goblet) epithelium -- indicating low
+malignant-cell content / well-differentiated or normal-mucosa-rich tumors -- regress poorly.
+
+CAVEATS: With 22 patients and 91 subtypes tested, no subtype passes Benjamini-Hochberg FDR
+(min q = 0.45), so these are nominally significant candidate associations. The CD8 Tex signal
+is partly confounded by MSI status (MSS patients cluster at low regression and low Tex), and
+proportions are compositional (not mutually independent), so these correlations indicate
+association, not causation.","The analysis correctly filters baseline tumor, constructs proportions, and computes correlations with good methodology, but fails to filter rare cell types, misses two expected negative subtypes, and lacks a translational angle in interpretation.",,327.32293113321066,20,0,0
+wisp-kimi-k3,wisp,da-10-1,10,ok,False,0.66,deepseek,"DA-10-1: ML Screening of Membraneless Organelle Participants — Final Answer
+===========================================================================
+
+DATA
+----
+sequence_prediction_filtered.xlsx: 48,504 proteins x 23 columns. Labels: SaPS=128 (PS-Self),
+PdPS=214 (PS-Part), NoPS=48,158; human subsets hSaPS=59, hPdPS=96, hNoPS=8,801 (all human-only,
+mutually exclusive). Scores available: PScore, PLAAC, catGRANULE (plus *_rnk percentiles and
+SaPS/PdPS 8/10-feature ML classifiers). FuzDrop scores are NOT present in the data.
+idr_ranges.xlsx: 55,056 IDR intervals (UniProt, start, end).
+
+1. AMINO-ACID COMPOSITION: PS-SELF (SaPS) vs PS-PART (PdPS)
+-----------------------------------------------------------
+Full-sequence per-AA Mann-Whitney tests (BH FDR, 20 tests): 13/20 residues differ significantly.
+- SaPS is enriched (delta freq, Cliff's delta) in G (+2.9 pp, d=+0.40), P (+1.3, +0.21),
+  S (+1.0, +0.18), Q (+0.8, +0.20), T (+0.7); depleted in L (-1.6, -0.36), K (-1.3, -0.28),
+  E (-1.1, -0.27), I (-0.9, -0.30), R (-0.8), D (-0.7), V (-0.5), H (-0.3), C (-0.3).
+  => PS-Self proteins carry a low-complexity, polar/glycine-rich self-assembly signature;
+     PS-Part proteins are more hydrophobic- and charged-residue rich, closer to a generic
+     disordered interactome.
+- The same pattern holds within the human subsets (hSaPS vs hPdPS: G +2.6 pp, L -1.6, K -1.4,
+  E -1.4; all q<0.05), so it is not a species-mixture artifact.
+- Disorder: median IDR fraction SaPS 0.282 > PdPS 0.166 >> NoPS 0.012 (MWU p=3.1e-5, 5.8e-34,
+  3.4e-23). IDR-restricted (pooled) composition: SaPS IDRs enriched in G, Q, F, N, Y
+  (aromatic/polar ""stickers"") and depleted in K, R, E, S, A vs PdPS IDRs (chi-square, q<0.05) —
+  SaPS IDRs favor aromatic/polar sticker-driven self-interaction; PdPS IDRs are charge-rich,
+  consistent with partner (e.g. RNA/scaffold) dependence.
+- Both PS classes differ strongly from NoPS (16/20 and 14/20 residues significant; NoPS is
+  structured-protein-like: Leu 9.9%, Cys 2.0%, Trp 1.2%).
+
+2. PREDICTOR PERFORMANCE (AUROC [95% bootstrap CI]; AUPRC; base rate)
+--------------------------------------------------------------------
+Benchmark            PScore              PLAAC               catGRANULE          FuzDrop
+SaPS vs NoPS         0.831 [.791-.869]   0.834 [.794-.874]   0.817 [.777-.854]   n/a (no scores)
+                     AUPRC 0.050         AUPRC 0.028         AUPRC 0.035         (base 0.0026)
+PdPS vs NoPS         0.662 [.624-.699]   0.644 [.603-.684]   0.706 [.673-.741]   n/a
+                     AUPRC 0.012         AUPRC 0.011         AUPRC 0.012         (base 0.0044)
+hSaPS vs hNoPS       0.813 [.754-.870]   0.831 [.766-.892]   0.813 [.757-.864]   n/a
+                     AUPRC 0.133         AUPRC 0.120         AUPRC 0.062         (base 0.0067)
+hPdPS vs hNoPS       0.689 [.635-.742]   0.640 [.575-.702]   0.726 [.677-.774]   n/a
+                     AUPRC 0.030         AUPRC 0.029         AUPRC 0.029         (base 0.0108)
+All 12 Mann-Whitney tests significant (p <= 2.3e-10).
+
+Key findings:
+- All three available predictors separate PS-Self from non-PS well (AUROC ~0.81-0.83 in both
+  species-wide and human benchmarks; CIs overlapping -> the three are statistically tied for SaPS).
+- All predictors are much weaker for PS-Part (AUROC 0.64-0.73): partner-dependent phase separation
+  is only modestly predictable from the unmodified protein sequence.
+- For PdPS the ranking is consistent in both panels: catGRANULE (0.706/0.726) > PScore
+  (0.662/0.689) > PLAAC (0.644/0.640) — catGRANULE's inclusion of RNA-binding/disorder terms
+  likely explains its edge for partner-dependent (often RNA-dependent) condensate proteins.
+- Predictors correlate only moderately (Spearman 0.42-0.60), capturing partly orthogonal features.
+
+Threshold analysis on the human proteome (hSaPS/hPdPS vs 8,801 hNoPS; published cutoffs):
+- PScore>4:  precision 6.2%/4.7%, recall 40.7%/19.6%, FPR 4.5% (Fisher p 5.3e-17 / 2.1e-7)
+- PLAAC>0:   precision 5.1%/3.6%, recall 59.3%/25.0%, FPR 7.4% (p 2.4e-24 / 1.3e-7)
+- catGRANULE>0: precision 1.0%/1.5%, recall 96.6%/87.5%, FPR 61.5% (p 3.6e-10 / 3.2e-8)
+=> PScore and PLAAC are specific but miss most PdPS proteins; catGRANULE at score 0 is very
+   sensitive but permissive (61.5% of non-PS proteome scores positive). Precision at fixed
+   cutoffs is inherently low because PS classes are rare (0.7-1.1% prevalence).
+
+3. FuzDrop
+----------
+FuzDrop scores are absent from the provided table, and the public server (fuzdrop.bio.unipd.it)
+is a client-side web app with no bulk/API route, so FuzDrop could not be benchmarked quantitatively
+here. By design (Hardenberg et al. 2020, PNAS 117:33254-62; Hatos et al. 2022, NAR 50:W337-44)
+it predicts per-residue droplet-promoting regions and the probability p_D of SPONTANEOUS LLPS,
+so it is expected to rank with PScore for self-assembling (SaPS) proteins but to be comparatively
+weak for partner-dependent (PdPS) proteins whose condensation requires RNA or partner scaffolds.
+
+BOTTOM LINE
+-----------
+PS-Self proteins have a distinctive sequence signature (G/P/S/Q-rich, aromatic/polar-sticker-rich
+IDRs, highly disordered) that PScore, PLAAC and catGRANULE all capture (AUROC ~0.82-0.83). PS-Part
+proteins are compositionally much closer to the ordinary proteome (charge/hydrophobic-rich IDRs,
+less disorder) and are only weakly discriminated by all sequence-based predictors (AUROC 0.64-0.73),
+with catGRANULE performing best. This supports a model in which partner-dependent phase separation
+relies on multivalency supplied by binding partners (e.g. RNA) rather than on intrinsic sequence
+propensity, and motivates combined/partner-aware predictors for MLO participant screening.
+
+LIMITATIONS
+-----------
+FuzDrop unevaluated (no scores); NoPS = proteome background, not experimentally validated negatives;
+small positive sets (59-214) give wide CIs; IDR intervals lack organism/isoform metadata; low
+precision at published thresholds reflects class rarity, not only predictor error.","The work is strong overall but has notable gaps in frequency normalization (per-protein vs pooled), missing fold-change computation, and incomplete use of property/IDR-based ordering; predictor AUC evaluation and summarization are excellent.",,2390.782467192039,65,0,0
+wisp-kimi-k3,wisp,da-10-3,10,ok,True,0.86,deepseek,"FINAL ANSWER — DA-10-3: Do phase-separation predictors perform consistently better on MLO participant datasets than on membrane-bound organelle controls?
+
+ANSWER: YES — with an important qualifier. The machine-learning phase-separation classifiers (PdPS-10fea, SaPS-10fea, PdPS-8fea, SaPS-8fea) and catGRANULE consistently and strongly discriminate members of all four membraneless-organelle (MLO) participant datasets from the fixed hNoPS background, while showing little or no enrichment on the membrane-bound/aggregate control datasets. In contrast, the physicochemical predictors PScore and PLAAC (and the sparsely available DeepPhase) fail as MLO screens on both dataset classes, so the ""consistently better on MLO"" conclusion holds for the ML-based predictors but not for the simple physicochemical scores.
+
+METHOD IN BRIEF
+- Analysis universe: the 20,375 Homo sapiens rows of sequence_prediction.xlsx (all six SaPS/PdPS scores + catGRANULE complete), joined to the hSaPS/hPdPS/hNoPS flags (h_combined_with_flags.xlsx; 8,799 hNoPS proteins in-universe) and to the six 0/1 dataset flags from List_of_proteins_for_comparing_MLO_enrichment.xlsx.
+- Primary evaluation sheet: ""Training proteins removed"" (3,813 entries) — verified to exclude all 59 hSaPS and 96 hPdPS training proteins (0 residual overlap in every dataset flag), so the SaPS/PdPS scores are evaluated without training-set leakage.
+- Metric: AUROC of each predictor for dataset members (flag=1) vs the hNoPS background (n≈8,300–8,800 negatives per cell), with one-sided Mann–Whitney U p-values; MLO sets = OpenCell nuclear punctae (n=115), DACT1-particulate proteome (251), G3BP1 proximity labeling (241), PhaSepDB high-throughput (1,712); controls = mitochondrial proteomics (1,120, membrane-bound organelle) and amyloid fiber-forming proteins (62, solid aggregates).
+
+KEY RESULTS (AUROC vs hNoPS, training-removed sheet)
+
+1. ML classifiers are strongly enriched on every MLO dataset:
+   - PdPS-10fea: 0.76 (OpenCell) / 0.83 (DACT1) / 0.84 (G3BP1) / 0.77 (PhaSepDB); mean 0.800.
+   - SaPS-10fea: 0.67 / 0.78 / 0.82 / 0.69; mean 0.739.
+   - PdPS-8fea: mean 0.670; SaPS-8fea: mean 0.644; catGRANULE: mean 0.644.
+   All 20 ML-classifier × MLO-dataset cells are significant (Mann–Whitney p from 2e-8 down to 1e-268).
+
+2. The same predictors drop to near-chance on membrane-bound controls:
+   - Mitochondrial proteome: SaPS-8fea 0.465 (p≈1.0), PdPS-8fea 0.472 (p≈1.0), SaPS-10fea 0.489, PdPS-10fea 0.562, catGRANULE 0.522 — i.e. essentially no MLO-type signal in a membrane-bound organelle.
+   - Amyloid fiber-forming proteins: slightly above chance for the 10-feature classifiers (PdPS-10fea 0.602, p=0.003; SaPS-10fea 0.573, p=0.024), consistent with shared aggregation-prone sequence features, but far below MLO values; the 8-feature classifiers are at chance (0.507/0.461).
+
+3. Formal ""consistently better"" test: mean MLO AUROC minus mean control AUROC is positive for all 7 predictors (PdPS-10fea +0.218, SaPS-10fea +0.208, PdPS-8fea +0.181, SaPS-8fea +0.181, catGRANULE +0.148, PScore +0.029, PLAAC +0.027); one-sided Wilcoxon signed-rank across predictors: p = 0.0078 (the minimum possible with n=7). 25 of 28 predictor × MLO-dataset AUROCs exceed the best control AUROC of the same predictor (the 3 exceptions are PScore/PLAAC cells that discriminate nothing).
+
+4. PScore and PLAAC do NOT screen MLOs: PScore AUROC 0.40–0.52 on MLO datasets (e.g. 0.404 on DACT1, p≈1.0; 0.522 on OpenCell, p=0.22); PLAAC 0.34–0.50 (anti-correlated on DACT1, 0.336). Their MLO-vs-control differences (+0.03) are negligible. DeepPhase (available for only 5,333 proteins, 0 PhaSepDB coverage) was likewise inconsistent (0.39–0.59).
+
+5. Screening view: at a threshold admitting 10% of the hNoPS background, PdPS-10fea recovers 38–51% of each MLO dataset (mean 44%) vs 10.6% of the mitochondrial proteome and 21% of amyloid formers; SaPS-10fea recovers 32–40% (mean 35%) vs 6.8%/19%. SaPS-8fea: 22% vs 3.6%/9.7%.
+
+6. PdPS > SaPS on every MLO dataset (e.g. DACT1: 0.832 vs 0.775), consistent with the scaffold/client model: most proteome-scale MLO participants are recruited partner (client) proteins, not self-assembling scaffolds.
+
+7. Robustness: repeating on the ""Original data"" sheet (training proteins included) inflates AUROCs by 0.001–0.054 without changing any ranking — confirming leakage control matters and the reported numbers are conservative. Using ""all non-member proteins"" instead of hNoPS as negatives leaves the MLO-minus-control gap intact (e.g. PdPS-10fea 0.766 vs 0.542).
+
+CONCLUSION
+PS predictors do perform consistently better on MLO participant datasets than on membrane-bound organelle controls, but the effect is carried by the machine-learning classifiers — especially the 10-feature PdPS and SaPS models (mean MLO AUROC 0.74–0.80 vs 0.53–0.58 on controls, a +0.21 AUROC gap) — and, to a lesser degree, catGRANULE (+0.15). PScore and PLAAC provide essentially no MLO screening power. The mitochondrial control demonstrates that the enrichment is specific to condensate biology rather than generic proteomic detectability, and the weak amyloid signal indicates the 10-feature models partially capture solid-aggregation propensity in addition to liquid–liquid phase separation.
+
+LIMITATIONS
+The hNoPS background is defined by absence from the SaPS/PdPS positive sets rather than by experimental non-PS validation; only two control datasets (mitochondria, amyloid) were available; the four MLO datasets are biologically overlapping, so per-dataset AUROCs are not fully independent (mitigated by the predictor-level paired test); and PdPS/SaPS models were trained on interaction/colocalization-type data related in kind to some evaluation sets, although the training-removed sheet eliminates direct protein-level leakage.","The agent's work is thorough and rigorous across most criteria, with only a minor omission in explicitly checking and documenting overlap removal between positive dataset members and the fixed hNoPS background, leading to a B for label construction rather than A.",,735.8684882521629,53,0,0
+wisp-kimi-k3,wisp,da-11-1,11,ok,False,0.68,deepseek,"FINAL ANSWER — DA-11-1: Ligand–receptor communication between KIR+CD8+ T cells and pathogenic CD4+ T cells in celiac disease (GSE193442)
+
+ANALYSIS SUMMARY
+All 10 samples (6 active CeD, 4 HC; 72,177 cells, 33,562 genes) were QC-filtered to 69,623 cells, normalized (CP10k + log1p), embedded by TruncatedSVD-PCA and clustered with a 30-NN Jaccard-Louvain pipeline (59 clusters). Marker annotation identified:
+- KIR+CD8+ T cells = cluster 12 (n=1,313): CD8A/B+, GNLY/GZMB/GZMH/PRF1-high, TBX21+, ZNF683(Hobit)+, KLRD1+; 56.5% of CeD cells in this cluster express KIR (KIR3DL1/KIR2DL3) vs 34.2% in HC. Sender pool for communication analysis: 436 KIR+CD8 cells from CeD.
+- Pathogenic CD4 proxy = cytotoxic CD4+CD8- cells expressing GNLY/PRF1/GZMB/GZMH or NKG7+KLRG1+ (gliadin-specific CD4 T cells in CeD acquire this cytotoxic phenotype; TCR data unavailable). Receiver pool: 931 CeD cells.
+A CellPhoneDB/CellChat-style analysis (69 curated LR pairs, complex-min rule, score = mean(ligand)xmean(receptor), 1,000 label permutations, BH-FDR) was run sender=KIR+CD8 -> receiver=pathogenic CD4.
+
+TOP SIGNALING PATHWAYS BEYOND MHC-I (ranked by pathway score / permutation significance):
+
+1. GALECTIN pathway — LGALS1 -> CD69 (top pair: score 1.32, perm p=0.001, padj=0.003). Galectin-1 is expressed by 78% of KIR+CD8 cells and is strongly CeD-induced (padj=1e-23); CD69 is on 47% of pathogenic CD4 cells. Galectin-1 triggers apoptosis and Th1 suppression of activated T cells — the leading candidate for the direct non-MHC-I suppressive arm.
+
+2. CYTOTOXIC-EFFECTOR delivery — GNLY -> PGRMC1 and GZMB -> PGRMC1 (scores 0.32/0.20, padj=0.003). Granulysin (89% of senders) and granzyme B (93% of senders; CeD-upregulated, padj=2e-04) mediate the cytotoxic killing of the targeted CD4 cells seen in vitro.
+
+3. CCL CHEMOKINE recruitment — CCL5 -> CCR4/CCR5, CCL4 -> CCR5, CCL3 -> CCR5 (pathway total 0.449; CCL5 in 100% and CCL4 in 77% of KIR+CD8 cells; all padj=0.003). Recruits/positions pathogenic CD4 cells for contact-dependent suppression.
+
+4. TNF SUPERFAMILY — TNFSF14 (LIGHT) -> TNFRSF14 (HVEM) (score 0.089, padj=0.003). LIGHT is CeD-induced in KIR+CD8 cells (padj=0.015) and HVEM is on 45% of pathogenic CD4 cells; LIGHT-HVEM delivers apoptosis/anti-proliferative signals to activated T cells.
+
+5. DEATH RECEPTOR — FASLG -> FAS (score 0.016, padj=0.003). FASLG is upregulated in CeD KIR+CD8 cells and is a specific feature of the KIR+ population vs other CD8 cells (padj=1e-06); FAS on 12% of pathogenic CD4 cells enables activation-induced cell death.
+
+6. TGF-beta — TGFB1 -> TGFBR1/TGFBR2 (TGFB1 in 55% of senders, KIR+CD8-specific vs other CD8, padj=1e-19; TGFBR2 on 28% of receivers). Soluble immunosuppression of the pathogenic CD4 compartment.
+
+7. ADHESION/CO-RECEPTOR stabilization — CD58 -> CD2 (padj=0.003) stabilizes the effector:target conjugate for granule delivery. CD48 -> CD2 and ICAM3 -> LFA-1 score highly but are NOT population-specific (permutation n.s.) and are best viewed as generic T-cell adhesion.
+
+Benchmark: the established MHC-I -> KIR axis (HLA-A/B/C -> KIR2DL3/3DL1, HLA-E -> KLRC1/KLRD1) aggregated score 0.236 — below the Galectin, SLAM and CCL pathway totals — confirming that pathways beyond MHC-I dominate the predicted suppressive/cytotoxic network.
+
+INTERPRETATION: The data support a multi-layered mechanism in which CeD-expanded KIR+CD8+ T cells (i) home to and conjugate with activated pathogenic CD4 T cells via CCL chemokines and CD58/CD2 adhesion, (ii) suppress them through galectin-1-CD69, LIGHT-HVEM and TGF-beta signaling, and (iii) eliminate them through granulysin/granzyme-B and FASLG-FAS cytotoxicity — complementing the established MHC-I/KIR recognition.
+
+LIMITATIONS: Transcript-level LR inference does not prove protein-level or functional interaction; gliadin specificity is inferred from the cytotoxic CD4 phenotype (no TCR/tetramer data); dropout deflates low-expression checkpoint receptors (PDCD1/CTLA4/TIGIT scored low); single-cell permutation significance is optimistic relative to the 6-vs-4 sample-level statistics; the curated 69-pair LR list is not exhaustive.","The agent performed a thorough analysis with strong QC, clustering, and pathway-level interpretation, but missed UMAP/t-SNE visualization, lacked a dedicated activated CD4 marker set, used fixed thresholds for cell identification, and only computed one-directional LR scoring, leading to minor deductions.",,2051.15270431526,71,0,0
+wisp-kimi-k3,wisp,da-12-2,12,ok,True,0.75,deepseek,"Yes. The G2M checkpoint (MSigDB HALLMARK_G2M_CHECKPOINT) is significantly enriched at p < 0.05 among the DEGs shared between the overexpression (A549) and knockdown (H1299) in-vitro experiments.
+
+Analysis: The two DEG lists in TS7.xlsx (3,260 overexpression DEGs; 5,314 knockdown DEG records, 5,290 unique genes) share 1,543 genes, as marked by the ""v"" overlap flags in both directions (the two flagged sets are identical; a raw name intersection gives 1,545, differing only by two unflagged genes, AC126755.1 and AC138969.2). Testing over-representation of the 200-gene G2M checkpoint set among these 1,543 shared DEGs against the background of all 7,005 DEGs detected in either experiment (121 G2M genes present in background) gives a 2x2 table of [[37, 1506], [84, 5378]]: 37 of 1,543 shared DEGs (2.40%) are G2M checkpoint genes versus 84 of 5,462 non-shared DEGs (1.54%). A one-sided Fisher's exact test (equivalent to a hypergeometric test) yields odds ratio = 1.57, p = 0.0171 < 0.05. The G2M checkpoint ranks 3rd among all 50 Hallmark sets by nominal p-value (behind HALLMARK_MITOTIC_SPINDLE, p = 2.9e-08, and HALLMARK_UV_RESPONSE_DN, p = 1.9e-04), though it does not survive Benjamini-Hochberg correction across all 50 sets (FDR = 0.286).
+
+The 37 shared G2M checkpoint genes include canonical G2/M and mitotic regulators such as TOP2A, PLK4, KIF20B, KNL1, INCENP, ESPL1, SMC1A, SMC4, RAD21, NUMA1, LMNB1, BRCA2, POLE, WRN, XPO1 and HIF1A, indicating that the manipulated noncoding RNA(s) reproducibly affect a mitotic cell-cycle transcriptional program in lung adenocarcinoma cells. Caveat: the result is significant at the nominal p < 0.05 threshold asked in the question, but not after multiple-testing correction across all Hallmark pathways.","Agent performs correct gene list extraction and ORA with clear methods, but uses a conservative DEG-union background yielding p/FDR values that differ from rubric expected values, and global pathway reporting is partially incomplete.",,227.60466950014234,15,0,0
+wisp-kimi-k3,wisp,da-12-4,12,ok,True,0.73,deepseek,"No — Kocuria is NOT significantly associated with poor prognosis in lung cancer patients with matched tumor-sample microbiome and RNA-seq data.
+
+Analysis: Univariate Cox Proportional Hazards models were fit for each of the 250 microbial genera in the matched TCGA-LUAD cohort (457 patients: 462 RNA-seq samples intersected with 507 unique microbiome samples after pooling replicate rows; 173 deaths, 284 censored). Each genus was modeled as log2(read count + 1) against overall survival (survival_time in days, survival_status 1 = death). Poor prognosis was defined per the task as Hazard Ratio > 1 and p-value < 0.05.
+
+Result for Kocuria: HR = 1.044 per doubling of abundance, 95% CI 0.894–1.220, p = 0.587 (detected in 51/457 patients). The p-value is far above 0.05 and the confidence interval includes 1, so Kocuria does not meet the poor-prognosis criterion. Sensitivity analyses agree: binary detection (present vs absent) gives HR = 1.126, p = 0.592; only a numerically unstable raw-count model (driven by one outlier sample with 199 reads, with lifelines convergence warnings) gives p = 0.043 (HR = 1.011 per read), which is not robust.
+
+Screen-wide context: 10 of 250 genera met the nominal poor-prognosis criterion (Rhodotorula, Wickerhamomyces, Coprinopsis, Anaerococcus, Rhizopus, Micrococcus, Trametes, Bilophila, Staphylococcus, Finegoldia), but none survive Benjamini–Hochberg FDR correction (min q = 0.92), consistent with the known contamination concerns for TCGA tumor-microbiome data. Kocuria ranked 117th of 250 genera by p-value.
+
+Conclusion: In this matched TCGA lung adenocarcinoma cohort, Kocuria abundance shows no significant association with overall survival; it is not a poor-prognosis marker (HR ≈ 1.04, p ≈ 0.59).","The cohort construction, per-feature Cox modeling, filtering rule, completeness, and source reliability were strong, but the Kocuria-specific determination was incorrect, causing criterion 4 to fail.",,674.8729181420058,18,6000,0
+wisp-kimi-k3,wisp,da-13-1,13,ok,True,1.0,deepseek,"DA-13-1 FINAL ANSWER: Plasma proteome adaptations during 6 months of feminizing GAHT
+
+METHOD (brief): Olink Explore HT NPX (log2) data were QC-filtered (SampleType=SAMPLE,
+AssayQC=PASS; AA17 technical replicates averaged), joined to SDRF metadata, yielding 20 fully
+paired donors per arm (CPA and SPIRO; baseline and 6 months) x 5,419 protein assays. Per
+protein, paired t-tests (baseline vs 6 months) were run within each arm with
+Benjamini-Hochberg FDR (q<0.05); a pooled GAHT effect combined both arms (Stouffer method on
+the paired t-statistics); and CPA-vs-SPIRO differences were tested by Welch t-test on
+per-donor changes (equivalent to a time-by-regimen interaction), corroborated by a
+random-intercept linear mixed model sensitivity analysis.
+
+1) WHICH PROTEINS CHANGE AFTER 6 MONTHS OF FEMINIZING GAHT?
+- Pooled across both regimens, 624 of 5,419 proteins (11.5%) are significantly altered at
+  FDR q<0.05: 597 decrease and 27 increase.
+- The dominant signature is a collapse of androgen-dependent male-reproductive-tract proteins:
+    SPINT3  (largest drop; -7.9 NPX in CPA, -3.5 in SPIRO; q=1.1e-18)
+    INSL3   (Leydig-cell androgen marker; -5.3 / -1.7 NPX; q=2.1e-18)
+    EDDM3B  (-2.7 / -1.3; q=5.1e-18), TEX101 (-2.1 / -0.9), PROK1, MSMB (prostate),
+    ACRV1, DEFB4A/B, MUC1, CA6, VIT — all strongly down.
+  These testis/epididymis/prostate-secreted proteins are direct plasma readouts of gonadal
+  androgen suppression.
+- Increased proteins include LEP (leptin, +1.5/+1.0 NPX, q=5.7e-08), SHBG (+0.29, q=0.0099),
+  PRL, PZP, NT-proBNP, SERPINA12, CXCL13 — consistent with estrogenic/metabolic effects.
+- Separately per arm: CPA yields 244 significant proteins (13 up / 231 down), SPIRO yields 118
+  (2 up / 116 down); 44 are significant in both, all with the same direction of change.
+
+2) DO CHANGES DIFFER BETWEEN CPA AND SPIRO? — YES, mainly in MAGNITUDE, not direction.
+- Effect directions are concordant between arms (delta-delta correlation r=0.63 among
+  significant proteins; all 44 doubly-significant proteins same-sign), but 9 proteins differ
+  significantly between regimens (q<0.05, Welch test on per-donor deltas):
+    INSL3 (-5.31 vs -1.75; q=2.5e-05), SPINT3 (-7.87 vs -3.52; q=0.0045),
+    EDDM3B (-2.67 vs -1.32; q=0.038), PRL (+1.39 vs +0.19; q=3.6e-05),
+    CXCL13 (+1.85 vs +0.21; q=0.0045), NELL1, CFC1, REN (-0.56 vs +0.19), RTBDN.
+- Interpretation: cyproterone acetate, a potent steroidal androgen-receptor antagonist/
+  progestin, suppresses testicular/androgen-dependent proteins (INSL3, SPINT3, EDDM3B) far
+  more deeply than spironolactone and uniquely raises prolactin (a known CPA effect) and
+  CXCL13. The renin (REN) difference matches spironolactone's mineralocorticoid-receptor
+  antagonism. Thus the two regimens produce qualitatively similar feminizing proteome changes,
+  but CPA is quantitatively much more suppressive of the gonadal axis.
+
+LIMITATIONS: 20 donors/arm limits power (especially for interactions); NPX is relative
+quantification; no covariate adjustment possible; regimens were not randomized; LOD data were
+absent; LMM sensitivity converged for ~47% of proteins but agreed with the primary tests.","The agent's work is rigorous, statistically sound, and biologically well-interpreted, meeting the highest level for all criteria.",,2295.619664883241,56,0,0
+wisp-kimi-k3,wisp,da-13-3,13,ok,True,0.87,deepseek,"ANSWER — Proteins correlating with body-composition changes (percent fat and breast volume) following feminizing GAHT
+
+Source: Supplementary Table 4 of the Nature Medicine 2025 Olink Explore-HT plasma proteomics study (5,278 proteins; mixed linear model with body-composition trait as predictor, random intercept per participant, adjusted for age and baseline BMI; FDR-adjusted p-values). Significance threshold: adjusted p < 0.05.
+
+PERCENT BODY FAT — 38 significant proteins, almost all NEGATIVE (36 of 38).
+Top hits: CA6 (beta = -0.139, adj.p = 5.5e-4), PLB1 (-0.084, 5.5e-4), CCL24 (-0.102, 1.8e-3), CYTL1, DPEP1, ENDOU, PGLYRP3, PSG1, WIF1, CST6, IVL, PI3, DEFB4A (-0.209), ENPP5, MMP3, MUC1 (-0.167), LY75, RELT, SPINK5, VIT, CLSTN2, DSG3, CBLIF, KLK6, PPY, ART3, CEACAM19, IGSF21, CRTAC1, FGFBP2, ITGAV, KLK13, SOST, XPNPEP2, COL15A1, MAPK4.
+Only two POSITIVE fat associations: LEP (leptin; beta = +0.196, adj.p = 5.5e-4 — the classic adipocyte hormone whose plasma level scales with fat mass) and CFC1 (+0.071, adj.p = 0.025).
+
+BREAST VOLUME — 249 significant proteins, also predominantly negative (237 of 249).
+Top hits: INSL3 (insulin-like 3; beta = -0.0152, adj.p = 3.3e-5 — an androgen/Leydig-cell hormone, falling as androgen action is suppressed), PRL (prolactin; beta = +0.0043, adj.p = 2.8e-4 — the key mammotropic hormone, positively tracking breast growth under estradiol), PROK1, MUC1, SPINT3, PM20D1, PTPRH, B3GNT7, PAMR1, CST6, CLSTN2, EDDM3B, CXCL13 (positive, +0.0059), MDGA1, PTPRZ1, PGLYRP3, FGFBP2, CCL24, TNN, NCAM1, ENPP5, TOP1, CA6, PLB1, CCL25.
+Other positive breast-volume associations (12 total): PRL, CXCL13, LEP, GAPDH, TNFAIP6, PAEP (glycodelin), CCL28, VEGFD, EDA2R, MZB1, CD70, RAB27B.
+
+SHARED SIGNATURE — 28 proteins are significant for BOTH traits, all direction-concordant (27 negative/negative plus LEP positive/positive): MUC1, CST6, CLSTN2, CCL24, FGFBP2, PGLYRP3, PLB1, ENPP5, CA6, CBLIF, DPEP1, MMP3, VIT, DEFB4A, SOST, LEP, SPINK5, PI3, XPNPEP2, IGSF21, PSG1, KLK6, IVL, LY75, PPY, CYTL1, ENDOU, CEACAM19. Many of these are extracellular-matrix proteases and protease inhibitors (MMP3, CST6, SPINK5, PI3, KLK6) consistent with adipose and mammary tissue remodeling during GAHT.
+
+INTERPRETATION: Leptin (LEP) rising with fat percentage and prolactin (PRL) rising with breast volume are the biologically expected positive anchors. INSL3 falling with breast-volume gain marks suppression of the testicular androgen axis by estradiol plus antiandrogen (CPA or spironolactone). The broad negative signal for both traits indicates most circulating proteins decrease as fat mass and breast volume increase, likely reflecting the expanding-tissue/dilution effect and estrogenic suppression of inflammation- and epithelium-derived proteins rather than secretion by the growing tissues.
+
+CAVEATS: associations are from the study's pre-computed model (observational, not causal; e.g., INSL3 likely marks androgen suppression rather than breast biology); CPA and SPIRO regimens are pooled; effects are per-unit Olink NPX; per-assay QC is not available in this table.","The agent performed data parsing, significance filtering, biological interpretation, contextualization, and source reliability excellently; the only shortfall is criterion 3 because ranking was not based on absolute effect size, resulting in some top-by-effect proteins being omitted.",,247.84378624893725,12,0,0
+wisp-kimi-k3,wisp,da-13-5,13,ok,False,0.4,deepseek,"Yes. Feminizing GAHT-associated proteins overlap significantly with sex-associated proteins identified in the general population, and the overlap is both enriched and directionally feminizing.
+
+Using the 2,711 proteins measured on both Olink platforms (Supplementary Table 5), 259 proteins changed significantly after 6 months of feminizing GAHT (adj. p < 0.05; 213 in the CPA arm, 81 in the SPIRO arm, 35 shared). Of these, 249 (96.1%) are also sex-associated in the general population (Sun et al. Nature 2023; nominal sex p < 0.05), compared with 88.2% of non-GAHT-responsive proteins — a statistically significant enrichment (Fisher's exact test: odds ratio 3.33, one-sided p = 1.4e-05; CPA alone OR 3.38, p = 6.9e-05; SPIRO alone OR 5.03, p = 4.3e-03). The enrichment matters because plasma protein levels are pervasively sex-differential (89% of measured proteins show a nominal sex difference), so the GAHT set is ~3-5x enriched over an already high background.
+
+The overlap is also directionally consistent with feminization: among GAHT-responsive proteins with a reported sex effect size, the GAHT-induced shift goes toward the female-typical level significantly more often than chance (162/241 arm-level estimates = 67.2%, binomial p = 4.8e-08; CPA hits 63.6%, SPIRO hits 76.5%). Effect sizes correlate positively with population sex betas (Spearman rho 0.18-0.36 across all proteins; 0.43-0.46 among GAHT-significant proteins; all p <= 1e-11). The strongest overlapping proteins are androgen-dependent, male-reproductive-tract proteins whose high male-typical levels collapse toward female levels on GAHT (SPINT3, INSL3, EDDM3B, ACRV1, TEX101, PROK1, MSMB), alongside proteins that rise toward female-typical levels (LEP, PRL).
+
+The overlap is partial, however: only ~10% (249/2,412) of sex-associated proteins respond to 6 months of GAHT, and about one-third of responsive sex-differential proteins do not shift toward female levels. Thus feminizing GAHT remodels a specific, enriched, predominantly female-directed subset of the sex-differential plasma proteome, but does not fully recapitulate population sex differences.","The agent conducted a robust analysis overall but did not follow the rubric's specified top-100 sex-associated protein overlap and hypergeometric testing approach, resulting in major deviations for criteria 2 and 3 and partial deviation for criterion 4.",,692.6541878990829,13,6000,0
+wisp-kimi-k3,wisp,da-13-6,13,ok,True,0.7,deepseek,"Are GAHT-induced protein changes consistent with those observed during menopause or menopausal hormone therapy?
+
+ANSWER: GAHT-induced protein changes are consistent with menopausal hormone therapy (MHT) but OPPOSITE to menopause. Feminizing GAHT directionally reproduces the plasma-protein signature of estrogen-replacement therapy in postmenopausal women and reverses the signature of estrogen withdrawal at menopause.
+
+KEY EVIDENCE (258 GAHT-regulated proteins, FDR<0.05, from Supplementary Table 1; comparator associations from Supplementary Table 7):
+
+1. The GAHT signature is dominated by down-regulation: 245 of 258 proteins (95.0%) decrease after 6 months of GAHT; only 13 increase (leptin, LEP, is the largest increase, +1.27 NPX, significant under both CPA and SPIRO). CPA- and SPIRO-regulated proteins are mutually direction-concordant (34/34 shared proteins same sign).
+
+2. Consistency WITH MHT: 72.1% (MHT, age <57) and 80.2% (MHT, age >=57) of GAHT proteins change in the same direction under MHT (exact binomial p = 8.4e-13 and 1.8e-23 vs the 50% null). Among proteins significant for BOTH GAHT and MHT, concordance rises to 80.1% (113/141, p = 2.6e-13) and 92.3% (108/117, p = 1.1e-22); the shared signature is joint down-regulation (MHT lowers 104-111 of these proteins, as does GAHT).
+
+3. INconsistency with menopause: only 14.7% overall sign concordance (38/258, p = 2.5e-32, significantly BELOW chance); among the 222 GAHT proteins also significant for menopause (<57 y), concordance collapses to 10.4% (23/222, p = 3.7e-36) because menopause UP-regulates 197/222 of the proteins that GAHT down-regulates. Menopause in the >=57 stratum shows no relationship (49.6% concordance, p = 0.95).
+
+4. Hormone-axis attribution: GAHT changes track the female ln-estradiol association profile (72.1% overall; 84.9% among doubly-significant proteins, with estradiol effects predominantly negative like GAHT) and are ANTI-concordant with ln-testosterone in both females (28.1% concordant among doubly-significant, p = 3.1e-06) and males (37.8%, p = 1.3e-03). They do not track male estradiol profiles (0/258 significant; 21.7% concordance). This is exactly the pattern expected from an intervention that raises estradiol and suppresses androgens.
+
+5. Robustness: the pattern holds in both antiandrogen regimens (CPA arm: 69-79% concordance with MHT, 15% with menopause; SPIRO arm: 82-85% with MHT, 20% with menopause), so it is not specific to cyproterone acetate.
+
+6. Representative proteins in the shared GAHT-MHT signature: up-regulated LEP (leptin) and SERPINA12 (vaspin); down-regulated PROK1, MMP3, SSC4D, BPIFA2, CA6, MSMB, OBP2B, TOP1, SCRG1, CKB, IGFBP2, FGF23 and REN - adipokines, extracellular-matrix/protease and metabolic proteins responsive to sex steroids.
+
+INTERPRETATION: Menopause (estradiol deficiency) and feminizing GAHT (estradiol repletion plus androgen suppression) push the same protein set in opposite directions, while MHT (pharmacologic estrogen repletion) pushes it in the same direction as GAHT. At the plasma-proteome level, 6 months of feminizing GAHT therefore mirrors MHT and counteracts the menopausal protein signature, consistent with an estradiol-driven feminizing program.
+
+LIMITATIONS: concordance is at the sign level (Spearman correlations of effect magnitudes are weak, |rho| <= 0.17); GAHT models had only n=20 per arm versus much larger cisgender comparator cohorts; menopause is a composite of aging and hormonal change (the >=57 stratum showed no signal); only FDR-adjusted p-values were available (no standard errors for precision weighting); and Olink NPX values are relative abundances, so absolute concentration changes cannot be inferred.","The agent performed a robust analysis with appropriate data handling, matching, and quantification, and gave an excellent biological interpretation, but failed to identify and characterize notable discordant proteins, instead focusing on concordant examples, which is a significant omission per the rubric.",,494.2572919726372,22,0,0
+wisp-kimi-k3,wisp,da-14-1,14,ok,True,1.0,deepseek,"Which sepsis endotyping signatures cluster together based on score correlations across patients?
+
+METHOD: From data/subspace_score_table.csv (3,948 patients x 69 columns, 0 missing score values), 27 continuous endotype scores were selected (mod1-4, detrimental/protective, myeloid/lymphoid subspace scores, Sweeney inflammopathic/adaptive/coagulopathic, Yao IA/IC/IN, Wong, MARS1-4, Davenport/Cano SRSq). Pairwise Spearman correlations were computed across all 3,948 patients (332/351 pairs significant after Bonferroni correction at p<1.4e-4; median |rho|=0.46). Signatures were clustered hierarchically (Ward's linkage on z-scored score vectors; cross-checked with average linkage on 1-|Spearman rho|, cophenetic r=0.83) and k=5 was selected (balanced, tight clusters; mean within-cluster rho +0.42 to +0.83). The grouping is highly stable: bootstrap over 200 patient resamples gives mean ARI=0.94, and both linkage methods recover the same major axes.
+
+ANSWER - FIVE CONSENSUS SIGNATURE CLUSTERS (five correlation axes underlying all the published sepsis endotyping schemes):
+
+1. ADAPTIVE / LYMPHOID-PROTECTIVE cluster (n=6 scores, mean within rho=+0.78):
+   protective_score, mod4_score, adaptive_score (Sweeney), yao_IA_score, mars3_score, lymphoid_protective_score.
+   Tight block; mod4 vs lymphoid_protective rho=+0.96.
+
+2. NEUTROPHIL / MONOCYTIC-PROTECTIVE MYELOID cluster (n=7, mean rho=+0.42):
+   mod1_score, mod3_score, wong_score, mars4_score, neutrophil_protective_score, monocyte_protective_score, myeloid_protective_score.
+   (monocyte vs myeloid protective rho=+0.89.)
+
+3. SRS / LYMPHOID-ACTIVATION (SRS1-like) cluster (n=5, mean rho=+0.78):
+   yao_IN_score, davenport_SRSq, cano_SRSq, mars2_score, lymphoid_z_score.
+   Davenport vs Cano SRSq rho=+0.92 - the two SRS implementations are near-interchangeable.
+
+4. INFLAMMOPATHIC / MYELOID-DETRIMENTAL (SRS2-like) cluster (n=6, mean rho=+0.83):
+   mod2_score, detrimental_score, inflammopathic_score (Sweeney), myeloid_detrimental_score, myeloid_score, myeloid_z_score.
+   detrimental vs myeloid_detrimental rho=+0.94; myeloid vs myeloid_z rho=+1.00.
+
+5. COAGULOPATHIC / IMMUNOCOMPROMISED cluster (n=3, mean rho=+0.50):
+   coagulopathic_score (Sweeney), yao_IC_score, mars1_score.
+
+KEY RELATIONSHIPS: The adaptive/lymphoid-protective axis (cluster 1) is the mirror image of the SRS axis (cluster 3, mean between-cluster rho=-0.74) and of the inflammopathic/myeloid-detrimental axis (cluster 4, rho=-0.51); clusters 3 and 4 are positively coupled (rho=+0.47). Thus the six published endotyping schemes largely re-measure the same latent biology: two strong, mutually antagonistic myeloid-inflammatory (detrimental) vs lymphoid-adaptive (protective) axes, an SRS-type lymphoid-activation axis, and a smaller coagulopathic/immunosuppressed axis. See correlation_heatmap.png for the cluster-ordered correlation matrix and trace.md for the full reproducible analysis.","The agent provides a rigorous, transparent, and biologically grounded correlation-clustering analysis of endotype scores, with appropriate data quality checks, correct Spearman and hierarchical clustering methodology, robust validation, named clusters, and well-scoped interpretation.",,504.7107729893178,36,0,0
+wisp-kimi-k3,wisp,da-14-3,14,ok,True,0.85,deepseek,"Proportion of critically ill patients in each consensus immune dysregulation subgroup
+(patient-level, n = 1,317 critically ill patients with severity = ""severe""; one earliest
+sample per patient; subgroups defined by myeloid/lymphoid module z-scores > 1.65):
+
+  - System-wide dysregulation (high myeloid AND high lymphoid): 61.1%  (804/1,317; 95% CI 58.4-63.6%)
+  - Lymphoid dysregulation (high lymphoid only):                24.0%  (316/1,317; 95% CI 21.8-26.4%)
+  - Balanced (neither module elevated):                          9.2%  (121/1,317; 95% CI  7.7-10.9%)
+  - Myeloid dysregulation (high myeloid only):                   5.8%  ( 76/1,317; 95% CI  4.6- 7.2%)
+
+In short: about 6 in 10 critically ill patients show system-wide immune dysregulation,
+about 1 in 4 show lymphoid-predominant dysregulation, about 1 in 17 show
+myeloid-predominant dysregulation, and about 1 in 11 are balanced (neither module elevated).
+
+Robustness: baseline-sample-only (n = 1,303) proportions are nearly identical
+(60.9% / 24.2% / 5.7% / 9.3%). At the sample level across all 1,798 severe samples the
+proportions are 64.6% system-wide, 19.4% lymphoid, 7.7% myeloid, 8.3% balanced; the
+sample-level view slightly over-weights system-wide because longitudinally tracked
+patients are disproportionately system-wide at follow-up.","The work is strong overall: it loads and validates data, derives subgroups from the provided flags, reports patient-level proportions with sensitivity analyses, and supports interpretation with references. The only gap is that negative z-score handling is implicit rather than explicitly stated.",,279.32406736165285,16,0,0
+wisp-kimi-k3,wisp,da-14-8,14,ok,False,0.66,deepseek,"Yes — both gene sets are strongly and significantly positively correlated internally.
+
+Analysis of 3,948 sepsis patients (data/subspace_genes.csv joined to data/subspace_score_table.csv):
+
+1) Gene-set membership was reconstructed by correlating each of the 201 measured genes with the module scores: the myeloid detrimental set = 35 genes correlating r > 0.5 with myeloid_detrimental_score (top: LTF 0.84, CEACAM8 0.83, OLFM4 0.82, LCN2 0.77, CTSG, ARG1, DEFA4, CAMP, S100A12, ANXA3, ORM1, AZU1 — a neutrophil-granule/innate-inflammation module); the lymphoid protective set = 63 genes correlating r > 0.5 with lymphoid_protective_score (top: DYRK2 0.92, PLCG1 0.91, CD3E 0.90, CD3G 0.90, CAMK4, FYN, ZNF831, CD247, ZAP70, HLA-DM/DO, CD79A — a T-cell/antigen-presentation module).
+
+2) Within-set pairwise Pearson correlations:
+- Myeloid detrimental (595 pairs): mean r = 0.50, median = 0.51, range -0.005 to 0.90; 76% of pairs r > 0.3, 51% r > 0.5.
+- Lymphoid protective (1,953 pairs): mean r = 0.54, median = 0.54, range 0.17 to 0.89; 98% of pairs r > 0.3, 62% r > 0.5; no negative pairs.
+Both are far above the background co-expression of random same-size gene sets drawn from the 201 genes (background mean r ~ 0.12; gene-label permutation, 5,000 draws: p = 0.0002 for each set, z ~ 21 and ~ 47).
+
+3) Robustness: results hold with Spearman correlation (mean rho = 0.48 MD / 0.57 LP), replicate in every one of the six source cohorts (mean within-set r 0.32-0.67 for myeloid, 0.33-0.70 for lymphoid), and each set has a dominant first principal component (54% and 56% of variance), i.e. each is a coherent co-expression program rather than a collection of independent markers.
+
+4) In contrast, the two sets are anti-correlated with each other (mean cross r = -0.28; myeloid_detrimental_score vs lymphoid_protective_score r = -0.40, p ~ 5e-165), reproducing the canonical sepsis axis of coupled myeloid hyperinflammation and lymphoid suppression.
+
+Caveats: membership was inferred from correlation with the scores (no explicit annotation file), so the permutation test and cohort/Spearman replication carry the main evidentiary weight; bulk-tissue correlations partly reflect cell-type composition; and a few myeloid-set pairs (e.g. AZU1 vs MKNK1, r ~ 0) show minor granule sub-structure, so coherence is strong but not perfectly uniform.
+
+Bottom line: Yes — myeloid detrimental genes are positively correlated with one another (mean r ~ 0.50) and lymphoid protective genes are positively correlated with one another (mean r ~ 0.54), both at p <= 2e-4 by permutation and consistently across all cohorts, while the two programs oppose each other.","The analysis correctly frames the goal and defines gene sets, but deviates from expected Spearman-based top-50 methodology, resulting in different mean correlations and incomplete low-coherence gene identification; limitations are partially addressed and sources are reliable.",,367.9222768805921,29,0,0
+wisp-kimi-k3,wisp,da-15-1,15,ok,True,0.9,deepseek,"DA-15-1 — Differential expression: ALS vs control, cervical spinal cord
+========================================================================
+
+METHOD
+Differential expression was computed on the raw gene counts (58,884 genes x 174 samples;
+138 ALS vs 36 non-neurological controls) using DESeq2 (median-of-ratios normalization,
+negative-binomial GLM, Wald test, Benjamini-Hochberg FDR). Genes were filtered to those with
+>= 10 reads in >= 20 samples (21,232 genes tested). The design adjusted for library
+preparation batch (which is collinear with sequencing platform), sex, age, RIN, and genotype
+PCs gPC1-gPC5. Full per-gene statistics: deseq2_results_full.csv; volcano plot: volcano.png.
+
+HEADLINE RESULT
+10,227 genes are differentially expressed at adjusted p < 0.05 (5,021 up-regulated and
+5,206 down-regulated in ALS); 2,510 have |log2 fold change| > 0.5 and 231 have
+|log2 fold change| > 1. Results are robust: 97.4% of significant genes replicate under a
+simpler design (~ library_prep + sex + disease; per-gene log2FC correlation r = 0.957), and
+7,713 genes remain significant under a stricter TPM-based expression filter.
+
+TOP UP-REGULATED GENES IN ALS (glial / innate-immune activation):
+  GPNMB   +2.77  padj 5.9e-41  (activated/disease-associated microglia; strongest signal)
+  LYZ     +2.49  padj 5.0e-30  (myeloid)
+  DNASE2B +2.93  padj 1.2e-27
+  PLA2G7  +2.20  padj 1.5e-27
+  IQGAP2  +1.76  padj 1.6e-30
+  CTSS    +1.64  padj 3.4e-28  (microglial lysosomal protease)
+  MS4A7   +1.64  padj 1.6e-27
+  LGALS3  +1.45  padj 6.1e-25  (galectin-3, activated microglia)
+  ACP5    +1.64  padj 1.6e-27
+  CD48    +2.07  padj 1.8e-27
+  ASAH1   +1.07  padj 1.0e-30
+  ABCA1   +1.14  padj 1.0e-23
+  plus the microglial core: TYROBP +1.03 (5.5e-14), TREM2 +1.00 (1.2e-10), CD68 +1.19
+  (1.8e-17), FCER1G +1.13 (6.3e-12), HLA-DRA +1.10 (1.3e-15), AIF1/Iba1 +0.48, ITGAX +0.62,
+  ITGAM +0.40, LCP2 +0.78, LAPTM5 +0.96, TLR2 +0.90;
+  complement: C1QA +0.56, C1QB +0.75, C1QC +0.72, C3 +0.62, C4B +0.63, SERPING1 +0.62;
+  reactive astrocytes: APOE +1.15 (4.4e-23), AQP4 +1.08 (1.2e-14), CD44 +0.92, VIM +0.92,
+  CLU +0.51, GFAP +0.37 (6.9e-7, from a very high baseline).
+
+TOP DOWN-REGULATED GENES IN ALS (neuronal / mitochondrial / myelin decline):
+  MT-ND1 -0.97 (3.7e-18), MT-ND2 -0.84 (5.7e-17), MT-CO1 -0.68 (3.0e-11), MT-ND4 -0.55
+  (mitochondrial respiratory chain);
+  MBP -0.71 (2.0e-11), MOG -0.48 (1.9e-6) (myelin/oligodendrocyte);
+  UNC13A -0.83 (8.0e-6) (synaptic; ALS risk gene and TDP-43 cryptic-exon target);
+  POLR2F, SMURF1, SREBF2, TJAP1, RAB11FIP4 and other neuronal/housekeeping transcripts.
+  Motor-neuron markers STMN2, NEFH, NEFL, CHAT trend down (~-0.7 to -0.95) but are not
+  significant due to high variance in end-stage tissue.
+
+ALS RISK GENES: SOD1 +0.29 (padj 1.0e-5), TARDBP +0.10 (padj 0.017), FUS -0.18
+(padj 5.6e-4); C9orf72 unchanged (its pathology is repeat-expansion driven).
+
+INTERPRETATION
+The ALS cervical spinal cord transcriptome is dominated by (1) innate-immune/glial
+activation -- TREM2/TYROBP-dependent activated microglia (top marker GPNMB), classical
+complement, and reactive astrocytosis -- superimposed on (2) mitochondrial, myelin, and
+synaptic decline. This supports glial (especially microglial) activation as a candidate
+molecular driver of ALS pathology.
+
+LIMITATIONS
+Bulk tissue cannot fully separate per-cell regulation from cell-composition change (neuron
+loss inflates glial fractions); postmortem end-stage tissue precludes causal ordering; the
+analysis is cross-sectional and observational; results are specific to the cervical level.","The analysis is statistically rigorous and well-documented, with appropriate model, normalization, testing, thresholding, effect-size prioritization, and source grounding. The only minor gap is omission of RNA composition metrics as a covariate, which prevents full credit for covariate adjustment.",,731.767789049074,28,0,0
+wisp-kimi-k3,wisp,da-15-2,15,ok,True,0.75,deepseek,"Yes. Weighted gene co-expression network analysis (WGCNA) of the pooled postmortem ALS spinal-cord RNA-seq cohort (377 samples after QC: 297 ALS, 80 non-neurological controls across cervical, lumbar and thoracic levels; 8,000 top-MAD genes from DESeq2 VST-normalized, covariate-adjusted expression; signed bicor network, soft-threshold power 6, scale-free R^2 = 0.94) resolved 9 discrete co-expression modules (124-3,890 genes, zero unassigned), three of which are significantly dysregulated in ALS (module-eigengene vs disease, BH-adjusted p < 0.05, |r| > 0.2):
+
+1. green module (425 genes) — UP in ALS (r = +0.38, padj = 8.3e-14). A microglial/innate-immune program: top GO terms inflammatory response, cytokine production, regulation of immune response (padj ~1e-22 to 1e-18); hub genes FPR1, C1QA/C1QB/C1QC, CD163, C5AR1, LILRB3, GPNMB, ALOX5AP, TYROBP; enriched 24/44 for Mathys microglial markers (padj = 6.6e-18). Replicates within cervical (partial r = +0.46, p = 1.8e-10) and lumbar (r = +0.36, p = 6.0e-6) cord after controlling RIN, age and sex. This is the transcriptomic signature of ALS glial activation/neuroinflammation.
+
+2. turquoise module (3,890 genes) — DOWN in ALS (r = -0.21, padj = 7.9e-05). A pan-neuronal synaptic program: GO terms trans-synaptic signaling, chemical synaptic transmission, synaptic vesicle cycle (padj ~1e-17 to 1e-6); hub genes NEFM/NEFL/NEFH, INA, GRIN1, CPLX2, SLC12A5, ATP1A3; enriched for excitatory (44/50) and inhibitory (49/56) neuronal markers. Strongest in cervical cord (partial r = -0.31, p = 2.3e-5) and also lower in C9orf72 carriers (r = -0.20, padj = 0.001). Consistent with motor-neuron loss and synaptic degeneration.
+
+3. brown module (830 genes) — DOWN in ALS (r = -0.39, padj = 7.8e-14), the single strongest eigengene-disease association; replicates in cervical (-0.44) and lumbar (-0.37). No enriched GO term; contains oligodendrocyte-lineage genes (e.g., BCAS1) and many uncharacterized transcripts, suggesting a heterogeneous homeostatic/myelin-related program eroded in ALS.
+
+Weaker disease associations were seen for yellow (endothelial/apoptotic, r = -0.15, padj = 0.009) and black (pericyte/ECM/vasculature, r = +0.12, padj = 0.036), pointing to neurovascular involvement. No module was associated with sex or age after correction, and residual RIN signal was confined to a disease-neutral module, confirming that covariate adjustment isolated the disease biology.
+
+Interpretation: WGCNA identifies coordinated gene programs in ALS spinal cord dominated by a reciprocal axis of microglial immune/complement activation (up) and neuronal synaptic/neurofilament expression (down), plus a downregulated myelin/homeostasis program — matching the glial-activation and neuronal-loss duality reported for ALS spinal cord. Limitations: bulk data cannot fully separate cell-composition change from within-cell regulation; associations are correlational and postmortem; the thoracic level is underpowered (n = 52), so formal replication is limited to cervical and lumbar cord.","The analysis is technically strong and well-documented, but it fails the core requirement of ALS-only WGCNA by including control samples, and it lacks PCA-based QC plots, resulting in penalties on the first two criteria.",,2476.4709556512535,87,0,0
+wisp-kimi-k3,wisp,da-15-7,15,ok,True,0.77,deepseek,"FINAL ANSWER — DA-15-7: Genes most strongly correlated with ALS disease duration
+
+METHOD (summary)
+Per spinal-cord region (cervical n=120, lumbar n=99, thoracic n=40 ALS samples with recorded disease duration), each expressed gene (TPM >= 1 in >= 25% of samples; log2(TPM+1); ~13,000 genes per region) was correlated with disease duration (years, onset to death) by Spearman rank correlation with Benjamini-Hochberg FDR, then combined across regions with a sample-size-weighted Stouffer meta-analysis. Note the sign convention: shorter duration = faster progression, so a NEGATIVE correlation marks genes associated with RAPID progression.
+
+TOP ANSWER
+CHIT1 (chitinase-1 / chitotriosidase) is the single strongest and most consistent gene: Spearman rho = -0.513 (p = 2.1e-9, FDR = 2.7e-5) cervical, rho = -0.451 (p = 2.8e-6, FDR = 0.036) lumbar, rho = -0.487 (nominal p = 1.6e-3) thoracic; cross-region meta-analysis p = 1.9e-16, FDR = 2.4e-12. Higher CHIT1 expression in spinal cord at death is associated with shorter disease duration, i.e., faster ALS progression. The association survives adjustment for age, sex, RIN and genotype PCs (partial rho = -0.568, p = 1.4e-11), removal of ultra-rapid (duration = 0) cases, and exclusion of C9orf72 mutation carriers.
+
+THE NEXT STRONGEST GENES (all negative correlation = fast progression; all replicated, same direction, across cervical/lumbar/thoracic; meta-FDR < 3e-6):
+  RAB42 (rho -0.37 / -0.39 / -0.51; meta p = 4.8e-11)
+  DPEP2 (-0.38 / -0.37 / -0.42; p = 2.6e-10)
+  OAS1 (-0.46 / -0.29 / -0.35; p = 3.0e-10)
+  UNC93B1 (-0.41 / -0.37 / -0.28; p = 6.1e-10)
+  PLA2G7 (-0.36 / -0.35 / -0.47; p = 7.2e-10)
+  PYCARD (-0.38 / -0.38 / -0.33; p = 1.1e-9)
+  MX2 (-0.43 / -0.30 / -0.35; p = 1.3e-9)
+  GPNMB (-0.37 / -0.33 / -0.46; p = 1.6e-9)
+  CAPG (-0.39 / -0.35 / -0.32; p = 2.3e-9)
+  (further FDR<0.05: APOC2, CEBPA, CD37, LSP1, FBP1, DOK3, PLAU, NCF2, SLC29A1, LILRA2, CHI3L1 — 400 genes total at meta-FDR < 0.05; 390 of them negatively correlated with duration)
+
+INTERPRETATION
+The duration-correlated transcriptome is an innate-immune / microglial-macrophage neuroinflammation signature: chitinase-family proteins (CHIT1, CHI3L1), type-I-interferon-stimulated genes (OAS1, MX2, EPSTI1), inflammasome/TLR components (PYCARD/ASC, UNC93B1, NCF2), and myeloid markers (GPNMB, CAPG, LSP1, CD37, LILRA2). Thus the degree of glial/innate-immune activation in spinal cord tracks how fast the disease progressed. This is consistent with independent protein-level evidence that CSF CHIT1 and CHI3L1 (YKL-40) predict ALS progression rate (Thompson et al., Ann Clin Transl Neurol 2018, PMID 29932231; Steinacker et al., Acta Neuropathol Commun 2018, doi:10.1186/s40478-018-0545-4; Oeckl et al., Acta Neuropathol 2019). Genes positively correlated with duration (slower progression) are few and weaker (best: IL17D, IGSF1, SELL, meta-FDR < 0.02).
+
+CAVEATS
+Postmortem end-stage tissue cannot establish that these genes prospectively predict progression during life (reverse causation: fast progressors have more advanced microgliosis at death); bulk RNA-seq correlations partly reflect cell-composition shifts; the thoracic cohort (n=40) is individually underpowered (nothing passes region-specific FDR, though directionally concordant); proteomics files were not present in this workspace, so orthogonal protein validation relied on published literature rather than re-analysis.","The agent's continuous disease-duration correlation analysis is well-executed and biologically interpretable, with strong CHIT1 identification and validation. However, it deviates substantially from the required voom+limma framework by using TPM+Spearman correlation without quantile/TMM normalization or covariate-adjusted linear modeling, which lowers criteria 2 and 3.",,423.50655479356647,26,0,0
+wisp-kimi-k3,wisp,da-15-8,15,ok,True,0.7,deepseek,"ANSWER: Genes with concordant dysregulation across the spinal cord transcriptome, spinal cord proteome, and CSF proteome in ALS
+
+Method in brief: Each gene had to be (1) significantly differentially expressed in the cervical spinal cord RNA-seq (limma FDR < 0.05; 7,597 genes), (2) significantly differentially abundant in the Oeckl et al. 2019 spinal cord proteome (all-ALS vs control, nominal p < 0.05 in the >3-values quantified subset; 420 proteins), and (3) present in the Oeckl et al. 2019 CSF ALS-vs-control results table (all 292 entries significant, max p = 0.039). 14 genes passed all three layers; 11 of them changed in the SAME direction in all three layers (all up-regulated in ALS).
+
+CONCORDANTLY DYSREGULATED GENES (up in ALS in all three layers), ranked by strength of evidence:
+
+1. GPNMB   - RNA logFC +2.65 (FDR 4.2e-16); cord protein +0.95 (p 5.4e-06); CSF +3.53 (p 1.3e-03). Microglial activation marker; the single strongest and most consistent candidate.
+2. LGALS3  - RNA +1.36 (FDR 4.4e-12); protein +0.49 (p 6.7e-03); CSF +1.77 (p 2.9e-04). Galectin-3, neuroinflammation/microglia.
+3. HLA-DRA - RNA +1.22 (FDR 5.1e-13); protein +0.52 (p 4.8e-02); CSF +1.34 (p 7.9e-05). MHC-II antigen presentation, microgliosis.
+4. CAPG    - RNA +1.35 (FDR 9.0e-12); protein +0.51 (p 1.0e-04); CSF +1.09 (p 2.0e-04). Microglial/macrophage cytoskeleton.
+5. SERPINA3- RNA +1.51 (FDR 2.4e-06); protein +0.64 (p 9.5e-05); CSF +1.59 (p 5.7e-03). Reactive-astrocyte acute-phase serpin.
+6. S100A11 - RNA +1.03 (FDR 1.8e-09); protein +0.45 (p 1.9e-02); CSF +0.94 (p 1.4e-03). Glial/stress calcium-binding protein.
+7. SFN     - RNA +1.57 (FDR 2.7e-04); protein +0.42 (p 1.1e-02); CSF +0.61 (p 6.3e-03). 14-3-3 sigma, stress signaling.
+8. ICAM1   - RNA +0.67 (FDR 2.3e-04); protein +0.44 (p 1.7e-03); CSF +0.93 (p 1.7e-02). Immune/endothelial adhesion.
+9. FLNA    - RNA +0.34 (FDR 1.5e-02); protein +0.46 (p 2.7e-03); CSF +1.01 (p 5.0e-03). Filamin A cytoskeleton.
+10. EMILIN1- RNA +0.59 (FDR 1.7e-04); protein +0.25 (p 4.7e-02); CSF +1.85 (p 2.7e-02). Extracellular matrix.
+11. AHNAK  - RNA +0.32 (FDR 8.0e-03); protein +0.46 (p 2.6e-02); CSF +1.05 (p 1.8e-02). Glial/BBB scaffold protein.
+
+All 11 are also up-regulated in both genetic and sporadic ALS subgroups in the tissue proteome, so the signal is not subtype-specific.
+
+DISCORDANT TRIPLE-POSITIVES (significant in all three layers but opposite directions; NOT concordant): EIF4G3 (RNA down, cord protein up, CSF down) and the neurofilaments NEFH and NEFM (RNA down due to motor-neuron loss, cord protein strongly up at p 1e-06 to 1e-09, CSF down in this dataset) - biologically interesting but excluded from the concordant biomarker list.
+
+INTERPRETATION: The concordant signature is overwhelmingly neuroinflammatory/glial (GPNMB, LGALS3, HLA-DRA, CAPG, S100A11, SERPINA3, ICAM1), mirroring the glial-activation signature of the spinal cord transcriptome. For non-invasive CSF biomarker prioritization in ALS clinical trials, GPNMB is the top candidate (largest effect in all three layers, CSF log2 ratio +3.53), with LGALS3, HLA-DRA, CAPG and SERPINA3 as a strong second tier (CSF p <= 5.7e-03). No gene was concordantly DOWN-regulated across all three levels.
+
+SUPPORTING EVIDENCE: Spinal-cord-significant proteins are enriched among CSF hits (21/420 = 5.0% vs 42/1,484 = 2.8%; Fisher exact p = 0.043). A stricter CSF filter (p < 0.01) retains 8 of the 11 concordant genes (GPNMB, LGALS3, HLA-DRA, CAPG, SERPINA3, S100A11, SFN, FLNA). Only 59 of the 297 CSF hit genes are measurable in both tissue layers, so the triple-significance criterion is conservative.
+
+LIMITATIONS: nominal (uncorrected) p-values in both proteome layers vs FDR in the RNA layer; postmortem end-stage tissue vs antemortem CSF; cervical cord only for the transcriptome; CSF protein levels reflect secretion/leakage/clearance as well as CNS expression; established fluid biomarkers such as NEFL and CHIT1 are missed by the triple-significance criterion for compartment-biology reasons.","The agent performed robust multi-modal integration and correctly identified triple-concordant upregulated genes, but proteomics filtering deviated from FDR/multi-gene removal and quantitative ranking was not explicit; biomarker interpretation was mostly sound but lacked full clinical validation discussion.",,449.7642633728683,27,0,0
+wisp-kimi-k3,wisp,da-16-1,16,ok,True,0.93,deepseek,"FINAL ANSWER — DA-16-1: Molecular subtypes of NAFLD by unsupervised clustering
+
+Yes. Unsupervised clustering of the 206 NAFLD hepatic transcriptomes in GSE135251
+(10 healthy controls excluded) does stratify patients by disease severity — but only
+after the dominant technical source of variation is handled, because the leading
+principal component (PC1, 34.9% of variance) is a library-size/technical axis
+(Spearman r with library size = -0.48, p = 4e-13) with no association to fibrosis
+(p = 0.39), NAS (p = 0.35), or early/moderate stage (p = 0.68). Clustering that
+includes PC1 finds clusters with NO severity association. The disease-severity signal
+lives in PC2–PC6 (e.g. PC5 vs fibrosis r = +0.47, p = 8.6e-13; PC2 vs NAS r = +0.43,
+p = 1.7e-10).
+
+METHOD. Per-sample HTSeq counts (216 files; 5 HTSeq summary rows per file dropped) were
+assembled into a 64,253-gene matrix, normalized to CPM, filtered to genes with CPM >= 1
+in >= 20 samples (14,875 genes), log2(CPM+1) transformed, reduced to the top 5,000
+most variable genes (MAD), z-scored, and subjected to PCA. Ward hierarchical clustering
+was performed on Euclidean distances in PC2–PC10 space. Silhouette was best at k = 3
+(0.173; clusters of 88, 73, 45 cases).
+
+KEY RESULT (k = 3; clusters relabeled by ascending severity):
+- Fibrosis stage: chi-square p = 1.1e-4 (Cramer's V = 0.25); Kruskal-Wallis p = 8.0e-7;
+  medians C1 = F1, C2 = F2, C3 = F3. Pairwise: C1 vs C3 p = 8.4e-8, C2 vs C3 p = 1.0e-4.
+- NAS score: Kruskal-Wallis p = 4.0e-7; medians C1 = 4, C2 = 5, C3 = 6.
+- Early/moderate stage: chi-square p = 6.4e-6; moderate fraction rises 20.5% (C1) ->
+  30.1% (C2) -> 62.2% (C3).
+- Group in paper: chi-square p = 1.8e-4; C3 is enriched for NASH_F3 (21/54) and NASH_F4
+  (7/14) and depleted of NAFL (4/51).
+- k = 4 gives the same gradient (fibrosis KW p = 4.9e-8; stage chi-square p = 6.7e-6).
+
+INTERPRETATION. The three transcriptomic clusters form a severity gradient, not discrete
+islands (silhouettes are modest, 0.16–0.17, as expected for a continuous disease
+spectrum): C1 = mild (predominantly F0–F2, NAFL, early), C2 = intermediate, C3 =
+advanced fibrotic NASH (median F3, NAS 6, 62% ""moderate""). Cluster C3 is driven by the
+canonical hepatic stellate-cell activation / extracellular-matrix / inflammatory program
+(LUM, DCN, THBS2, PALLD, GPC4, CCL2, CCL20, SERPINE2, LXN among the top
+differentially expressed genes), i.e. a fibrogenic, inflammation-high molecular subtype.
+
+CLINICAL-TRIAL IMPLICATION. A C3-like transcriptional signature could enrich trials for
+advanced-fibrosis/high-NAS patients, but enrichment is imperfect (6 of 45 C3 patients are
+F0–F1, and 25 advanced-fibrosis patients fall outside C3), so it would supplement, not
+replace, histology. Because severity-carrying PCs were identified in the same cohort,
+these associations require validation in an independent NAFLD cohort before use.
+
+Deliverables: analysis/fig1_clusters.png (scree, PCA, fibrosis/NAS by cluster, stage
+composition); analysis/metadata.csv, analysis/meta_final.csv (per-sample cluster labels);
+analysis/DE_C3_vs_rest.csv (cluster-driver genes). See trace.md for full methods, code,
+and references.","The agent performed a rigorous unsupervised clustering analysis with proper data handling, normalization, parameter reporting, cluster characterization, and statistical testing. The only shortfall is the absence of multiple-testing correction for the several clinical-feature associations, which lowers criterion 5 to B; all other criteria meet A-level quality.",,795.3111831620336,36,0,0
+wisp-kimi-k3,wisp,da-17-1,17,ok,True,0.78,deepseek,"FINAL ANSWER — DA-17-1: Circulating immune cell populations with significantly altered frequencies in SLE
+
+Analysis of the 1,263,676-cell PBMC scRNA-seq cohort (162 SLE donors, 99 healthy donors; donor-level quasi-binomial GLM on cell counts with Mann–Whitney and arcsin-sqrt t-test confirmation; Benjamini–Hochberg FDR across 11 populations) identifies FIVE immune cell populations with significantly and robustly altered circulating frequencies in SLE:
+
+INCREASED in SLE:
+1. Classical monocytes (cM): 28.5% vs 18.1% of PBMCs (log2FC +0.66, q = 2.3e-15)
+2. Non-classical monocytes (ncM): 4.3% vs 3.0% (log2FC +0.52, q = 6.3e-05)
+3. Proliferating lymphocytes (Prolif): 0.87% vs 0.38% (log2FC +1.19, q = 1.6e-08)
+
+DECREASED in SLE:
+4. CD4+ alpha-beta T cells (T4): 24.8% vs 37.5% (log2FC -0.60, q = 7.5e-20)
+5. Plasmacytoid dendritic cells (pDC): 0.30% vs 0.57% (log2FC -0.93, q = 6.4e-17)
+
+All five remain significant (FDR < 0.05) after sex adjustment, restriction to the ethnicity-balanced European-American subset (74 SLE / 75 HC), and exclusion of all flare donors, so they are not driven by demographic imbalance or acute flare.
+
+NOT significantly altered: B cells (q = 0.61) and plasmablasts (q = 0.38). CD8 T cells, NK cells, conventional dendritic cells, and progenitor cells give discordant results across tests (significant in at most 2 of 3 methods; the CD8 signal vanishes in European Americans, indicating an ethnicity artifact) and are not robust biomarker candidates at this annotation level.
+
+Interpretation for SLE diagnosis: the strongest cellular signature of SLE in blood is a myeloid expansion (classical + non-classical monocytes) together with contraction of CD4+ T cells and circulating pDCs and an excess of proliferating lymphocytes. These shifts are consistent with the type-I interferon-driven immune activation of SLE (interferon-activated monocyte expansion, lymphopenia, and pDC migration out of blood into inflamed tissues). A composite of monocyte-high / CD4-low / pDC-low frequencies would be the strongest candidate circulating cellular biomarker panel from this cohort. Caveats: frequencies are compositional (monocyte expansion dilutes other fractions), most patients were on immunosuppressive treatment, and the cohort is predominantly female — absolute-count and longitudinal validation would be needed before clinical use.","The agent performed a rigorous donor-level statistical analysis with multiple testing correction and proper biological interpretation, but missed several expected significant cell types and did not address low-count filtering per cell type.",,459.7003599368036,26,0,0
+wisp-kimi-k3,wisp,da-17-3,17,ok,True,0.73,deepseek,"DIFFERENTIALLY EXPRESSED GENES IN CLASSICAL MONOCYTES FROM SLE PATIENTS
+(DA-17-3; scRNA-seq PBMC cohort, 162 SLE vs 99 healthy donors, 307,429 classical monocytes)
+
+METHOD SUMMARY: Donor-level pseudobulk DE (raw UMI counts from .raw.X summed per donor,
+261 donors), genes filtered (>=10 counts in >=20 donors; 10,611 genes tested), library-size-corrected
+asinh variance-stabilizing transform, per-gene linear models with Processing_Cohort covariates and
+limma-style empirical-Bayes moderated t-statistics, Benjamini-Hochberg FDR. Results robust to adding
+sex (log2FC correlation r = 0.9999).
+
+HEADLINE RESULT: 3,034 genes are differentially expressed in SLE classical monocytes at FDR < 0.05
+(2,386 upregulated, 648 downregulated); 35 genes pass FDR < 0.05 with |log2FC| > 1 (34 up, 1 down).
+
+The dominant signal is a strong, cell-type-specific TYPE-I INTERFERON program: ALL 25 genes of the
+canonical type-I ISG signature (ISG15, IFI6, IFI44L, IFI44, RSAD2, CXCL10, IFIT2, IFIT3, IFIT1,
+IFITM3, OAS1, OAS3, OAS2, OASL, EPSTI1, RNASE1, RNASE2, IFI27, XAF1, LGALS3BP, SIGLEC1, USP18,
+APOBEC3A, APOBEC3B, MX1) are significantly UPREGULATED in SLE classical monocytes (FDR from 1.9e-21
+to 2.0e-4; log2FC 0.54-1.97). The donor-level ISG module score is markedly higher in SLE
+(5.64 +/- 0.87 vs 4.35 +/- 0.45; p = 1.8e-32).
+
+TOP UPREGULATED GENES IN SLE CLASSICAL MONOCYTES (log2FC, BH-adjusted p):
+  EPSTI1   1.20, 1.9e-21 (top-ranked gene overall)
+  IFI27    1.97, 7.9e-10
+  CXCL10   1.77, 1.6e-12 (IP-10 chemokine; SLE disease-activity biomarker)
+  SIGLEC1  1.62, 1.7e-14 (CD169; IFN-inducible monocyte activation marker)
+  USP18    1.54, 1.9e-11
+  IFIT1    1.50, 1.9e-12
+  IFIT3    1.45, 1.7e-14
+  IFI44L   1.44, 1.5e-12
+  LGALS3BP 1.37, 4.0e-13
+  RSAD2    1.30, 3.1e-12
+  MX1      1.21, 6.3e-14
+  IFIT2    1.20, 6.5e-14
+  IFI6     1.24, 9.9e-14
+  ISG15    1.14, 5.0e-13
+  OASL     1.07, 1.3e-11
+  OAS3     1.09, 5.0e-13
+  OAS2     1.04, 2.6e-14
+  APOBEC3B 1.06, 2.0e-4
+  IFI44    1.03, 1.4e-14
+  GBP1     1.05, 2.6e-14
+  IFIH1    0.89, 2.9e-14 (MDA5 dsRNA sensor; SLE risk locus)
+  OAS1     0.87, 2.1e-15
+  XAF1     0.90, 4.6e-15
+  IRF7     0.78, 4.5e-16 (master IFN transcription factor)
+  STAT1    0.61, 3.7e-15
+  FCGR1A   0.58, 4.6e-15 (CD64; IFN-inducible Fc-gamma receptor, SLE monocyte marker)
+  MYD88    0.32, 6.5e-14 (TLR adaptor)
+  PARP9 0.81, SAMD9L 1.00, TAP1 0.59, UBE2L6 0.64, SP110 0.48, RNF213 0.51, PLAC8 0.71,
+  LAP3 0.70, ANXA2 0.29, NMI 0.43 (all FDR < 5e-15)
+
+TOP DOWNREGULATED GENES: PTGS2 (-0.73, 1.2e-4), KIF22 (-0.53, 2.1e-15), GPR183 (-0.54, 7.1e-5),
+PTCH2 (-0.55, 4.5e-6), OLR1/LOX-1 (-0.50, 2.0e-2), RGCC (-0.48, 1.1e-4), EEF1G (-0.47, 8.6e-4),
+plus several non-coding RNAs (SNORD3A, LINC01209).
+
+INTERPRETATION: Classical monocytes from SLE patients show pervasive activation of the type-I
+interferon pathway - the antiviral ISG cassette (IFIT/OAS/MX/IFI families), the IFN signaling
+machinery itself (IRF7, STAT1, IFIH1/MDA5, MYD88), and IFN-inducible cell-surface/chemokine markers
+used clinically in SLE (SIGLEC1/CD169, FCGR1A/CD64, CXCL10/IP-10). This implicates chronic IFNa/b
+exposure of circulating classical monocytes as a central molecular driver of monocyte dysfunction in
+SLE, and highlights therapeutic axes already targeted or in trials for SLE: the type-I IFN receptor
+(anifrolumab), JAK1/JAK2 signaling downstream of IFNAR (baricitinib, tofacitinib), TLR7/8/9-MYD88
+innate sensing, and CXCL10-CXCR3 chemotaxis; FCGR1A, SIGLEC1, and the ISG module score are candidate
+pharmacodynamic biomarkers.
+
+Full ranked table of all 10,611 tested genes: de_results_classical_monocytes_SLE_vs_normal.csv.
+Analysis details and limitations: trace.md.","The agent performed proper donor-level pseudobulk aggregation with raw counts, used an acceptable but not negative-binomial statistical method, reported DE genes with effect sizes and p-values though with a different fold-change threshold, correctly used the provided ISG gene set, but did not perform a formal over-representation enrichment test. Biological interpretation and source reliability are strong.",,0.0002720393240451813,0,0,0
+wisp-kimi-k3,wisp,da-17-5,17,ok,True,0.82,deepseek,"Do SLE-associated immune cell changes differ between patients of Asian versus European ancestry?
+
+Answer: Largely shared, but with one clear ancestry difference — CD4 T-cell depletion is significantly stronger in Asian SLE patients — plus directional evidence of a stronger interferon response in Asians.
+
+Analysis of 1.24M PBMCs (149 European-American and 107 Asian donors; 75 EUR / 83 ASN SLE cases vs 74 EUR / 24 ASN healthy controls), aggregated per donor and per cell type and modeled with covariate-adjusted (age, sex, processing cohort) ancestry x disease interaction tests:
+
+1) SHARED changes (similar in both ancestries): classical and non-classical monocyte expansion (cM ~0.19->0.29 EUR, 0.16->0.28 ASN), proliferating-cell expansion, regulatory CD4 T-cell expansion, memory B-cell depletion, cytotoxic T-cell expansion, and a significant type-I interferon-stimulated-gene (ISG) induction in every well-powered cell type (largest in monocytes, +1.5 to +1.9 log2). This core myeloid-interferon SLE axis supports ancestry-agnostic interferon-targeted therapy (e.g., anifrolumab).
+
+2) ANCESTRY-DIFFERENTIAL change: CD4 T-cell depletion is significantly more pronounced in Asian patients (interaction p=0.0058). In proportions, Asian cases lose roughly half of their naive CD4 compartment vs Asian controls (0.36->0.16), versus a milder drop in Europeans (0.35->0.23); the fine-subtype decomposition shows the effect is driven by naive CD4 T cells (interaction p=0.012) and MAIT cells (interaction p=0.025). Asian controls also have a higher baseline CD4 fraction (0.42 vs 0.36), so population-specific reference ranges may matter clinically.
+
+3) DIRECTIONAL but not significant: the ISG elevation in SLE is consistently larger in Asians across all 8 well-powered cell types (interaction betas +0.29 to +0.65 log2; smallest adjusted interaction p=0.053 in conventional dendritic cells), suggesting a modestly stronger interferon response in Asian SLE, consistent with the higher SLE prevalence/severity reported in Asian populations — but it does not reach significance in any single cell type. Other nominal hints: pDC depletion is dramatic in Europeans (p=2e-10) but undetectable in Asians (who already have low baseline pDC fractions), and B-cell fraction decreases only in Europeans while atypical B cells expand significantly only in Asians; none of these interactions survive multiple-testing correction.
+
+Limitations: only 24 Asian healthy controls limit power (interaction q-values > 0.05 after FDR, so findings are hypothesis-generating); ethnicity is self-reported; processing cohort is partially confounded with ancestry; compositional fractions are relative; rare cell types are underpowered; and without genotypes we cannot distinguish genetic from environmental drivers of the ancestry differences.
+
+Bottom line for population-specific treatment strategies: the dominant SLE immune program (monocyte expansion + interferon activation) is shared across Asian and European patients, but Asian patients show significantly deeper naive CD4/MAIT T-cell depletion and a trend toward stronger interferon induction, which may warrant ancestry-aware immune-monitoring thresholds and further powered studies of interferon-pathway targeting in Asian SLE.",The agent conducts a thorough ancestry-stratified analysis with appropriate formal testing and source grounding; minor deductions for not filtering low-count donors in composition estimates and for an Asian CD4 fold change deviating from the rubric's expected range.,,0.0003521740436553955,0,0,0
+wisp-kimi-k3,wisp,da-18-1,18,ok,True,0.92,deepseek,"GENOMIC LANDSCAPE OF BREAST CANCER RECEPTOR SUBTYPES
+(MSK-IMPACT targeted-panel cohort; 1,814 subtype-assigned samples:
+HR+HER2- n=1,362, HR+HER2+ n=132, HR-HER2+ n=70, TNBC n=250)
+
+OVERVIEW
+The four clinical receptor subtypes have sharply distinct and largely
+non-overlapping genomic drivers. HR+ disease is defined by PI3K-pathway and
+ER-axis alterations plus the 11q13 (CCND1/FGF) amplicon; HER2+ disease is
+amplification-driven (ERBB2/17q12) with a high TP53 burden; TNBC is a
+TP53/RB1-loss, PI3K-pathway-loss, MYC-amplified disease with the highest
+tumor mutational burden.
+
+1. TUMOR MUTATIONAL BURDEN
+Median TMB (nonsynonymous mut/Mb): HR+HER2- 0.100, HR+HER2+ 0.100,
+HR-HER2+ 0.133, TNBC 0.167 (Kruskal-Wallis p = 1.8e-9; TNBC vs HR+HER2-
+Mann-Whitney p = 1.8e-9). The gradient holds within primary-only
+(p = 5.5e-4) and metastatic-only (p = 2.9e-4) strata, so it is not a
+treatment-selection artifact. On this targeted panel virtually no sample
+(1/1,814) reaches TMB >= 10 mut/Mb.
+
+2. NONSYNONYMOUS MUTATIONS (frequency % by subtype; BH-FDR < 0.05)
+- TP53: 23.3 / 47.0 / 78.6 / 81.2 - HER2+ and especially TNBC enriched.
+- PIK3CA: 42.5 / 31.8 / 32.9 / 18.8 - HR+HER2- enriched (H1047R, E545K,
+  E542K hotspots; alpelisib-actionable).
+- AKT1: 6.4 / 0 / 1.4 / 4.0 - HR+HER2- enriched (84 of 93 variants are
+  E17K; capivasertib-actionable).
+- GATA3: 18.0 / 12.1 / 2.9 / 3.6 and MAP3K1: 9.8 / 2.3 / 2.9 / 4.8 -
+  luminal/HR+ specific.
+- CDH1: 18.5 / 12.1 / 7.1 / 8.0 - HR+ (lobular histology).
+- ESR1: 10.3 / 6.1 / 0 / 0.4 - restricted to HR+ disease; dominated by
+  ligand-binding-domain hotspots D538G, Y537S/N/C, E380Q, L536H/P that
+  drive endocrine resistance. Within HR+HER2-, ESR1 mutations are enriched
+  ~9-fold in metastases vs primaries (19.2% vs 2.6%; Fisher OR 8.95,
+  p = 1.9e-25), reflecting hormonal-therapy selection; PIK3CA and TP53
+  show no such shift, confirming the effect is endocrine-specific.
+- RB1: 1.8 / 1.5 / 0 / 11.2 - TNBC enriched.
+- PIK3R1: 0.8 / 1.5 / 4.3 / 8.0 and NF1: 3.5 / 5.3 / 11.4 / 8.0 -
+  enriched in HR-HER2+ and TNBC.
+- RECQL4: 0.9 / 1.5 / 7.1 / 0.4 - HR-HER2+ enriched.
+- Not subtype-specific: PTEN (3-9%) and ERBB2 (4-7%) mutations.
+
+3. COPY-NUMBER ALTERATIONS
+- HER2+ subtypes are amplification-driven: ERBB2 amplified in 79.5%
+  (HR+HER2+) and 90.0% (HR-HER2+) vs 0.4% (HR+HER2-) and 0% (TNBC), with
+  17q12 CDK12 co-amplification in ~55-60% and RARA (17q21) in up to 25%.
+  Overall CNA burden is significantly higher in both HER2+ groups
+  (Kruskal-Wallis p = 2.5e-21).
+- HR+ disease carries the 11q13 amplicon: CCND1 21.6%/22.7% and
+  FGF3/FGF4/FGF19 18-21% in HR+ vs 4-7% in HER2+/TNBC; FGFR1 amplified in
+  14.0% of HR+HER2-.
+- TNBC: MYC amplification 15.6% (highest), RB1 deep deletion 5.6% and
+  PTEN deep deletion 4.4% (vs <=0.3% and <=1.8% in HR+), complementing its
+  TP53/RB1-loss mutation profile.
+- CDKN2A/B deep deletions are rare (2-6%) and not subtype-specific.
+
+4. ACTIONABLE SUBCOHORTS REVEALED BY MUTATIONAL PROFILING
+- Within clinically HER2-negative (HR+HER2-) tumors, ~3.9% carry ERBB2
+  kinase-domain hotspot mutations (L755S, V777L, S310F, exon-20
+  insertions), almost mutually exclusive with ERBB2 amplification (1/53
+  overlap) - a neratinib-sensitive subcohort invisible to receptor IHC.
+- PIK3CA mutations in 19-43% across all subtypes and AKT1 E17K in 6.4% of
+  HR+HER2- define PI3K/AKT-inhibitor-eligible subcohorts.
+- ESR1 LBD mutations in ~19% of post-endocrine-therapy HR+ metastases
+  predict benefit from oral SERDs (e.g. elacestrant).
+- Small BRCA1/2-mutant fractions exist in every subtype (BRCA2 1.5-4.3%).
+
+5. LIMITATIONS
+Targeted panel (~450-474 genes): no genome-wide signatures, HRD scores, or
+exome-scale TMB; CNA file reports only high-level amplifications and deep
+deletions (no shallow gains/losses or LOH); 55% of samples are metastases
+from an endocrine-therapy-enriched cohort, so alteration frequencies
+reflect post-treatment disease rather than incidence at diagnosis; power is
+limited for HR-HER2+ (n=70); 104 samples (5.4%) were excluded for
+unknown/equivocal receptor status; some patients contribute >1 sample.
+
+CONCLUSION
+Receptor subtypes partition breast cancer into genomically distinct
+diseases: HR+HER2- = PIK3CA/AKT1 + ER-axis (GATA3, MAP3K1, CDH1) mutations
+with 11q13 amplification and therapy-selected ESR1 LBD mutations;
+HR+HER2+ and HR-HER2+ = ERBB2/17q12-amplified, TP53-rich (47-79%),
+amplification-burdened tumors; TNBC = TP53 (81%) and RB1 loss, PI3K-pathway
+loss (PIK3R1/PTEN), MYC amplification, and the highest TMB. Mutational
+profiling additionally unmasks actionable subcohorts within each clinical
+group - most notably ERBB2 kinase mutations in HER2-negative disease,
+PI3K/AKT-pathway targets in HR+ tumors, and endocrine-resistance ESR1
+mutations in treated HR+ metastases.","The agent performed a comprehensive, well-grounded analysis across all required criteria; the only notable gap is omission of inter-quartile ranges in TMB summary statistics.",,823.3255345113575,45,0,0
+wisp-kimi-k3,wisp,da-18-5,18,ok,False,0.59,deepseek,"The cumulative frequency of MAPK pathway alterations in post-hormonal therapy HR+/HER2- tumors is 33.5% (255 of 762 samples; 95% Wilson CI 30.2%–36.9%).
+
+Cohort and method: Post-hormonal-therapy HR+/HER2- tumors were defined from the MSK-IMPACT clinical table as samples with primary-tumor receptor status ""HR+/HER2-"" that were not treatment-naive primaries (all metastases plus explicitly post-treatment/post-neoadjuvant primaries; N = 762 samples, 680 patients). MAPK pathway alterations were defined as non-silent mutations in 21 core RTK–RAS–RAF–MEK–ERK genes (EGFR, ERBB2, ERBB3, ERBB4, KRAS, NRAS, HRAS, BRAF, RAF1, ARAF, MAP2K1, MAP2K2, MAPK1, MAPK3, PTPN11, SOS1, RIT1, NF1, RASA1, MAP3K1, MAP2K4), plus amplification (CNA = +2) of pathway oncogenes and deep deletion (CNA = -2) of pathway tumor suppressors (NF1, RASA1, MAP3K1, MAP2K4). The cumulative (per-sample union) frequency counts any sample with >= 1 such alteration.
+
+Breakdown: 203/762 (26.6%) had a MAPK pathway mutation, 78/762 (10.2%) had a relevant copy-number alteration, 26 samples had both. The most frequently altered genes were ERBB2 (7.6%), MAP3K1 (7.5%), NF1 (7.1%) and MAP2K4 (6.0%). MAPK alterations were enriched versus treatment-naive HR+/HER2- primaries (33.5% vs 27.0%; OR 1.36, Fisher p = 0.009), consistent with MAPK activation as an endocrine-resistance mechanism. Sensitivity analyses gave 27.7% when subtype was defined by the sequenced sample's receptor status and 26.8% when ERBB2 events were excluded.
+
+Answer: approximately one-third (33.5%, 255/762) of post-hormonal therapy HR+/HER2- tumors harbor a MAPK pathway alteration.","The agent correctly defines the HR+/HER2- post-therapy cohort, builds a comprehensive MAPK alteration union, and reports meaningful frequencies and enrichment. However, it omits the required ESR1-mutation-stratified frequencies and a formal mutual exclusivity analysis, and it does not discuss ESR1-MAPK exclusivity or therapeutic implications.",,451.29945532791317,18,0,0
+wisp-kimi-k3,wisp,da-18-7,18,ok,True,0.72,deepseek,"ESR1 mutations and MAPK pathway alterations are MUTUALLY EXCLUSIVE in post-hormonal-therapy HR+/HER2- breast tumors.
+
+Cohort: 680 post-hormonal-therapy HR+/HER2- patients (metastases + post-treatment/post-neoadjuvant primaries; one sample per patient; 648 with sequencing records) from the MSK-IMPACT endocrine-resistant breast cancer cohort. Oncogenic ESR1 ligand-binding-domain hotspot mutations (Y537S/N/C/D, D538G, E380Q, L536H/P/Q/R, S463P, etc.) were found in 90/648 tumors (13.9%) — versus 0/619 treatment-naive HR+/HER2- primaries, confirming therapy-driven selection.
+
+Key findings:
+- Against a curated RTK-RAS-MAPK definition (NF1 loss-of-function mutation or deep deletion; activating KRAS/NRAS/HRAS/BRAF/MAP2K1 mutation; KRAS/NRAS/BRAF/RAF1 amplification), only 1 of 49 MAPK-altered tumors also carries an ESR1 mutation: odds ratio 0.12, Fisher's exact p = 0.009 (metastasis-only subset: OR 0.14, p = 0.020).
+- The exclusivity is driven specifically by NF1 loss: 31 tumors carry NF1 loss-of-function mutations or deep deletions, and ZERO overlap with ESR1 mutations (OR = 0.00, p = 0.015; metastasis-only p = 0.038). NF1 missense mutations of uncertain significance also rarely co-occur (1/41, OR 0.15, p = 0.032).
+- A broad 12-gene ""any alteration"" MAPK definition still shows significant depletion (OR 0.55, p = 0.046), but the signal is diluted because MAP3K1 and MAP2K4 alterations co-occur with ESR1 at rates consistent with independence (OR ~0.8-2.1, p > 0.2) — they do not participate in the exclusivity.
+
+Interpretation: ESR1 ligand-binding-domain mutations and NF1-loss/RAS-RAF-MAPK-pathway activation are two largely non-overlapping, independent genomic routes to endocrine resistance in HR+/HER2- breast cancer. Tumors that hyperactivate MAPK signaling do not acquire ESR1 mutations, and vice versa. This defines an ESR1-wild-type, MAPK-driven resistant subgroup (≈7.6% of post-therapy tumors) that would not benefit from next-generation SERDs targeting mutant ER but may be candidates for MAPK-pathway-directed therapy.","The agent's work is strong in cohort handling, ESR1 definition, results reporting, interpretation, and source reliability, but it misses the required one-sided Fisher's exact test and slightly deviates from the exact metastatic cohort and MAPK gene-set specifications.",,0.000293804332613945,0,0,0
+wisp-kimi-k3,wisp,da-19-1,19,ok,True,0.71,deepseek,"FINAL ANSWER — BiomniBench-DA Task DA-19-1
+
+Question: Which genes are most significantly downregulated upon AI-10-49 treatment of ME-1 inv(16) AML cells?
+
+Answer: MYC is the most significantly downregulated gene. In the Cuffdiff RNA-seq comparison (3 DMSO vs 3 AI-10-49 replicates, FDR q <= 0.05), 3,027 of 6,397 significant genes are downregulated, and MYC shows the strongest, most robust repression: FPKM drops from 218.3 (DMSO) to 22.2 (AI-10-49), log2(fold change) = -3.30 (~9.8-fold decrease), test statistic = -19.34 (the largest absolute test statistic of all downregulated genes), p = 5e-5, q = 2.06e-4 (both at Cuffdiff's reporting floor, i.e. the maximum attainable significance). When low/noisy-expression genes are excluded (DMSO FPKM >= 10), MYC ranks #1 outright.
+
+The other most significantly downregulated genes (all at q = 2.06e-4, p = 5e-5, ranked by fold-change magnitude) are:
+PLD6 (-3.46), MYC (-3.30), UBE2Q2P3 (-3.19), UBE2Q2P2 (-3.09), C1orf51 (-3.05), TMEM121 (-3.02), SH2D4A (-2.98), ITPRIPL1 (-2.94), CLDN5 (-2.87), CLC (-2.75), MEX3A (-2.73), HIC1 (-2.72), KANK1 (-2.70), HPDL (-2.69), THRA (-2.63), GPR12 (-2.60), PAQR4 (-2.57), UHRF1 (-2.55), SAPCD2 (-2.52), CCNE1 (-2.48), UNG (-2.33), RTN4R (-2.53), APLN (-2.36).
+(An immunoglobulin segment, IGHV4-4, shows a nominal ""-inf"" fold change but only 0.58 FPKM baseline and is a divide-by-zero artifact, not a credible hit.)
+
+Biological interpretation: AI-10-49 inhibits the inv(16) fusion protein CBFbeta-SMMHC, releasing RUNX1; the dominant transcriptional consequence is collapse of the MYC program (MYC itself plus MYC-driven cell-cycle/DNA-replication effectors such as CCNE1, UHRF1, UNG, SAPCD2 and MEX3A), consistent with the compound triggering apoptosis by dismantling MYC enhancer chromatin in inv(16) AML. MYC and its downstream proliferation machinery therefore constitute the leading therapeutic-target axis downstream of CBFbeta-SMMHC inhibition; CLC, HPDL, PAQR4, RTN4R and HIC1 are additional robustly downregulated candidates.
+
+Caveats: Cuffdiff floors p/q at 5e-5/2.06e-4, so ~1,686 downregulated genes tie at maximal significance and ordering within the tie relies on fold-change magnitude and test statistic; only one cell line/condition was profiled; transcript-level changes alone cannot distinguish direct RUNX1/CBFbeta-SMMHC targets from secondary effects of apoptosis.","The agent correctly documents provenance, contrast orientation, top gene reporting, domain reasoning, uncertainty, and source reliability. However, it fails to apply the three specified filters and does not provide MYC's rank within the correctly filtered gene set, so criteria 3 and 5 are not fully met.",,0.00023668445646762848,0,0,0
+wisp-kimi-k3,wisp,da-19-3,19,ok,True,0.9,deepseek,"RUNX1 chromatin occupancy increases massively and redistributes upon CBFβ-SMMHC inhibition with AI-10-49 in ME-1 inv(16) AML cells; the drug does not remove RUNX1 from chromatin — it releases it onto thousands of new sites.
+
+Key quantitative findings (MACS2 narrowPeak, IP vs matched input):
+
+1. RUNX1 peak count rises 6.9-fold: 1,328 peaks in DMSO (GSM2715537) vs 9,166 in AI-10-49 (GSM2715538, standard chromosomes). Median peak signal rises from 5.42 to 7.21 fold-enrichment and median qValue from 12.19 to 15.69; median peak width grows 222 -> 295 bp.
+
+2. The change is dominated by GAIN of binding, not loss. Across the 9,266 merged union regions: 7,950 (85.8%) are AI-10-49-only (gained), 1,219 (13.2%) are shared, and only 97 (1.0%) are DMSO-only (lost). 92.7% (1,232/1,329) of DMSO peaks are retained after treatment. At shared sites occupancy gets STRONGER: median signal 5.48 (DMSO) -> 12.53 (AI-10-49), ~2.2-fold, with 93% of shared regions gaining signal.
+
+3. Gained RUNX1 sites target active regulatory elements: 34.8% of gained peaks fall within promoters (TSS +/- 2 kb; ~47% within 10 kb of a TSS), and 90.0% overlap regions already marked by H3K27ac in untreated (DMSO) cells. Thus liberated RUNX1 loads onto the pre-existing active promoter/enhancer landscape rather than pioneering closed chromatin.
+
+4. The post-treatment RUNX1 cistrome maps to 5,566 nearest protein-coding genes (2,800 via promoter-proximal peaks), enriched for leukemia-relevant regulators: MYC (a NEW promoter peak 56 bp from the MYC TSS at chr8:128,747,329-128,747,624, plus stronger binding at the ~128.93 Mb element where signal rises 5.2 -> 16.3), BCL2, CCND2, STAT3, STAT5A, FOS, JUN, CDKN1A, GATA2, MYB, KIT, CSF1R, MPO, and differentiation factors SMAD7, ID2, NCOR2, BCOR.
+
+5. H3K27ac is globally stable (57,784 vs 56,277 peaks, ratio 0.97; 71% of DMSO peaks retained) with selective attenuation at some loci (e.g. MYC promoter qValue 178 -> 77 at essentially unchanged signal), so the therapeutic response is driven by redistribution of RUNX1 onto active chromatin, not wholesale chromatin shutdown.
+
+Interpretation: CBFβ-SMMHC binds and sequesters RUNX1 off chromatin; AI-10-49 disrupts the CBFβ-SMMHC-RUNX1 interaction, so RUNX1 is released and its genomic occupancy expands ~7-fold, with >85% of all occupied regions being newly gained and pre-existing sites gaining signal. The RUNX1 targets that mediate AI-10-49's therapeutic effect are therefore the roughly 8,000 gained RUNX1-binding sites at promoters/enhancers of proliferation and survival genes (MYC, BCL2, CCND2, STAT3/5A) and myeloid differentiation regulators (GATA2, MYB, ID2, MPO), through which restored RUNX1 activity rewires the leukemic transcriptional program toward apoptosis and differentiation.
+
+Caveats: single ChIP replicate per condition precludes formal differential-binding statistics; a small part of the peak-count difference could reflect library/enrichment differences; distal gained peaks are assigned by nearest-TSS heuristic. All numbers were derived directly from the provided narrowPeak files and GENCODE v19 annotation.","The agent robustly performs RUNX1-peak selection, differential occupancy counting, and mechanistic interpretation, but its genomic feature enrichment analysis is incomplete because it lacks the four-class annotation, precedence rule, and formal statistical test against unchanged peaks required for full marks.",,508.14008412882686,26,0,0
+wisp-kimi-k3,wisp,da-19-4,19,ok,False,0.5,deepseek,"DA-19-4 ANSWER: Genomic regions with reduced H3K27ac signal upon AI-10-49 treatment in ME-1 inv(16) AML cells
+
+METHOD (summary): MACS2 H3K27ac peaks from DMSO (GSM2715535, 57,828 peaks) and AI-10-49 (GSM2715536, 56,299 peaks) were merged into 63,665 consensus regions; reads were counted over each region from the MAPQ>=20, deduplicated BAMs and normalized to CPM (libraries: 35.95M and 37.33M mapped reads). Regions with log2(CPM_AI/CPM_DMSO) <= -1 (>=2-fold loss) and DMSO CPM >= 1 were called ""reduced"". Full ranked list: analysis/h3k27ac_reduced_AI-10-49_regions.tsv.
+
+MAIN RESULT: AI-10-49 causes a broad, strongly asymmetric loss of H3K27ac. Reads in acetylated regions drop from 48.9% (DMSO) to 32.6% (AI-10-49) of the library; median log2FC across all 63,665 regions is -0.33. A total of 5,672 genomic regions show reduced H3K27ac (>=2-fold loss, median log2FC -1.19, strongest -2.58), versus only 262 regions that gain signal. Of the 5,672 reduced regions, 3,403 (60%) are distal (>2.5 kb from any TSS) — i.e. enhancer candidates whose activity depends on the CBFβ-SMMHC/RUNX1 axis — and 2,269 are promoter-proximal; 262 overlap a DMSO RUNX1 peak (RUNX1 binding itself rises genome-wide from 1,329 to 9,169 peaks after treatment, consistent with release of sequestered RUNX1).
+
+Strongest reduced regions (hg19) include:
+- chr20:61,145,106-61,149,204 (C20orf166/TMEM74B promoter, RUNX1-bound; CPM 86.7->15.0, log2FC -2.49)
+- chr22:23,918,646-23,924,638 (IGLL1 promoter; 72.0->15.9, -2.14)
+- chr21:43,480,997-43,484,766 (UMODL1 promoter; 44.9->8.7, -2.31)
+- chr2:7,005,098-7,007,342 (RSAD2 promoter; 34.8->6.7, -2.29)
+- chr8:27,467,623-27,470,030 (CLU distal enhancer; 27.5->4.4, -2.50)
+- chr19:49,253,840-49,256,464 (FUT1 distal; 21.8->3.6, -2.46)
+- chr17:61,553,679-61,555,826 (ACE distal; 21.5->3.6, -2.44)
+- chr22:19,710,106-19,711,791 (GP1BB promoter, RUNX1-bound; 20.3->3.9, -2.23)
+
+Leukemia-maintenance loci with multiple reduced enhancers: CCND1 (9 reduced regions; distal enhancer chr11:69,467,560-69,469,962, 40.3->9.3 CPM, log2FC -2.06), SMAD6 (10; chr15:66,993,509-66,996,819, 54.3->15.3, -1.79), BCOR (8), TNS3 (8), CCR7 (6), CD34 (5, incl. RUNX1-bound chr1:208,090,464-208,098,991), PBX3 (3), ZEB2 (promoter, 33.4->13.7, -1.25), CCL1 (3, RUNX1-bound chr17:32,691,867-32,694,130).
+
+MYC / 8q24 locus: the MYC gene/promoter region chr8:128,746,429-128,752,167 loses ~1.9-fold acetylation (91.1->46.5 CPM, log2FC -0.96, just below the 2-fold cutoff), the adjacent PVT1 promoter (chr8:128,806,806-128,808,997; 11.5->5.0, -1.14) and the long-range CCDC26 8q24 enhancer clusters (chr8:130,600,529-130,608,044, 98.2->47.2, -1.05; chr8:130,689,982-130,698,353, 109.7->54.2, -1.01) pass the reduced threshold. Thus the MYC/PVT1/CCDC26 enhancer landscape is among the regions with reduced H3K27ac, directly linking CBFβ-SMMHC inhibition to collapse of the MYC enhancer network.
+
+CONCLUSION: AI-10-49 erases H3K27ac at 5,672 sites genome-wide, dominated by distal enhancers of leukemia-maintenance genes (CCND1, SMAD6, BCOR, PBX3, CD34, ZEB2, CCR7, CCL1) and the MYC/8q24 enhancer network — these are the candidate enhancers driving leukemia maintenance that could be targeted therapeutically.
+
+LIMITATIONS: only one H3K27ac ChIP replicate per condition, so the 2-fold cutoff is heuristic and no FDR is available; nearest-TSS annotation does not prove enhancer-gene linkage; and H3K27ac loss at 48 h may partly reflect secondary apoptotic effects.","The agent correctly used the H3K27ac inputs and performed union-interval CPM fold-change analysis, but omitted statistical FDR testing and, critically, never derived or called ME1/ME2/BDME anchors using RUNX1 data, which is a major required component.",,788.5154755543917,28,0,0
+wisp-kimi-k3,wisp,da-19-6,19,ok,True,0.82,deepseek,"Yes — AI-10-49 treatment leads to a global, genome-wide change in chromatin accessibility in inv(16) ME-1 cells, characterized by a moderate net CONTRACTION of the accessible landscape (biased toward loss of open sites) together with widespread bidirectional remodeling, while a large core of accessible sites is preserved.
+
+Quantitative evidence from the four ATAC-seq samples (MACS2 narrowPeak, q<0.05):
+
+1) Fewer accessible sites genome-wide. AI-10-49 replicates yield 48,706 and 53,141 peaks vs 67,066 and 64,929 for DMSO — 23% fewer despite the AI-10-49 libraries being ~1.7x deeper (4.1-4.4M vs 2.5M MACS2 fragments). After normalizing for sequencing depth, the accessible-site count drops to ~45% of DMSO (ratio 0.450). Total accessible base pairs shrink from ~8.5 Mb (DMSO mean) to ~7.4 Mb (AI-10-49 mean) even without depth correction.
+
+2) Widespread peak turnover, slightly biased toward loss. Of 63,001 robust consensus sites (peaks in both replicates of at least one condition), 28,895 (46%, dominating by base pairs) are shared by all four samples; 17,680 are DMSO-only (lost after treatment) and 16,426 are AI-10-49-only (gained). Loss modestly exceeds gain (ratio 1.08; binomial p = 1.2e-11), so the change is a genome-wide remodeling with net closing rather than a wholesale collapse or a purely focal effect.
+
+3) Quantitative signal confirms a mild global decrease. Across all 128,379 consensus regions, depth-normalized (CPM) ATAC signal shifts down: median log2(CPM+1) 1.68 (DMSO) vs 1.46 (AI-10-49); median log2 fold change = -0.278; paired Wilcoxon signed-rank p < 2.2e-16. 23.9% of regions lose >=2-fold accessibility vs 14.0% gaining >=2-fold; at the >=4-fold tail, gains and losses are balanced (5,234 vs 5,144), showing the strongest changes are locus-specific in both directions while the bulk of the genome shifts modestly downward. Remaining AI-10-49 peaks are wider (median ~118 vs ~103 bp) and stronger (median signalValue ~6.8 vs ~5.3), consistent with preferential loss of weak/marginal open sites.
+
+4) Locus-level check: peaks within MYC +/-500 kb (hg19) drop from 54/54 (DMSO rep1/2) to 39/36 (AI-10-49 rep1/2), consistent with AI-10-49 disrupting RUNX1/CBFbeta-SMMHC-driven MYC enhancer accessibility.
+
+In summary: CBFbeta-SMMHC inhibition by AI-10-49 causes a statistically significant global reduction and redistribution of chromatin accessibility — tens of thousands of sites change in both directions with a net bias toward closing (~0.28 log2 median genome-wide shift, ~23% fewer called sites) — rather than leaving the chromatin landscape unchanged or affecting only isolated loci. Limitations: only n=2 replicates per condition and peak-level (not BAM-level) data, so per-site differential statistics are descriptive and global inference is distributional; peaks were called at a lenient q<0.05; depth normalization is linear/approximate.","The agent performed a rigorous analysis with correct sample assignment, consensus region construction, normalization, and multiple quantitative evidence items supporting a global closing conclusion. However, the quantification workflow used MACS summit pileup rather than true per-region read coverage, preventing a full score on Criterion 2, and limitations discussion omitted the fold-change threshold dependence required for full credit on Criterion 6.",,540.0835194811225,17,0,0
+wisp-kimi-k3,wisp,da-20-1,20,ok,False,0.31,deepseek,"BASELINE TRANSCRIPTIONAL SIGNATURES OF THE FOUR PRIMARY CELL TYPES (GDPx2 Drug-seq cohort)
+
+Summary answer: The four primary cell types show clearly DISTINCT, essentially non-overlapping baseline
+transcriptional signatures. The platform passes this validation step: every DMSO baseline sample can be
+assigned to its correct cell type with 100% accuracy. The two most similar cell types are skeletal muscle
+myoblasts (SkMMs) and dermal fibroblasts; the three mesenchymal/muscle types (fibroblasts, myoblasts,
+aortic smooth muscle cells) cluster together, with melanocytes as the clear outgroup.
+
+METHODS (brief)
+- Baseline = all 576 unique DMSO vehicle-control samples (sample_type ""Ginkgo Neg Control - DMSO"",
+  24 h), 144 per cell type. After removing 3 failed wells (<100k UMIs; all AoSMC), n = 573
+  (AoSMC 141, Fibroblast 144, Melanocyte 144, SkMyoblast 144).
+- Gene filtering (>=5 UMIs in >=10 samples) retained 13,468 of 59,427 genes; normalized as log2(CPM+1).
+- PCA on the 2,000 most variable genes; similarity quantified by centroid Pearson correlations
+  (all 13,468 genes), average-linkage hierarchical clustering, PERMANOVA (999 permutations),
+  silhouette score, and leave-one-out nearest-centroid classification.
+
+RESULTS
+1. Distinctness of baselines:
+   - PC1/PC2/PC3 explain 44.9% / 27.7% / 19.3% of variance (91.9% total) and each maps to a cell-type
+     axis (R^2 = 0.998-0.999 of each PC on cell line). The four types occupy separate quadrants with
+     no sample-level overlap.
+   - Silhouette score = 0.968 (scale -1 to 1); PERMANOVA R^2 = 0.999, p = 0.001.
+   - Leave-one-out nearest-centroid classification: 573/573 = 100.0% accuracy.
+   - Within-type replicate correlations (mean r = 0.962, min 0.863) do not overlap between-type
+     correlations (mean r = 0.405, max 0.679).
+   - Each type expresses its canonical lineage program: melanocytes MLANA/TYR/TYRP1/PMEL/SOX10
+     (up to 12.7 log2FC vs other types); fibroblasts DCN/LUM/APOD/TNC; AoSMCs TAGLN/CNN1 plus a
+     cytokine-rich baseline (IL1B/IL6/CXCL1/CXCL8); myoblasts DES/MYF5/ANKRD1/MGP.
+
+2. Which cell types are most similar:
+   - Centroid Pearson correlations (logCPM, 13,468 genes):
+       Fibroblast - SkMyoblast  r = 0.891   <- MOST SIMILAR PAIR
+       AoSMC      - SkMyoblast  r = 0.876
+       AoSMC      - Fibroblast  r = 0.852
+       Fibroblast - Melanocyte  r = 0.817
+       Melanocyte - SkMyoblast  r = 0.818
+       AoSMC      - Melanocyte  r = 0.803   <- most distant pair
+   - Hierarchical clustering: fibroblasts and myoblasts merge first; AoSMCs join next; melanocytes
+     are the outgroup. Biologically, the three mesoderm-derived mesenchymal/muscle cell types share a
+     collagen/ECM-dominated program (e.g. COL1A1 logCPM 8.6-10.4 in all three), whereas neural-crest-
+     derived melanocytes carry a unique pigmentation/neural program.
+
+PRACTICAL IMPLICATION FOR COMPOUND PROFILING
+Baseline identity is robust and cell-type-specific, so (i) any future sample that does not cluster with
+its annotated cell type is a strong mislabeling/contamination QC alarm, and (ii) compound effects shared
+across the three mesenchymal types should be interpreted as mesenchyme-shared rather than
+cell-type-specific responses.
+
+LIMITATION
+Plate (container_id) is perfectly confounded with cell type in this cohort (each of the 32 plates holds
+exactly one cell line), so a small plate/technical contribution to the separation cannot be excluded by
+design; however, the magnitude of lineage-marker differences (up to ~13 log2FC) and perfect agreement
+with known cell biology indicate the structure is overwhelmingly biological.","The agent performed a reasonable exploratory analysis with strong source traceability, but it did not follow the specific required pipeline: wrong DMSO concentration subset, no TruncatedSVD, no K-means clustering, and incomplete marker-based lineage interpretation.",,874.7512082178146,33,0,0
+wisp-kimi-k3,wisp,da-20-3,20,ok,False,0.28,deepseek,"MSigDB HALLMARK PATHWAYS SUPPRESSED BY BREFELDIN A (BFA) ACROSS PRIMARY HUMAN CELL TYPES
+
+Method (summary): For each of 24 BFA conditions (4 cell types x 6 doses), all 50 MSigDB
+Hallmark gene sets were tested for suppression with a direction-aware competitive test
+(one-sided Mann-Whitney U on DESeq2 Wald statistics, in-set vs background genes, BH FDR
+across 1,200 tests), complemented by Fisher-exact enrichment among significantly
+down-regulated genes (padj < 0.05). A pathway is ""suppressed"" when MWU q < 0.05 and the
+median in-set log2 fold-change < 0. Full statistics: hallmark_geneset_direction_tests.csv,
+hallmark_fisher_all_conditions.csv, hallmark_suppression_heatmap.png.
+
+1) PATHWAYS SUPPRESSED IN ALL FOUR CELL TYPES (AoSMC, dermal fibroblast, melanocyte,
+   skeletal muscle myoblast; significant in at least 5 of 6 doses per cell type unless noted):
+
+   - Epithelial Mesenchymal Transition  (strongest; median gene-set log2FC at 300 nM =
+     -1.44 / -1.45 / -1.57 / -0.89; ~80% of its genes individually padj<0.05-down;
+     top down-enriched set in every cell type, Fisher q down to 1.3e-29)
+   - TGF-beta Signaling
+   - Angiogenesis
+   - Apical Junction and Apical Surface
+   - Coagulation
+   - Complement
+   - Inflammatory Response
+   - IL-6/JAK/STAT3 Signaling
+   - TNF-alpha Signaling via NF-kB
+   - Interferon Gamma Response
+   - IL-2/STAT5 Signaling
+   - KRAS Signaling Up
+   - Hypoxia
+   - UV Response Dn
+   - Apoptosis
+   - Hedgehog, Notch, and Wnt-beta-Catenin Signaling
+   - Estrogen Response Early / Late
+   - Androgen Response (6, 4, 4, 3 doses per cell type)
+   - Myogenesis
+   - Glycolysis (weaker)
+
+   Cell-cycle sets G2-M Checkpoint, E2F Targets and Mitotic Spindle are also suppressed,
+   most strongly in proliferating skeletal muscle myoblasts (G2-M: 136/189 genes down at
+   300 nM, q = 8.6e-17) and dermal fibroblasts.
+
+2) SECRETORY-PATHWAY-PROXIMAL HALLMARK SETS ARE INDUCED, NOT SUPPRESSED:
+   The two Hallmark sets that directly represent the secretory pathway - Unfolded Protein
+   Response and Protein Secretion (plus mTORC1 Signaling and Myc Targets) - are
+   significantly UP-regulated by BFA in every cell type (e.g., UPR median gene-set log2FC
+   +0.16 to +0.92; enriched among up genes at essentially all doses >= 28.5 nM). This is
+   the expected on-target readout of a secretory-pathway disruptor: BFA blocks ER-to-Golgi
+   transport (ARF-GEF inhibition), causing ER stress, and cells respond by INDUCING the
+   UPR/secretory-adaptation program while REPRESSING the transcription of downstream
+   secreted/membrane cargo programs.
+
+3) INTERPRETATION - CONFIRMATION OF BFA's MECHANISM:
+   The pan-cell-type suppressed signature is dominated by Hallmark pathways whose protein
+   products are secreted, ECM, or cell-surface molecules (EMT/collagens/MMPs, TGF-beta,
+   Apical Junction/Surface, Angiogenesis, Coagulation, Complement, and the
+   inflammatory/cytokine programs IL-6/JAK-STAT3, TNF-alpha/NF-kB, IFN-gamma, IL-2/STAT5,
+   plus KRAS-Up, Hedgehog/Notch/Wnt ligands and Hypoxia). Suppression of exactly these
+   cargo-producing programs - together with induction of the Unfolded Protein Response -
+   is the coherent transcriptional footprint of secretory-pathway blockade: cells shut down
+   synthesis of proteins that can no longer be trafficked. The signature is compound
+   specific: Dexamethasone and Trichostatin A at matched doses show no EMT/cargo
+   suppression and no UPR induction (Trichostatin A instead suppresses cell-cycle sets).
+
+In short: BFA suppresses the EMT, TGF-beta, Apical Junction/Surface, Angiogenesis,
+Coagulation, Complement, Inflammatory Response, IL-6/JAK-STAT3, TNF-alpha/NF-kB,
+IFN-gamma, IL-2/STAT5, KRAS-Up, Hypoxia, UV Response Dn, Apoptosis, Hedgehog/Notch/Wnt,
+Estrogen/Androgen Response, Myogenesis and (cell-type-dependently) G2-M/E2F cell-cycle
+Hallmark pathways across AoSMCs, fibroblasts, melanocytes and myoblasts, while inducing
+the Unfolded Protein Response/Protein Secretion sets - together confirming its mechanism
+as an ER-to-Golgi secretory-pathway disruptor.
+
+Caveat: the Hallmark collection has no dedicated ER/Golgi/vesicle-trafficking set, so
+direct suppression of trafficking machinery itself cannot be scored with Hallmark gene
+sets; it is inferred from the UPR induction plus the suppression of secreted-cargo programs.","The agent correctly scoped the biological question and identified relevant pathways, but its analysis used Mann-Whitney/Fisher enrichment instead of the required pre-ranked GSEA with log2FoldChange ranking, and it did not report NES or GSEA adjusted p-values for the three target pathways. Limitations and source grounding are adequate.",,1055.019796172157,31,0,0
+wisp-kimi-k3,wisp,da-20-4,20,ok,False,0.15,deepseek,"Dabrafenib shows DIVERGENT, only partially consistent transcriptional responses across the four primary cell types.
+
+Using the GDPx2 Drug-seq cohort (24 h treatment, 6 doses 9.5-3000 nM, ~28-32 replicate wells per condition after QC), I performed per-cell-type limma-voom differential expression of dabrafenib vs DMSO (21,478 genes; 878 QC-passed DMSO/dabrafenib samples) and compared the responses across human aortic smooth muscle cells (AoSMCs), dermal fibroblasts, melanocytes, and skeletal muscle myoblasts (SkMMs).
+
+CONSISTENT (shared) component:
+- All four cell types respond strongly and dose-dependently: from <=187 DEGs (FDR<0.05) at 9.5 nM up to 4,226 (AoSMC), 9,109 (fibroblast), 8,726 (melanocyte) and 6,306 (SkMM) DEGs at 3000 nM.
+- A core of 884 genes (5.8% of the 15,236-gene union of DEGs at 3000 nM) is differentially expressed in all four cell types; 651 (73.6%) change in the same direction everywhere. This core is a shared integrated-stress/amino-acid-response program (up: SLC7A11, PSAT1, TRIB3, DDIT3/CHOP, ATF5, MTHFD2, tRNA synthetases) plus a shared anti-proliferative program (down: CDK1, CDC20, UBE2C, NUF2, RRM2; MKI67 down in all four, log2FC -0.96 to -2.53).
+
+DIVERGENT component (dominant):
+- Genome-wide log2FC correlations between cell types at 3000 nM are only weak to moderate (Spearman r = -0.05 to 0.41; mean 0.22). AoSMC and SkMM are the most concordant pair (r = 0.41; 94% of their 2,434 shared DEGs change in the same direction).
+- Melanocytes are the clear outlier: their response is essentially uncorrelated with fibroblasts (r = -0.05) and SkMMs (r = 0.08), and among the 4,744 genes that are DEGs in both melanocytes and fibroblasts, 67% change in OPPOSITE directions.
+- Mechanistically the sharpest divergence is the mevalonate/cholesterol-biosynthesis pathway (23 curated genes): coordinately REPRESSED in fibroblasts (mean log2FC -0.69; 21/23 significant, 0% up) and SkMMs (-0.34), but INDUCED in melanocytes (+0.29; 88% of significant genes up; e.g. HMGCS1 -1.28 in fibroblast vs +0.94 in melanocyte; INSIG1 -1.25 vs +0.70; LDLR -0.58 vs +0.70). Melanocytes also uniquely induce MYC (+0.47) and DUSP6, and carry 2,653 cell-type-exclusive DEGs (e.g. SEMA3E -3.1); fibroblasts have 2,224 exclusive DEGs (e.g. HES1 +2.1), SkMMs 1,026, AoSMCs 702.
+- Dose-response shapes also differ: the AoSMC response peaks at 300-900 nM and partially contracts at 3000 nM (9,271 -> 4,226 DEGs), whereas fibroblast and melanocyte responses peak at 3000 nM, and melanocytes respond only weakly below 3000 nM (4 DEGs at 9.5 nM).
+
+Interpretation for tissue-specific safety/efficacy: a common stress-response and cell-cycle-arrest axis (plausible basis for shared anti-proliferative effects and class toxicities of BRAF inhibitors in BRAF-wild-type tissue) is superimposed on much larger, cell-type-specific programs — including opposite-direction metabolic (cholesterol/lipid) rewiring in melanocytes versus fibroblasts/muscle cells. Consequently, transcriptional safety or efficacy readouts measured in one primary cell type cannot be assumed to extrapolate to the others; tissue-specific assessment is warranted.
+
+Limitations: single 24-h timepoint; DMSO vehicle controls matched only at the lowest volume (0.0625%), so high-dose effects partially include vehicle; bulk 3' RNA-seq measures RNA, not protein/activity; donor variability unmodeled.","Agent performed a thorough limma-voom DE analysis with cross-cell-type comparisons and source-grounded interpretations, but failed to run the required ranked GSEA against MSigDB Hallmark pathways, so all pathway-specific criteria (3-6) are unmet; source reliability is strong.",,1259.9558859542012,58,0,0
+wisp-kimi-k3,wisp,da-24-3,24,ok,False,0.25,deepseek,"SHARED GENETIC FACTORS AMONG NEONATAL METABOLITES (DA-24-3)
+
+Analysis of discovery + replication GWAS summary statistics (20,474 SNPs x 13 metabolites) and the
+per-sample abundance matrix (8,737 newborns x 75 metabolites) shows that the neonatal metabolome's
+co-variation is driven by shared genetic factors at two levels:
+
+1) SHARED (PLEIOTROPIC) LOCI
+- CPT2 locus (chr1:75.7 Mb, 1p32.3): genome-wide significant for four traits at once - C6
+  (P=2.9e-13), C8 (P=1.8e-10), C8/C2 (P=6.3e-10) and (C3DC+C4-OH)/C10 (P=1.2e-12), lead SNPs within
+  ~10 kb. The same allele LOWERS medium-chain acylcarnitines C6/C8 and RAISES the diagnostic ratio
+  (C3DC+C4-OH)/C10 (opposite-sign effects), mirroring their inverse phenotypic correlation (r~-0.4).
+  CPT2 regenerates acyl-CoA from medium/long-chain acylcarnitines in mitochondria, so one variant
+  plausibly shifts all these readouts together.
+- chr5:50.1 Mb locus: shared by C6DC (P=4.6e-10) and C10:1 (P=9.6e-09), concordant positive effects
+  on two desaturated medium/long-chain acylcarnitines of the same beta-oxidation pathway.
+
+2) TRAIT-SPECIFIC LOCI MAP TO THE EXPECTED ENZYMES (internal validation of the architecture)
+- C0 (free carnitine) -> chr11:68.6 Mb = CPT1A (P=3.6e-20)
+- C4 (butyrylcarnitine) -> chr12:120.7 Mb = ACADS (P=5.4e-25)
+- PRO (proline) -> chr22:18.9 Mb = PRODH (P=9.1e-42)
+- TYR (tyrosine) -> chr12:121.9 Mb (HNF1A region, P=9.5e-34)
+- C4DC+C5-OH -> chr9:129.1 Mb (P=1.3e-63); C8:1 -> chr16:20.5 Mb; C10:1 -> chr1:46.9 Mb
+(11/13 lead loci replicated at P<0.05 same direction in the replication cohort; ORN/CIT has no
+genome-wide significant locus.)
+
+3) GENOME-WIDE GENETIC-EFFECT SHARING RECAPITULATES BIOCHEMISTRY
+Correlation of per-SNP Z-scores (LD-thinned common SNPs, n=12,101) across trait pairs shows a
+medium-chain acylcarnitine module with strong positive sharing: C6-C8 r=+0.78, C4-C6 +0.56,
+C10:1-C8:1 +0.50, C10:1-C8 +0.47, C6DC-C8 +0.46, C8-C8/C2 +0.44; ratio traits inherit the sign of
+their components ((C3DC+C4-OH)/C10 vs C8/C2: -0.40). Aromatic amino acids form a second, weaker
+module (PRO-TYR +0.35). ORN/CIT is genetically isolated (|r|<=0.21 with all traits).
+
+4) GENETIC SHARING EXPLAINS THE PHENOTYPIC SHARING
+Across the 78 trait pairs, the genetic-effect correlation matrix and the phenotypic correlation
+matrix (log1p abundances, 8,737 newborns) agree almost perfectly (Pearson r = 0.995,
+P = 4.5e-78): e.g. C6-C8 +0.78 genetic vs +0.74 phenotypic. The observed co-variation of neonatal
+metabolites is therefore dominated by shared genetic factors.
+
+LIMITATIONS: loci are defined positionally (no rsID/LD panel), so the chr1:75.7 Mb and chr5:50.1 Mb
+multi-trait signals are candidate (not formally colocalised) pleiotropic loci; Z-score correlation is
+an effect-concordance proxy, not LDSC genetic correlation; 2 of 15 loci (C0 chr15, C6DC chr1:53 Mb)
+did not replicate; only 13 of the ~75 metabolites were genome-scanned.","The analysis is strong for discovery/replication, locus definition, pleiotropic loci, and genetic-phenotypic correlation, but it omits fixed-effects meta-analysis and coloc.abf, resulting in low marks for those criteria.",,566.7335398066789,30,0,0
+wisp-kimi-k3,wisp,da-25-1,25,ok,False,0.57,deepseek,"FINAL ANSWER — DA-25-1
+======================
+
+1) TOP PATHOGENIC/ONCOGENIC MUTATED GENES IN TCGA-PRAD
+------------------------------------------------------
+The TCGA MAF (data_mutations_TCGA.txt; 40,731 mutation records across 499 tumors) contains no
+ready-made pathogenicity column (the Hotspot and COSMIC annotation columns are empty), so
+Pathogenic/Oncogenic alterations were defined operationally as:
+  (A) truncating mutations (nonsense, frameshift indel, splice-site, nonstop, start-site)
+      in genes with Cancer Gene Census evidence (annotated in the MAF) or in curated tumor
+      suppressors (TP53, PTEN, APC, BRCA1/2, CDKN1B, SPOP, CHD1, ATM, KMT2C/D, ...), OR
+  (B) missense / in-frame indels whose exact protein change recurs in >= 2 tumors
+      (hotspot-recurrence signature of oncogenic selection).
+This yields 1,379 Pathogenic/Oncogenic records covering 434/499 tumors (87%).
+
+Top mutated genes (interpretable cancer-gene ranking, % of 499 tumors):
+   1. SPOP    46 tumors (9.2%)  - recurrent hotspot missense (e.g. F133V); dominant driver
+   2. TP53    40 tumors (8.0%)  - 19 truncating + recurrent missense
+   3. CHEK2   21 tumors (4.2%)
+   4. KMT2D   18 tumors (3.6%)  - nearly all truncating
+   5. KMT2C   17 tumors (3.4%)  - nearly all truncating
+   6. PTEN    11 tumors (2.2%)  - all truncating
+   7. KDM6A    9 tumors (1.8%)
+   8. APC      8 tumors (1.6%)
+   9. NOTCH2   8 tumors (1.6%)
+  10. CDK12 / CDKN1B / FIP1L1   6 tumors each (1.2%)
+  then MED12, ARID2, CHD1, BRCA2, SETD2, PIK3CA (5 each), ATM, IDH1, NCOR1 (4 each).
+
+Caveat: a naive frequency ranking of this legacy MAF is headed by FRG1B (16.4% of tumors),
+followed by KRTAP4-11, RGPD8, NBPF10, UBBP4. These are sequencing/FFPE artifacts: their
+""mutations"" have median VAF ~5% (far below a clonal somatic variant) and recur at identical
+residues across dozens of tumors. They must be excluded; the biologically meaningful top genes
+are SPOP and TP53, matching the known TCGA primary prostate cancer driver landscape.
+
+2) VISUALIZATION
+----------------
+Yes. Results were visualized with:
+  - an oncoplot (gene x tumor matrix, top-20 Pathogenic/Oncogenic genes x 499 tumors, colored
+    by alteration type, with per-gene cohort-frequency side bars):
+      outputs/tcga_prad_pathogenic_oncoplot.png
+  - a top-25 gene frequency bar chart (Cancer-Gene-Census/TSG genes highlighted) in the same file;
+  - a T-stage association panel (per-gene mutation frequency by T stage, TP53 vs pathologic T
+    stage, and a volcano plot of all 100 tested genes):
+      outputs/tcga_prad_Tstage_association.png
+Ranking tables are saved as outputs/top30_pathogenic_oncogenic_genes_*.csv.
+
+3) GENE ASSOCIATION WITH CLINICAL T STAGE
+-----------------------------------------
+Method: 2x2 Fisher exact tests of mutated vs wild-type against binarized clinical T stage
+(cT1-T2 organ-confined, n=351 vs cT3-T4 locally advanced, n=55; 94 patients lack clinical T
+stage), for all genes mutated in >=5 (Pathogenic/Oncogenic set, 58 genes) or >=10 (all
+non-synonymous set, 100 genes) patients, with Benjamini-Hochberg FDR correction; plus an
+ordinal Kendall-tau test across the full T-stage ordering and a sensitivity analysis against
+pathologic T stage (pT2 n=188 vs pT3-T4 n=303).
+
+Result: NO gene passes FDR correction against clinical T stage.
+The leading, biologically coherent signal is TP53:
+  - clinical T:   20.0% mutated in cT3-T4 vs 10.5% in cT1-T2 (OR=2.12, Fisher p=0.068)
+  - ordinal test: Kendall tau=0.104, p=0.020
+  - pathologic T: 16.2% mutated in pT3-T4 vs 5.9% in pT2 (OR=3.10, Fisher p=6.3e-4, FDR q=0.059)
+TP53-mutant tumors are consistently enriched in locally advanced disease across all three
+tests, with borderline FDR significance in the best-powered (pathologic T) analysis.
+Weaker nominal signals: APC (p=0.035 vs clinical T, OR=6.7, q=1.0) and CHEK2 (p=0.08, OR=2.6).
+
+Limitations: only 55 cT3-T4 patients (low power); clinical T stage is missing for ~19% of
+patients and is noisier than pathologic staging; only SNVs/indels were tested - copy-number
+losses (e.g. PTEN deletion) and fusions (TMPRSS2-ERG), major T-stage-relevant lesions in
+prostate cancer, are not contained in this MAF.
+
+Full methods, code, and intermediate counts are documented in trace.md.","The agent provides a solid, source-grounded analysis but diverges from the expected methodology and key reference results, particularly in the pathogenic filter definition, top gene ranking/frequencies, and FDR-significance of TP53 with pathologic T stage.",,953.9448688589036,43,0,0
+wisp-kimi-k3,wisp,da-26-2,26,ok,False,0.35,deepseek,"DA-26-2 Final Answer
+====================
+
+QUESTION: Which gene-expression biomarkers are statistically significant in BRCA when
+predicting TCGA patient-level DepMap scores, focusing on those present in patient data
+but NOT manifesting in cell-line models?
+
+METHOD SUMMARY
+--------------
+- Cohorts: 1,099 TCGA-BRCA patients (expression + predicted patient-level DepMap scores,
+  matched by TCGA barcode after dot->dash conversion) and 35 breast CCLE cell lines with
+  both expression and DepMap CRISPR scores (36 breast lines have DepMap scores; 35 also
+  have expression in sub_CCLE_exp.Rdata).
+- Screen: Spearman correlation of each biomarker's expression vs every dependency-gene
+  score, run separately in patients (529 biomarkers x 1,966 depmap genes, n=1,099) and in
+  breast cell lines (215 biomarkers shared between the two expression panels x 18,119
+  depmap genes, n=35). Benjamini-Hochberg FDR applied per screen over all tested pairs;
+  constant (zero-variance) genes excluded as untestable (120 in TCGA, 51 in CCLE).
+- Cohort comparisons restricted to the 1,965 dependency genes present in both depmap
+  matrices.
+
+RESULTS
+-------
+- TCGA-BRCA patients: 210,064 biomarker-dependency pairs significant at FDR<0.05;
+  404 of 529 biomarkers have at least one significant dependency association
+  (minimum p = 8.5e-130).
+- Breast CCLE cell lines: only ONE pair passes FDR<0.05 across the entire screen
+  (lncRNA AC008937.3 expression vs ZNF579 dependency, rho=0.795, p=1.14e-8, q=0.034),
+  and it does not overlap any patient hit.
+
+PATIENT-ONLY BIOMARKERS (significant in TCGA-BRCA, zero FDR-significant hits in breast
+cell lines): 157 of 215 biomarkers testable in both cohorts (73%). Top examples, ranked
+by number of significant patient-only dependency targets:
+
+  1. ABAT          (1,591 significant targets in patients, 0 in cell lines)
+  2. AC005355.2    (1,554; lncRNA)
+  3. ABCC11        (1,514)
+  4. A2ML1         (1,503)
+  5. AC005863.1    (1,488; lncRNA)
+  6. ABCA13        (1,467)
+  7. AAAS          (1,452)
+  8. ABTB2         (1,450)
+  9. AC009303.2    (1,433; lncRNA)
+ 10. AAGAB         (1,418)
+ 11. ABCC12 (1,410), 12. AC009495.2 (1,353), 13. ABCA12 (1,337), 14. ABHD2 (1,295),
+ 15. ABCB1 (1,285), 16. ABCD4 (1,264), 17. ABCC10 (1,263), 18. ABHD11 (1,222),
+ 19. ABCA9 (1,205), 20. AARS (1,171)
+
+Of the 157 patient-only biomarkers, 106 are uncharacterized AC/AL/LINC-prefixed
+transcripts (lncRNAs) and 51 are protein-coding genes, dominated by ABC transporters
+(ABCB1, ABCC10/11/12, ABCA9/12/13, ABCD4), metabolic enzymes (ABAT), and assembly
+factors (AAAS, AAGAB, AARS). In addition, 246 significant TCGA biomarkers have no
+measurement at all in the CCLE expression panel and are inherently patient-only.
+
+STRONGEST INDIVIDUAL PATIENT-ONLY ASSOCIATIONS (TCGA FDR<0.05, CCLE not significant;
+frequently sign-flipped in cell lines):
+  ABAT  -> TXNRD1  rho_TCGA=+0.59 (q=7.7e-99)  vs rho_CCLE=+0.28 (q=0.91)
+  ABAT  -> RMI2    rho_TCGA=+0.59 (q=2.1e-97)  vs rho_CCLE=+0.31 (q=0.91)
+  ABAT  -> ESR1    rho_TCGA=-0.57 (q=2.1e-90)  vs rho_CCLE=-0.61 (q=0.66)
+  ABAT  -> CDK4    rho_TCGA=-0.55 (q=4.0e-85)  vs rho_CCLE=-0.42 (q=0.91)
+  A2ML1 -> RING1   rho_TCGA=+0.47              vs rho_CCLE=-0.34 (q=0.91)  [sign flip]
+  ABCB1 -> MRPL34  rho_TCGA=-0.25              vs rho_CCLE=+0.61 (q=0.66)  [sign flip]
+  ABCC11 -> ESR1   rho_TCGA=-0.26 (q=9.6e-17)  vs rho_CCLE=-0.29 (q=0.91)
+
+INTERPRETATION
+--------------
+The dominant patient-only biomarker is ABAT (4-aminobutyrate aminotransferase), whose
+expression predicts dependency on the redox enzyme TXNRD1 and replisome factor RMI2, and
+anti-predicts dependency on the estrogen-receptor axis (ESR1, TRPS1) and CDK4 in tumours
+but not in cell lines. ABC-transporter family members (ABCB1/MDR1, ABCC family) form a
+second patient-only module, consistent with resistance/efflux biology driven by the
+in-vivo tumour context (microenvironment, treatment exposure, subtype/stromal
+composition) that is absent from cultured cell lines. Roughly half of each top
+biomarker's patient-significant pairs are near-zero or sign-reversed in cell lines, so
+the divergence is not purely a statistical-power artefact — although the large sample
+asymmetry (n=1,099 patients vs 35 cell lines) and the ~4 million-test multiple-testing
+burden in CCLE do contribute, and 314/529 TCGA biomarkers cannot even be evaluated in
+cell lines because they are missing from the CCLE expression panel.
+
+CAVEATS: TCGA depmap scores are model predictions (translational model trained on cell
+lines); associations are correlative, marginal (no subtype/purity covariates), and
+""absent in cell lines"" means ""not FDR-significant at n=35"" — sizeable CCLE effects can
+remain non-significant at this sample size.","The agent performed a thorough genome-wide Spearman screen and patient-vs-cell-line comparison, but it used an alternative statistical method instead of the Normality Likelihood Ratio Test, did not classify distributions, and omitted SSD calculation, druggable gene integration, and the expected PTPN11 biomarker.",,819.6631945446134,52,0,0
+wisp-kimi-k3,wisp,da-26-4,26,ok,True,0.71,deepseek,"SYNTHETIC-LETHAL PARTNER DISCOVERY FOR BRCA — FINAL ANSWER
+===========================================================
+
+METHOD (summary)
+Synthetic-lethal (SL) partners of loss-of-function (LoF) events in breast cancer were predicted
+by integrating four evidence streams over the provided data:
+  1) LASSO: for each of 1,955 candidate dependency genes, LassoCV (5-fold CV, 20 random-split
+     stability replicates) regressed CCLE DepMap dependency (188 cell lines) on z-scored
+     log-expression of 21 BRCA LoF drivers (TP53, BRCA1, BRCA2, PTEN, RB1, CDKN2A, NF1, ARID1A,
+     CDH1, ATM, CHEK2, PALB2, STK11, MAP3K1, GATA3, CASP8, SMAD4, KMT2C, KMT2D, PIK3CA, AKT1).
+     A positive coefficient = low driver expression (LoF surrogate) -> stronger dependency.
+  2) MUTUAL EXCLUSIVITY: one-sided Fisher exact tests of damaging-mutation co-occurrence
+     (driver x candidate) in the 71 unique BRCA cell lines (2,331 tests, BH-FDR).
+  3) PARALOG + PPI PRIORS: Ensembl Compara within-species paralogs (TP53->TP63/TP73,
+     PTEN->TPTE/TPTE2, RB1->RBL1/RBL2) and STRING v12.0 driver-candidate interactions
+     (score>=0.4; 3,276 edges).
+  4) TRANSLATIONAL RELEVANCE: context selectivity (SD of dependency across 195 CCLE lines) and
+     fraction of the 1,099 TCGA BRCA patients with predicted dependency < -0.5.
+Candidates needed statistical evidence (stable positive lasso coefficient or ME p<0.1) AND a
+mechanistic prior (STRING edge or paralog), then were ranked by
+composite = 0.6*evidence + 0.4*translational. 814 genes form the final ranked list
+(sl_candidates_ranked.csv).
+
+TOP-RANKED PREDICTED SYNTHETIC-LETHAL PARTNERS (composite rank)
+  1. GRB2    — gated by BRCA2-low (lasso +0.067, stable); network-linked to PIK3CA; 100% of BRCA patients predicted dependent
+  2. CYC1    — gated by CASP8-low; STRING to PALB2 (0.906); 100% patients dependent
+  3. PPP2CA  — gated by PALB2-low; STRING to AKT1 (0.980)
+  4. PPP2R1A — gated by KMT2D-low; STRING to TP53 (0.946)
+  5. DNM1L   — gated by BRCA2-low; STRING to CASP8
+  6. CCND1   — gated by CHEK2-low (+0.082); STRING to RB1 (0.998); 96% patients dependent
+  8. CDK4    — gated by BRCA1-low (+0.083); STRING to RB1 (0.999); 90% patients dependent
+ 12. PTPN11 (SHP2) — gated by BRCA2-low; STRING to PIK3CA (0.990)
+ 15. XRCC2   — gated by KMT2C-low; STRING to BRCA1/BRCA2 (0.95-0.98); HR-repair collateral dependency
+ 17. PIK3C3  — gated by ATM-low; STRING to PTEN (0.953)
+ 20. CDK6    — gated by NF1-low (+0.071); STRING to CDKN2A (0.999)
+ 23. MDM2    — gated by PIK3CA-low; STRING to RB1 (0.999)
+ Paralog prior: TP53 -> TP63 (only driver paralog pair testable in the provided data).
+
+BEST CANDIDATES PER DRIVER (from ranked list)
+  TP53-low -> KRAS, MAU2, SLC7A5
+  BRCA1-low -> CDK4, BRAT1, UBR4, SMARCE1
+  BRCA2-low -> GRB2, DNM1L, PTPN11, MED1
+  PTEN-low -> SLC2A1, CDK2, KIF18A
+  ATM-low  -> PIK3C3, FOXA1, CSNK1A1
+  RB1-low  -> SCD, CCNE1
+  NF1-low  -> CDK6, CCND3, RAF1
+  ARID1A-low -> UBC, CRKL
+  PALB2-low -> PPP2CA
+
+MUTUAL-EXCLUSIVITY RESULTS
+Only TP53 pairs reach nominal significance (71 BRCA lines; 53 TP53-mutant):
+TP53 x ADGRL2 (OR=0, p=0.014), TP53 x SLC39A12 (p=0.014), TP53 x POLR2B (p=0.014),
+TP53 x TELO2 (OR=0.096, p=0.048), TP53 x FSIP2 (p=0.048), TP53 x EP400 (OR=0.21, p=0.064).
+None survive BH-FDR (min q=1.0) — underpowered cohort; ME used as supporting evidence only.
+
+VALIDATION / BIOLOGICAL INTERPRETATION
+- Recovered the RB-pathway synthetic-dosage-lethality axis: CDK4/CDK6/CCND1/CDK2 as dependencies
+  linked to RB1/CDKN2A and gated by BRCA1/CHEK2/NF1/PTEN-low — consistent with CDK4/6-inhibitor
+  biology in breast cancer.
+- Recovered HR-repair collateral dependencies for BRCA1/2-low contexts: XRCC2, TOPBP1
+  (lasso +0.009, stable, STRING 0.999), BRAT1, plus STRING-supported RAD51, RBBP8, BRIP1, FANCI —
+  the same mechanistic class as the canonical BRCA-PARP/POLQ synthetic lethality
+  (PARP1/2 and POLQ are absent from the provided dependency matrices and thus untestable here).
+- Negative lasso sign for TP53->MDM2 correctly flags MDM2 as a TP53-WT-gated (not LoF-gated)
+  dependency, validating the sign convention.
+
+KEY LIMITATIONS
+- PARP1, PARP2, POLQ, WEE1, AURKA, ARID1B, SLC7A11 are not in the provided dependency matrices,
+  so the canonical BRCA1/2-PARP SL axis cannot be scored in this subset.
+- The 529-gene TCGA expression subset contains no driver genes; patient-level lasso was
+  impossible, so LoF features come from cell-line expression + mutations and TCGA data provide
+  the translational (patient prevalence) layer.
+- Mutation-based statistics are underpowered (71 lines; <=8 mutants per non-TP53 driver;
+  0 for CASP8/PALB2/STK11/PIK3CA/AKT1); no association survives FDR.
+- Lasso associations and STRING ""PPI"" (score>=0.4 includes functional associations) are
+  statistical/mechanistic hypotheses, not causal proof; experimental validation required.","The analysis is strong overall with appropriate CV-based lasso, analytic ME significance, and multi-source integration, but lacks iterative ME ranking, paralog similarity filtering, canonical paralog pair reporting, and observed-vs-expected per-line co-occurrence table.",,4128.003821315244,116,6000,0
+wisp-kimi-k3,wisp,da-3-4,3,ok,True,1.0,deepseek,"Tumor mutational load and anti-PD-1 response — Hugo et al. 2016 melanoma cohort (GSE78220)
+
+QUESTION: Is tumor mutational load (total non-synonymous mutation count, TotalNonSyn) associated with patient response to anti-PD-1 therapy?
+
+COHORT: 34 pre-treatment tumor biopsies with WES mutational-load data and response annotations (20 responders [CR/PR], 14 non-responders [PD] by irRECIST). On-treatment biopsies (n=4) were excluded from the primary analysis; the S1B R/NR labels map perfectly onto irRECIST CR/PR vs PD from S1A.
+
+PRIMARY TEST: Two-sided Mann-Whitney U (Wilcoxon rank-sum) test, chosen because mutational-load counts are heavily right-skewed (73–3,985 non-synonymous SNVs) and n is small.
+
+PRIMARY RESULT:
+- Responders (n=20): median 489, mean 802.5, IQR [313, 703] non-synonymous SNVs
+- Non-responders (n=14): median 271, mean 535.5, IQR [162, 610]
+- Mann-Whitney U = 172.0, two-sided p = 0.270 (exact p = 0.274; one-sided R>NR p = 0.135)
+- Effect sizes: AUC = 0.614; rank-biserial correlation magnitude 0.229
+
+CONCORDANT SECONDARY METRICS:
+- Welch t-test on log10(TotalNonSyn): t = 1.208, p = 0.238
+- Spearman correlation of TotalNonSyn vs ordinal irRECIST (PD<PR<CR): rho = 0.217, p = 0.217
+- Median split (472 SNVs) Fisher exact test: odds ratio = 1.00, p = 1.00
+- Sensitivity analysis on all 38 WES patients (incl. on-treatment): U = 214.0, p = 0.304
+- Neoepitope load (predicted binders): p = 0.363; strong binders: p = 0.270
+- Non-synonymous indel load: responders median 4 vs non-responders 2, p = 0.043 (nominally significant but exploratory; does not survive multiple-testing correction)
+- Confounder check: tumor purity did not differ by response (p = 0.214) and did not correlate with mutational load (Spearman rho = -0.047, p = 0.791)
+
+CONCLUSION: Mutational load is numerically higher in responders (median ~1.8x, mean ~1.5x higher; AUC 0.61), consistent with the neoantigen hypothesis, but the association is NOT statistically significant in this 34-patient pre-treatment cohort (Mann-Whitney p = 0.270). The direction agrees with prior checkpoint-blockade studies (Snyder et al. 2014, NEJM; Rizvi et al. 2015, Science), but with only 20 vs 14 patients the test is powered to detect only large effects (AUC >~0.74), so a moderate true association cannot be excluded. Tumor mutational load alone, as measured by bulk WES non-synonymous SNV count in this dataset, is therefore not a statistically validated discriminator of anti-PD-1 response at this sample size.","The agent properly identified and loaded the S1B data, justified and correctly ran the Mann-Whitney U test, reported group descriptives, interpreted the negative result in context, and sourced its claims.",,296.9525304827839,17,0,0
+wisp-kimi-k3,wisp,da-3-5,3,ok,True,1.0,deepseek,"MUTATION ENRICHMENT IN ANTI-PD-1 RESPONDERS vs NON-RESPONDERS (Hugo et al. 2016, GSE78220)
+
+Cohort: 38 pre-treatment melanoma tumors with WES (Supplementary Table S1D: 25,393 non-synonymous
+somatic mutations): 21 responders (R = complete/partial response by irRECIST) and 17 non-responders
+(NR = progressive disease). Per-gene hit counts were computed as the number of unique patients carrying
+>=1 non-synonymous mutation in the gene; enrichment was tested with one-sided Fisher exact tests and,
+following the study's own approach (validated against pre-computed Table S1E), a one-sided binomial test
+against background mutation frequencies estimated from TCGA melanoma (CGAN 2015, 287 exomes) and
+Hodis et al. 2012 (121 exomes); p-values were Benjamini-Hochberg adjusted.
+
+MAIN FINDING
+With a simple Fisher exact test alone, NO gene is significant after multiple-testing correction
+(smallest q = 0.92). Significant enrichment only emerges after correcting for each gene's background
+mutation frequency, exactly as in the study's Table S1E, which my pipeline reproduced (all 36
+NumHitsR/NumHitsNR counts matched S1E exactly).
+
+GENES SIGNIFICANTLY ENRICHED IN RESPONDERS (BH q < 0.05, background-corrected; 13 genes):
+
+  Gene     Hits R/21  Hits NR/17  Ratio R/NR   PvalR      pAdjR
+  MUC12       6          1           4.86      2.9e-09    1.0e-07
+  OR13C5      7          0           6.48      5.0e-06    1.7e-04
+  FREM1      10          1           8.10      3.2e-05    1.1e-03
+  ZNF534      6          1           4.86      5.6e-05    1.8e-03
+  FMO1        7          0           6.48      6.2e-05    2.0e-03
+  UTRN        7          0           6.48      6.2e-05    2.0e-03
+  LPHN3       7          1           5.67      3.5e-04    9.5e-03
+  SP140L      6          0           5.67      1.9e-04    5.6e-03
+  ITGA9       6          0           5.67      1.9e-04    5.6e-03
+  AMER3       6          1           4.86      2.4e-04    6.7e-03
+  ABCA7       6          0           5.67      4.9e-04    1.3e-02
+  OR10J1      6          0           5.67      6.0e-04    1.5e-02
+  BRCA2       6          1           4.86      1.8e-03    4.4e-02
+
+GENES SIGNIFICANTLY ENRICHED IN NON-RESPONDERS (BH q < 0.05; 2 genes):
+
+  Gene     Hits R/21  Hits NR/17  Ratio R/NR   PvalNR     pAdjNR
+  CLEC14A     0          5          0.135      7.9e-04    2.9e-02
+  TRPM2       1          6          0.135      1.3e-03    4.7e-02
+
+Nominal-only (p<0.05 but q>=0.05) NR genes: ITGAX (0R/5NR, p=1.7e-3), PLEKHA7 (1R/5NR, p=3.2e-3),
+DGKI (1R/5NR, p=5.4e-3), UNC5D (1R/5NR, p=1.1e-2). Nominal-only R genes: TACC2 (9R/1NR, q=0.056),
+SCN5A (9R/1NR, q=0.10).
+
+MOST SPECIFIC RECURRENT MUTATION
+At the level of individual protein changes, the only clearly recurrent hotspot among enriched genes is
+OR13C5 M185I (chr9:107,361,140 C>T), found in 3 responders (Pt2, Pt3, Pt8) and 0 non-responders.
+Other 2x-recurrent protein changes in enriched genes: FREM1 D590N, SP140L P496S, MUC12 S4452L,
+LPHN3 D373N, ITGAX G287E. Enrichment is therefore best interpreted at the gene level.
+
+INTERPRETATION AND CAVEATS
+- BRCA2 enrichment in responders (6/21 R vs 1/17 NR) is the most biologically notable hit, consistent
+  with DNA-repair deficiency raising neoantigen load and checkpoint-blockade sensitivity.
+- Several top R-enriched genes (MUC12, UTRN, OR13C5, FREM1) are large, passenger-prone genes; their
+  enrichment likely tracks the high overall mutational burden of responding tumors rather than a direct
+  causal role, and this analysis cannot separate the two.
+- Canonical melanoma drivers (BRAF, NRAS, NF1) were NOT differentially mutated between R and NR.
+- The cohort is small (21 vs 17); without background correction no gene survives FDR control, and the
+  significant set is sensitive to the exact background frequencies used.","The agent performs a thorough, well-documented re-analysis and validation against the paper's pre-computed enrichment table, correctly handling cohort classification, per-patient aggregation, statistical testing, multiple correction, and biological interpretation.",,718.914042731747,41,0,0
+wisp-kimi-k3,wisp,da-4-1,4,ok,True,1.0,deepseek,"NMF-based patient classification of the NSCLC anti-PD-1 immune atlas (GSE243013)
+
+METHOD: Cell-level metadata (1,254,749 cells, 243 patients, 51 immune subtypes) was collapsed into a patient x subtype composition matrix of within-patient fractions. After excluding 8 patients with <500 cells, NMF (sklearn, multiplicative update, 50 random restarts per rank) was run on the 235 x 51 fraction matrix for ranks k=2..8. Rank was selected by consensus-stability metrics (cophenetic correlation, dispersion; Brunet et al. 2004) together with explained variance and cluster interpretability.
+
+OPTIMAL CLASSIFICATION: k = 3 classes. k=2 is marginally the most stable (cophenetic 0.934) but explains only 21% of variance; k=3 is the second stability peak (cophenetic 0.915, dispersion 0.634) with a large explanatory gain (36.5% variance explained) and three well-populated, biologically distinct classes; all k>=4 fragment into unstable small clusters (cophenetic <=0.891). A log-transformed input reproduces the same three classes, confirming robustness.
+
+THE THREE CLASSES (n=235 patients):
+- Class 0 ""B-cell-rich"" (n=37, 15.7%): ~48% B-lineage cells (Bm_PDE4D, Bm_TNFSF9, Bm_TNF, Bm_CD74, germinal-center GCB_RGS13, plasma cells) - a tertiary-lymphoid-structure-like microenvironment.
+- Class 1 ""T/NK-dominant"" (n=159, 67.7%): ~71% T/NK cells (CD8 memory/effector Tem, exhausted CD8T_Tex_CXCL13, Tregs, CD4 subsets) - the reference/mixed class.
+- Class 2 ""myeloid/neutrophil-rich"" (n=39, 16.6%): ~41% myeloid cells (Mφ_MARCO, Mφ_VCAN, Neu_FCGR3B, cDC2_CD1C).
+
+CLINICAL ASSOCIATION: The classes are significantly associated with pathological response to neoadjuvant anti-PD-1 therapy (chi-square p=0.0485). The B-cell-rich class is enriched for responders: 73.0% MPR/pCR vs 51.3% in the other classes (B-rich vs rest OR=2.57, Fisher p=0.019; adjusted for histology by logistic regression OR~3.1, p=0.008). The effect is strongest in LUAD (72.7% vs 26.3%/23.1%, p=0.011) and attenuated in LUSC; histology itself independently predicts response (LUSC OR~3.5) but is not confounded with the NMF classes (p=0.43). The myeloid-rich class confers no response advantage (OR~1.0). Median pathological response rate was highest in the B-cell-rich class (1.00 vs 0.90/0.95; Kruskal-Wallis p=0.053).
+
+CONCLUSION: Yes - NMF on TIME composition identifies an optimal 3-class patient stratification (B-cell-rich, T/NK-dominant, myeloid-rich), and the classification is clinically meaningful: the B-cell-rich (TLS-like) class marks patients significantly more likely to achieve major or complete pathological response, consistent with the known role of B cells/tertiary lymphoid structures in PD-1 blockade efficacy (Helmink et al., Nature 2020; Cabrita et al., Nature 2020).
+
+LIMITATIONS: compositional data are relative (no absolute infiltration); associations are cross-sectional and borderline at the global chi-square level; k=2 is nearly as stable, so the 3 classes are best viewed as a refinement of a robust 2-way split; 8 low-cell patients were excluded and 1 patient had unknown response.","The agent performed a complete NMF TIME classification with proper composition filtering, stability-based rank selection, module extraction, patient assignment, clinical association, and source attribution; all criteria are at level A.",,551.7927959486842,35,0,0
+wisp-kimi-k3,wisp,da-4-6,4,ok,False,0.65,deepseek,"Approximately half of non-MPR patients — 50% of evaluable cases (32/64 with TCR data; 32/70 = 45.7% of all non-MPR patients) — have high Texp cell levels (Texp.in.Tex.relevant*10 above the non-MPR-group median of 8.05), and this group shows favorable recurrence-free survival despite lacking a major pathological response.
+
+Key evidence (non-MPR subgroup, n=64 evaluable):
+- Recurrence rate: 4/32 (12.5%) in Texp-high vs 17/32 (53.1%) in Texp-low patients (Fisher p = 0.0011).
+- Kaplan–Meier: 12-month RFS 90.2% vs 58.2%; 24-month RFS 86.4% vs 41.6%; median RFS not reached vs 15.8 months (log-rank p = 3.9e-4).
+- Cox hazard ratio for Texp-high vs low: 0.17 (95% CI 0.06–0.52, p = 0.0017), unchanged after adjusting for stage and histology (HR 0.18, p = 0.0021); Texp is also significant as a continuous variable (HR 0.42 per unit, p = 2.3e-5).
+- The effect is specific to non-MPR patients: in MPR patients Texp shows no association with RFS (HR 1.10, p = 0.91).
+
+Sensitivity: using the full-cohort median Texp (8.37) as the cut-point, 26/64 evaluable non-MPR patients (40.6%; 37.1% of all 70 non-MPR) are Texp-high. Thus, depending on threshold, roughly 40–50% of non-MPR patients harbor high Texp levels associated with favorable RFS.
+
+Interpretation: high expansion of Tex-relevant (tumor-reactive) T-cell clones marks a subgroup of pathological non-responders whose anti-tumor immune response nonetheless controls residual disease, yielding durable recurrence-free survival comparable to responders — pathological response alone underestimates who benefits from neoadjuvant anti-PD-1 therapy.
+
+Caveats: 6/70 non-MPR patients lack TCR data (the 45.7% figure treats them conservatively in the denominator); the Texp threshold is a data-driven median split, not a validated clinical cut-off; and the association is observational, so causality cannot be established.","Strong data handling and proportion quantification, but the survival analysis does not produce the required three-group KM/log-rank or MPR-reference Cox comparisons, lowering criteria 3-5.",,242.63908485136926,11,0,0
+wisp-kimi-k3,wisp,da-4-7,4,ok,True,0.76,deepseek,"TASK da-4-7 — FINAL ANSWER: Shared expanded Tex-relevant TCR clonotypes as TCR-T candidates
+
+From 434,458 T cells with paired TCR annotations (GSE243013, 231 patients), we identified
+34,053 expanded (clone size > 1) cells in the two exhausted CD8 compartments
+(CD8T_Tex_HAVCR2 and CD8T_terminal_Tex_LAYN), comprising 5,567 unique paired alpha-beta
+TCRs from 221 patients. Comparing receptor sequences (paired TRA+TRB CDR3, with identical
+V/J usage on both chains) across patients, 14 expanded Tex-relevant clonotypes are shared
+by >= 2 patients (each shared by exactly 2 patients, from 3 patient pairs: P199/P200,
+P70/P71, P391/P482). Every shared clone is expanded in BOTH of its carrier patients.
+
+TOP CANDIDATE
+  TRA: TRAV8-1/TRAJ9, CDR3 CAVKNTGGFKTIF  |  TRB: TRBV27/TRBJ2-7, CDR3 CASSLAGGDEQYF
+  Shared by P70 (LUAD, nPR) and P71 (LUAD, pCR). The largest shared clone in the atlas:
+  339 cells total, 246 in the expanded Tex compartment (175 Tex_HAVCR2 + 71 terminal_Tex_LAYN),
+  and it dominates in a patient who achieved a complete pathological response — the strongest
+  TCR-T therapy lead.
+
+ADDITIONAL SHARED CANDIDATES (ranked by expanded-Tex clone size; TRA_cdr3 | TRB_cdr3; patients)
+  2. CAMSDLGAGAGSYQLTF | CASSPGPGGTEAFF   (TRAV12-3/TRAJ28 + TRBV5-5/TRBJ1-1)  P199/P200; 59 Tex cells, 130 total
+  3. CALIIGFGNVLHC | CASSPTGTGLEGYTF      (TRAV24/TRAJ35 + TRBV4-3/TRBJ1-2)    P70/P71;   40 Tex cells, 50 total
+  4. CAAEMDSNYQLIW | CASSVSGTGFLRQPQHF    (TRAV13-1/TRAJ33 + TRBV6-2/TRBJ1-5)  P199/P200; 37 Tex cells, 117 total
+  5. CAASDNWVSSTSYGKLTF | CASSMTSGPGETQYF (TRAV29/DV5/TRAJ52 + TRBV19/TRBJ2-5) P199/P200; 23 Tex cells, 46 total
+  6. CAASFNGDNNDMRF | CASSPGGGETQYF       (TRAV29/DV5/TRAJ43 + TRBV18/TRBJ2-5) P199/P200; 18 Tex cells, 37 total
+  7. CALSVDNYGQNFVF | CASSLGMANTEAFF      (TRAV19/TRAJ26 + TRBV7-8/TRBJ1-1)    P199/P200; 15 Tex cells, 39 total
+  8. CAAVGGTSYGKLTF | CASSHPTDYNEQFF      (TRAV29/DV5/TRAJ52 + TRBV7-9/TRBJ2-1) P199/P200; 15 Tex cells, 45 total
+  9. CVASGNTPLVF | CASSLRSNEQFF           (TRAV12-1/TRAJ29 + TRBV7-9/TRBJ2-1)  P199/P200; 12 Tex cells, 23 total
+ 10. CALPTTGTASKLTF | CASSLVSYEQYF        (TRAV6/TRAJ44 + TRBV5-6/TRBJ2-7)     P199/P200; 11 Tex cells, 17 total
+ 11. CAVQARGSGYALNF | CASSLGQGEQPQHF      (TRAV20/TRAJ41 + TRBV27/TRBJ1-5)     P199/P200;  8 Tex cells, 21 total
+ 12. CAARNSNTGNQFYF | CSAEPGSDTQYF        (TRAV13-1/TRAJ49 + TRBV20-1/TRBJ2-3) P199/P200;  6 Tex cells, 19 total
+ 13. CVVNPNTDKLIF | CSASVGSYEQYF          (TRAV12-1/TRAJ34 + TRBV20-1/TRBJ2-7) P391/P482;  6 Tex cells, 16 total
+ 14. CAVNPFSGGYNKLIF | CATSRDAGTGDTDTQYF  (TRAV8-1/TRAJ4 + TRBV15/TRBJ2-3)     P199/P200;  3 Tex cells, 12 total
+
+Carrier clinical context: all six carriers are male; P199 (LUSC, pCR), P200 (LUSC, MPR),
+P70 (LUAD, nPR), P71 (LUAD, pCR), P391 (LUSC, nPR), P482 (LUSC, pPR). For 13 of the 14
+shared TCRs, at least one carrier achieved a major or complete pathological response to
+anti-PD-1 (plus chemotherapy), supporting tumor-reactive expansion.
+
+INTERPRETATION: Large, exhausted-phenotype, sequence-identical clones recurring in
+independent patients are the expected signature of public TCRs against shared tumor
+(neo)antigens and are the standard source of TCR-T leads. The CAVKNTGGFKTIF|CASSLAGGDEQYF
+receptor is the clear #1 candidate; candidates #2–#4 form a strong second tier.
+
+CAVEATS: Antigen specificity and HLA restriction cannot be inferred from these data (no
+HLA typing); identical public CDR3s can arise by convergent recombination, so sharing alone
+does not prove a common tumor antigen; each clone is shared by only 2/221 patients;
+functional validation (TCR cloning and tumor-reactivity assays) is required before
+therapeutic development.","The agent loads and verifies data, identifies a slightly broader exhausted CD8 subset than terminal Tex, uses paired CDR3-based clonotype definition rather than full V/J, fails to apply the required ≥10 cells per patient threshold, but correctly finds public TCRs shared by ≥2 patients, reports full candidate details, integrates MPR/pCR biology, and states limitations with references, yet preclinical validation steps are insufficiently concrete.",,555.9644031915814,24,0,0
+wisp-kimi-k3,wisp,da-5-1,5,ok,True,0.95,deepseek,"Prioritized druggable protein targets for pancreatic cancer (PDAC)
+==================================================================
+
+METHOD IN BRIEF
+Using Table S3A of the CPTAC pan-cancer druggability dataset, a gene qualifies as a
+dual-evidence PDAC candidate if it is (a) significantly overexpressed in PDAC tumors vs
+normal tissue (adj. p <= 0.01) AND (b) a significant CRISPR knockout dependency in
+PDAC-lineage DepMap cell lines (adj. p <= 0.01). 1,431 of 5,262 genes meet both criteria
+in PDAC. Of these, 222 (15.5%) are druggable (druggability Tiers 1-5): Tier1 = 34
+(approved-drug targets), Tier2 = 32 (clinical-stage), Tier3 = 61 (small-molecule ligands),
+Tier4 = 73 (DGIdb druggable genome), Tier5 = 22 (cell-surface/surfaceome). 127 targets
+(Tiers 1-3) already have drug mappings.
+
+TOP PRIORITY — TIER 1 (targets of approved drugs; n = 34), ranked by breadth of evidence
+across the 8 cohorts (CancerTypeCount) with DepMap pan-essentiality flagged (*):
+  Broadest evidence (>=5 cohorts): GART(8), PSMB1*(8), DNMT1*(7), RRM2*(7), TOP2A*(7),
+    XPO1*(7), ATIC(6), RRM1*(6), HDAC3*(5), MET(5), TUBB*(5)
+  Moderate (3-4 cohorts): ERBB2(4), NECTIN4(4), PSMB2*(4), TUBG1*(4), ALOX5(3), JUN(3),
+    SRC(3), TXNRD1(3)
+  Narrower / PDAC-skewed (1-2 cohorts): BTK, DPYD, IKBKB, MTOR*, PDGFRB, TYMP (2);
+    CSF1R, DDR2, F3, KRAS*, MAP2K2, YES1, ARL2*, MAP1A, MAP4 (1)
+
+Most promising Tier1 calls for PDAC specifically:
+  - KRAS — the defining PDAC oncogene; dual-evidence hit, Tier1 via sotorasib (approved;
+    note the approved G12C indication is rare in PDAC, but G12D/G12V inhibitors are in
+    development).
+  - MET, ERBB2, PDGFRB, SRC — non-pan-essential kinases with multiple approved inhibitors
+    (crizotinib/cabozantinib/capmatinib; trastuzumab/lapatinib/neratinib; imatinib;
+    dasatinib), suggesting favorable therapeutic windows.
+  - NECTIN4 — non-essential cell-surface ADC target (enfortumab vedotin).
+  - TOP2A, RRM1, RRM2, GART, ATIC, TYMP, DNMT1 — DNA replication / nucleotide-metabolism
+    dependencies consistent with PDAC sensitivity to gemcitabine and antifolates (but
+    several are pan-essential = toxicity risk).
+  - PDAC-restricted Tier1 (dual evidence only in PDAC): CSF1R, DDR2, F3, MAP2K2, YES1 —
+    all non-pan-essential, hence attractive PDAC-selective liabilities.
+
+HIGH-CONFIDENCE, BETTER-THERAPEUTIC-WINDOW SHORTLIST — Tier1-3, NOT DepMap pan-essential,
+dual evidence in >=4/8 cohorts (n = 34):
+  Tier1: GART, ATIC, MET, ERBB2, NECTIN4
+  Tier2: LDHA, GANAB, NFKB2, ATP2C1, COL1A1, SQLE, ITGAV, MMP7, RFK, VDR
+  Tier3: PAK1, HSP90AA1, SLC3A2, KDM3A, KDM5B, CA9, CARM1, CD276, CTSK, NUCB1, PBRM1,
+         PTPN1, ACACA, BIRC2, GRK2, MAPK14, MAPKAPK2, MMP11, TBK1
+
+PDAC-SELECTIVE NEWER-MODALITY CANDIDATES (dual evidence only in PDAC, druggable, n = 68):
+  Notables: CLDN18 and FAP (antibody/ADC/CAR-T-addressable surface proteins), TPK1, GSK3B,
+  MST1R, PTK6, ADAM10, ENPP2, USP14 (Tier3), CACNA2D1, ACE, HSD11B1 (Tier2).
+
+SURFACEOME (Tier5; n = 22; none pan-essential — antibody/ADC/CAR-T modality targets):
+  ADGRG1, SLC2A1 (broadest, 5 cohorts); CDH3, CSPG4, HLA-C, PVR, SCARB1; PDAC-restricted:
+  ATRN, CD9, CDH2, ITM2B, PILRA, PODXL, SGCD, SGCE, SLC8B1.
+
+CAVEATS
+Cell-line CRISPR dependency is a proxy for patient tumors; pan-essential targets (13 of 34
+Tier1, e.g. TOP2A, DNMT1, PSMB1/2, TUBB) carry on-target toxicity risk; CNV/methylation
+cis-driver support in PDAC barely overlaps this set (0 of 20 CNV rows, 10 of 116 methylation
+rows), so most targets are overexpressed via non-genomic mechanisms; Tier membership
+reflects known chemistry, not PDAC-specific clinical validation.","The agent performed a rigorous, reproducible analysis with correct filtering, tier stratification, essentiality reasoning, and target identification, but omitted validation next steps and did not source all pathway annotations to named databases.",,455.4630244374275,31,0,0
+wisp-kimi-k3,wisp,da-5-3,5,ok,True,0.82,deepseek,"ACTIVATING PHOSPHOSITES ON DRUGGABLE PROTEINS, TUMOR-UPREGULATED AND CRISPR-DEPENDENT (CPTAC pan-cancer, 8 cohorts)
+
+METHOD: From Table S4A (18,169 phosphosites), sites were kept if they are known activating sites (ActivatingSite=1; 229 sites) and their host protein has a druggability tier (Tier non-null; 90 sites, 65 genes). Each site was then crossed with the 8 cohort flags (CCRCC, COAD, HNSCC, LSCC, LUAD, OV, PDAC, UCEC), where a flag=1 already means the phosphosite is significantly tumor-upregulated AND the host gene is a CRISPR dependency in matched cell lines of that cancer type (joint adj. p <= 0.01). Every site x cancer-type pair with flag=1 is a hit.
+
+HEADLINE RESULT: 213 phosphosite x cancer-type hits, spanning all 90 activating druggable phosphosites (65 unique host genes). Per-cancer hits: LUAD 37, LSCC 36, PDAC 35, CCRCC 33, HNSCC 33, COAD 24, UCEC 11, OV 4. Tier mix of hits: Tier1 55, Tier2 10, Tier3 74, Tier4 72, Tier5 2. Kinases dominate (122/213 = 57%).
+
+TOP PAN-CANCER HITS (number of cohorts in parentheses):
+- TOP2A_S1106 (7, Tier1; CCRCC/COAD/HNSCC/LSCC/LUAD/OV/PDAC) and TOP2A_S1525 (6, Tier1) - topoisomerase IIa, target of etoposide/doxorubicin
+- PTPN1_S50 (7, Tier3)
+- DNMT1_S154 (6, Tier1) - decitabine/azacitidine target
+- ITGA4_S1021 (6, Tier2); MAPK6_S189 (6, Tier4)
+- HDAC1_S421 (5, Tier1); CDK7_S164 and CDK7_T170 (5, Tier3); PAK1_S174 (5, Tier3)
+- XPO1_S1055 (4, Tier1; selinexor target); LDHA_Y10 (4, Tier2); ATR_T1989, CHEK1_S280, MAPK14_Y182 (4, Tier3)
+
+TIER1 (APPROVED-DRUG TARGET) HIGHLIGHTS - 55 hit pairs:
+- EGFR: 6 activating sites across 4 cohorts - S1042/Y1172/T693/Y1197/Y1092/S1039 (CCRCC), S1042/Y1172 (LSCC), Y1197 (LUAD), T693 (PDAC); directly actionable with approved EGFR inhibitors; CCRCC and LSCC are non-classical EGFR indications, suggesting repurposing hypotheses.
+- HDAC1 (S421: COAD/HNSCC/LSCC/LUAD/UCEC; S423: LSCC/LUAD/UCEC), HDAC3_S424 (CCRCC/COAD/PDAC), HDAC6_S22 (LUAD)
+- TOP2A (S1106/S1525/S1337, up to 7 cohorts), DNMT1_S154 (6 cohorts), XPO1_S1055 (4 cohorts), PARP1_S782 (COAD)
+- Kinases: SRC_S17 (CCRCC/HNSCC), BRAF_S446 (PDAC), MTOR_S2448 (PDAC), MAP2K2_T394 (PDAC), PRKCA_S226 (PDAC)
+
+BIOLOGICAL INTERPRETATION: Hits concentrate on cell-cycle and stress-response kinases (CDK1/2/7/9/10, CHEK1, PLK1, ATR, WEE1, PAK1, MAPKs) whose activating T-loop/regulatory phosphorylation is required for catalytic activity - consistent with tumor addiction to proliferative/checkpoint signaling, and corroborated by KSEA (e.g. LUAD: CDK1 Z=7.21 padj=6.5e-12; CDK2 Z=7.59 padj=7.2e-13; CHEK1 Z=3.26 padj=2.3e-03; PLK1 Z=2.49 padj=1.8e-02). Because each hit also requires CRISPR dependency of the host gene in matched cell lines, these are not passenger hyperphosphorylations but genetically essential, hyperactivated, druggable nodes. Tier1 hits on TOP2A, DNMT1, EGFR, HDACs, and XPO1 are immediately translatable (approved drugs exist); the phosphosite data nominate the cancer types where the target is both hyperactivated and essential.
+
+LIMITATIONS: Flags are binary (no effect sizes/site-level p-values provided); joint significance thresholds were set by the cohort authors and inherited; cell-line CRISPR dependency is an imperfect proxy for in-patient essentiality; site upregulation cannot be separated from total-protein changes with the provided data; activating-site annotation is incomplete (229/18,169 sites annotated).
+
+FULL HIT LIST: see activating_druggable_phosphosite_hits.csv (213 rows) and phosphosite_pancancer_summary.csv (90 sites with cohort lists) in this directory; methodology and code in trace.md.","The agent performed the core data loading, flag interpretation, pair generation, and reporting accurately, matching expected counts. However, it did not fully satisfy drug annotation from S2B, lacked proposed follow-up validation experiments, and only partially grounded specific drug claims with identifiable sources.",,301.6073314100504,20,0,0
+wisp-kimi-k3,wisp,da-6-2,6,ok,False,0.42,deepseek,"Temporal dynamics of the exercise-training response in rat vastus lateralis (SKM-VL)
+======================================================================================
+
+Analysis population: 766 SKM-VL genes with a significant overall training effect
+(training_q < 0.05, TRNSCRPT assay) from the MoTrPAC endurance-training table,
+each measured in both sexes at 1, 2, 4 and 8 weeks (6,128 rows).
+
+1. FEMALES RESPOND EARLY; MALES RESPOND LATE
+- Timewise-significant genes (timewise p < 0.05) per week, female: 220 -> 329 -> 501 -> 532;
+  male: 145 -> 134 -> 176 -> 379. Female muscle already shows a large response at week 1 that
+  grows steadily, whereas the male response stays small and flat through 4 weeks and then more
+  than doubles between 4w and 8w; 251 of the 507 male-responsive genes become significant only
+  at 8 weeks. 132 female genes are significant at ALL four timepoints vs only 29 male genes.
+- Direction: up-regulated genes outnumber down-regulated ones at most points, increasingly so
+  at 4w-8w in both sexes (female 8w: 342 up / 190 down; male 8w: 217 up / 162 down).
+
+2. SEX DIVERGENCE EARLY, STRONG CONVERGENCE BY WEEK 8
+- Female-male correlation of log fold-changes across all 766 genes rises monotonically:
+  r = 0.13 (1w), 0.07 (2w), 0.43 (4w), 0.63 (8w). At 8w, 265 genes are significant in both
+  sexes and 99.6% of them change in the same direction; at 1w-2w only 33-39 genes are shared
+  and early regulation is largely sex-distinct (one 98-gene cluster is literally opposite in
+  sign: up in females, down in males, until males flip up at 8w).
+- Overall, 402 of 766 genes are responsive in both sexes, 255 are female-only and 105 male-only.
+
+3. PREDOMINANT TEMPORAL PATTERNS (k-means on the 766-gene x 8-condition z-score matrix, k=8)
+- Shared, progressive/late UP-regulation is the dominant pattern: the two largest clusters
+  (n=168 and n=110, together 36% of all genes) rise in both sexes and carry the canonical
+  oxidative-remodeling program - mitochondrial pyruvate carrier Mpc2, respiratory-chain and
+  creatine-kinase enzymes (Cox7a2, Atp5mc1, Ckmt1, Ckmt2), GOT1/GOT2, Mt-atp6 - already visible
+  from 1w-2w in females and consolidated at 4w-8w in both sexes.
+- Shared DOWN-regulation (n=176): includes progressive repression of the immediate-early gene
+  Fos and Prkag3 (strongest in females) and a male-specific 8-week down-shift of hexokinase Hk2,
+  consistent with a late glycolytic-to-oxidative switch.
+- Female-specific early pattern (n=58 + female-dominant clusters): rapid 1w-4w induction of
+  lipid-mobilization genes Lipe (hormone-sensitive lipase), Fabp4 and Tbc1d1 in females but not
+  males, matching the greater lipid reliance of female muscle during endurance exercise.
+- Male-specific late pattern (n=63): a burst of induction at 8 weeks, including the glucose
+  transporter Slc2a4 (GLUT4) - males reach the glucose-handling adaptation only at the end of
+  the program.
+- Sex-opposite early pattern (n=98): ECM/vascular/cytokine-receptor genes (Sox18, Il6r, Fbln1)
+  up in females but down in males at 1w-2w, converging upward by 8w.
+
+BOTTOM LINE
+Both sexes converge by week 8 on the same endpoint - a broadly shared up-regulation of
+mitochondrial/oxidative and glucose-handling machinery with high directional concordance
+(99.6%) - but they take different temporal routes: females mount an early (1w), lipid- and
+metabolism-heavy transcriptional response that is sustained throughout, while the male
+transcriptome is comparatively silent until a large, concentrated response at 8 weeks. The
+predominant shared pattern is progressive up-regulation of the oxidative program; the
+predominant sex-specific patterns are female-early lipid-mobilization induction and a
+male-late (8-week) surge.
+
+Limitations: the table contains only pre-filtered training-regulated genes (766 in SKM-VL), so
+whole-transcriptome response fractions cannot be computed; timewise significance is nominal
+p < 0.05; cluster number (k=8) is an interpretability choice; and rat-to-human translation is
+inferential.","The agent correctly restricts to the TRNSCRPT × SKM-VL slice and provides strong biological interpretation and sourcing, but it does not implement the required 4-timepoint per-sex significance completeness filter or directional 4-state encoding; its sex-specific categorization and ranking are only partial.",,509.8423996511847,29,0,0
+wisp-kimi-k3,wisp,da-6-5,6,ok,False,0.67,deepseek,"DA-6-5 FINAL ANSWER
+To what extent does endurance training elicit coordinated molecular responses across different organs, and which tissues exhibit the most similar changes?
+
+EXTENT OF COORDINATION
+Endurance training elicits molecular responses that are mostly tissue-specific, with a limited but detectable coordinated component that is strongly dependent on the molecular layer:
+
+1. Feature sharing (breadth). Of 22,606 unique non-redundant training-regulated features (training_q < 0.05), 15,666 (69.3%) are regulated in exactly one tissue; only 30.7% span 2 or more tissues, 3.0% (679) span 5+, and the single broadest response (the metabolite trimethylamine-N-oxide, TMAO) reaches 16 of 20 tissues. Breadth is layer-dependent: transcripts, proteins, phosphosites, acetyl sites, methylated loci and ATAC peaks have a median breadth of 1 tissue, whereas metabolites (median 2) and immunoassay analytes (median 2.5) are shared about twice as often — the most broadly regulated features are almost all metabolites (TMAO 16, N-methylproline 14, ala-ala 13, 5-methylcytosine/ectoine 12, C3-DC carnitine 11 tissues), consistent with circulating small molecules propagating systemically.
+
+2. Direction of change. Even when a feature is regulated in multiple tissues, the direction usually differs: only 1.4% (95/6,940) of multi-tissue features change in the same direction in every tissue where they are regulated (mean sign-concordance 0.32). Shared identity does not imply a shared response.
+
+3. Response-profile correlation between organs. Pairwise Spearman correlations of training log fold-changes over shared features (2 sexes x 4 timepoints per feature) have median rho = 0.09 for the transcriptome (19 tissues, 145 pairs; only 15% of pairs rho > 0.3), rho = 0.37 for the metabolome (19 tissues, 158 pairs; 66% rho > 0.3) and rho = 0.47 for the proteome (7 tissues, 21 pairs; 81% rho > 0.3). Thus: strong tissue specificity at the transcript level, moderate system-wide coordination at the protein and metabolite levels (noting the proteome covers fewer tissues and metabolites are measured in many tissues by design, so cross-layer medians are not strictly comparable).
+
+MOST SIMILAR TISSUES
+- Transcriptome: the two skeletal muscles, gastrocnemius (SKM-GN) and vastus lateralis (SKM-VL), are by far the most similar pair (rho = 0.73 over 1,744 shared gene-conditions; robust in both sexes: 0.69 male / 0.78 female; highest regulated-gene-set overlap, Jaccard 0.20). Other coherent clusters match anatomical/functional relatedness: cardiovascular (HEART-VENACV rho = 0.41; HEART-SKM-GN 0.39), immune (BLOOD-SPLEEN 0.44), brain (CORTEX-HIPPOC 0.43), and gut (COLON-SMLINT). A BAT-LUNG axis is strong but female-specific (female rho = 0.68, male rho = -0.12). Central-nervous-system tissues share almost no regulated genes with peripheral organs (CORTEX Jaccard <= 0.035 with any tissue).
+- Proteome: cortex-kidney (rho = 0.89), cortex-heart (0.82), cortex-lung (0.78) and kidney-lung (0.77), consistent across sexes, though cortex pairs rest on only ~50-70 shared proteins.
+- Metabolome: broadly positive coordination; top pairs ovary-spleen (0.97), kidney-ovary (0.94), ovary-gastrocnemius (0.93), colon-subcutaneous adipose (0.88), cortex-hippocampus (0.79, n=96).
+- Response magnitude: liver (5,951 regulated features), adrenal gland (4,605) and subcutaneous white adipose (3,115) mount the broadest responses; hypothalamus (62), vena cava (113) and testes (155) the narrowest.
+
+TEMPORAL DYNAMICS
+Coordination between related tissues strengthens with training duration rather than appearing at once: SKM-GN-SKM-VL transcriptome correlation rises monotonically from rho = 0.49 (1w) to 0.56 (2w), 0.82 (4w) and 0.89 (8w); BLOOD-SPLEEN rises from 0.24 to 0.66; the female BAT-LUNG coordination holds at rho ~ 0.51-0.59 through 4 weeks then collapses (-0.32 at 8w). Genome-wide, however, median pairwise coordination stays low (rho 0.06-0.13) at every timepoint — coordination grows for specific tissue pairs, not globally. The most broadly shared molecular response, TMAO, is uniformly down-regulated across ~16 tissues at 1-2 weeks and normalizes by 4-8 weeks, marking a systemic early metabolic phase of training.
+
+BOTTOM LINE
+Endurance training produces predominantly tissue-autonomous molecular responses (about 70% of regulated features are unique to one tissue, and even shared features usually change in different directions), superimposed with a coordinated program that (i) is strongest between anatomically/functionally related organs — the two skeletal muscles being the clearest and best-powered example, followed by heart-vena cava, blood-spleen, cortex-hippocampus and colon-small intestine; (ii) is far more pronounced in the metabolome and proteome than the transcriptome; and (iii) intensifies over the 8-week training course for muscle and immune pairs, while other axes (e.g. female BAT-lung) are transient.
+
+Caveats: the dataset contains only significant features (truncating overlap/correlation estimates upward); assay coverage is unbalanced (proteome in 7 of 19 tissues; hypothalamus nearly unestimable); and correlations among significant features demonstrate response similarity, not shared regulatory causality.","The agent correctly handles data loading, FDR filtering, de-duplication, and per-tissue/assay counts, but does not compute set-similarity matrices for all assays and performs no cross-assay aggregation, limiting the evaluation to per-assay interpretations rather than a single coordinated tissue-pair ranking.",,887.9034000970423,52,0,0
+wisp-kimi-k3,wisp,da-8-1,8,ok,True,0.82,deepseek,"ANSWER — DA-8-1: Hypertension-associated metabolites positively correlated with systolic blood pressure in 'Bread-spikers' (adjusted for age and BMI)
+
+METHOD SUMMARY
+- Bread-spikers: for each subject, bread meals WITHOUT a mitigator/preload (Fat/Fiber/Protein excluded) were used; per-meal rise = peak post-meal glucose minus mean pre-meal baseline (mins_since_start <= 0); rises averaged across replicates; subjects above the cohort median rise (57.61 mg/dL, n=37) = bread-spikers (n=18).
+- 14 of the 18 bread-spikers had metabolomics data (38 subjects profiled; per-subject abundance = mean of replicate sample columns).
+- For each of 974 metabolites: OLS regression SBP ~ log2(metabolite abundance) + age + BMI within the 14 bread-spikers; metabolites kept if coefficient > 0 and p < 0.05 (39 passed); top 10 ranked by p-value.
+
+TOP 10 METABOLITES (beta = mmHg SBP per doubling of abundance; p from the age- and BMI-adjusted model)
+
+1. cis-4-Hydroxyproline (feature 6.63_130.0513m/z; putative, MSI level 2; candidates include 5-aminolevulinic acid) — beta = 51.1, p = 1.1e-04
+2. Proline, adduct feature (8.14_157.0968m/z) — beta = 26.3, p = 8.3e-04
+3. L-Proline (8.14_115.0633n; HMDB00162 / KEGG C00148; urea cycle, arginine & proline metabolism; MSI level 1, confirmed) — beta = 29.8, p = 1.1e-03
+4. Aspartyl-Arginine dipeptide (13.04_290.1453m/z; HMDB28747; putative) — beta = 18.4, p = 1.5e-03
+5. Deoxycholic acid 3-glucuronide (9.52_567.3172m/z; HMDB02596 / KEGG C03033; primary bile acid metabolism; putative) — beta = 17.4, p = 1.7e-03
+6. Kynurenic acid (4.28_190.0496m/z; HMDB00715 / KEGG C01717; tryptophan/kynurenine metabolism; MSI level 1, confirmed) — beta = 13.0, p = 3.2e-03
+7. N-Acetylgalactosaminitol (5.88_222.0987m/z; putative) — beta = 38.5, p = 4.1e-03
+8. Citrinin (4.77_250.0802n; putative) — beta = 10.7, p = 4.5e-03
+9. Creatinine (0.54_114.0663m/z; HMDB00562 / KEGG C00791; creatine metabolism; MSI level 1, confirmed) — beta = 47.4, p = 7.2e-03
+10. Medazepam (11.62_271.1031m/z; putative) — beta = 12.2, p = 7.8e-03
+
+KEY POINTS
+- The highest-confidence hits are L-proline (and hydroxyproline/collagen-turnover features), kynurenic acid, and creatinine — all biologically consistent with hypertension mechanisms (vascular extracellular-matrix remodeling, inflammation/endothelial dysfunction, renal function).
+- Robustness: 8 of the 10 also pass p < 0.05 with positive coefficients when regressions are run on raw (untransformed) abundances.
+- Caveats: n = 14 (small; nominal p<0.05, no hit survives BH-FDR across 974 tests); cross-sectional (not causal); features #1, #5, #7, #8, #10 are only putatively annotated; 4 of 18 bread-spikers lacked metabolomics data.",Most steps are executed correctly; primary deductions due to incomplete reporting and missing R-squared.,,640.5752078182995,23,0,0
+wisp-kimi-k3,wisp,da-8-2,8,ok,True,0.72,deepseek,"INTERACTION EFFECT SIZE: Baseline insulin resistance x (protein vs fiber preload) on peak glucose reduction in rice mitigator experiments
+
+SUMMARY ANSWER
+--------------
+The interaction effect size between baseline insulin-resistance (IR) status and the protein-vs-fiber difference in peak glucose reduction is -22.1 mg/dL (difference-in-differences), equivalent to a large standardized effect of about -0.89 SD (Hedges' g = -1.20; partial eta-squared = 0.070). Insulin-resistant participants show the OPPOSITE preload benefit pattern to insulin-sensitive participants: protein preloading outperforms fiber in insulin-sensitive subjects, whereas fiber outperforms protein in insulin-resistant subjects.
+
+METHOD
+------
+1. From data_cgm.csv, for each subject and replicate rice trial: baseline glucose = mean of t<0 readings; peak excursion = max postprandial glucose (t 0-170 min) - baseline. Peaks were averaged across replicates per subject per arm (rice alone, rice+Protein, rice+Fiber).
+2. Peak reduction = peak(rice alone) - peak(rice + mitigator). 23 subjects had all three rice arms.
+3. Insulin resistance status from data_meta.csv SSPG (steady-state plasma glucose, Reaven insulin-suppression test): SSPG >= 180 mg/dL = insulin resistant. 19/23 subjects had SSPG -> 15 insulin-sensitive (IS), 4 insulin-resistant (IR).
+4. Interaction = 2x2 difference-in-differences: (delta_protein - delta_fiber)_IR - (delta_protein - delta_fiber)_IS, also estimated as the IR x mitigator coefficient in an OLS model with subject-clustered standard errors.
+
+RESULTS
+-------
+Mean peak-glucose reduction vs rice alone (mg/dL):
+- Insulin-sensitive (n=15): protein 12.25, fiber 5.31 -> within-subject D (protein - fiber) = +6.94
+- Insulin-resistant (n=4): protein 1.81, fiber 16.98 -> within-subject D = -15.17
+
+Interaction (difference-in-differences) = (1.81 - 16.98) - (12.25 - 5.31) = -22.11 mg/dL
+- OLS interaction coefficient: -22.11 +/- 13.86 (cluster-robust SE), z = -1.60, p = 0.111, 95% CI [-49.3, +5.1]
+- Standardized effect: DiD / pooled SD (24.92 mg/dL) = -0.89; Hedges' g (IR vs IS on D) = -1.20; partial eta-squared = 0.070
+- Welch t-test on D: t = -2.18, p = 0.086
+- Robustness: median-split IR definition (SSPG >= 75) gives DiD = -12.6 mg/dL (same direction); continuous SSPG correlates negatively with D (Pearson r = -0.44, p = 0.059; Spearman r = -0.28, p = 0.244).
+
+INTERPRETATION
+--------------
+The magnitude of peak glucose reduction achievable with a protein preload relative to a fiber preload decreases by ~22 mg/dL (about 0.9 SD) as baseline insulin resistance rises from sensitive to resistant. For insulin-resistant individuals, fiber preloading is the more effective peak-lowering strategy (mean 17.0 vs 1.8 mg/dL), while for insulin-sensitive individuals protein preloading is more effective (12.3 vs 5.3 mg/dL). The effect is large but imprecisely estimated (only 4 insulin-resistant participants; p = 0.11), so it should be treated as a strong but not formally significant effect-modification signal. See trace.md for full details and references.","The agent performed the peak glucose calculations correctly but misclassified insulin resistance using SSPG cutoff instead of DI/median split, which cascaded into incorrect group sizes and interaction statistics. The interaction model was not a standard two-way ANOVA and effect size categorization was incomplete.",,485.9679412897676,29,0,0
+wisp-kimi-k3,wisp,da-8-3,8,ok,False,0.63,deepseek,"TASK DA-8-3 — FINAL ANSWER
+
+Setup: The spiker labels are not stored in any file, so they were reconstructed from the CGM data (data_cgm.csv, plain-food challenges only). For each subject and food, the baseline-subtracted peak glucose excursion was computed (mean of pre-meal readings subtracted from the maximum post-meal value, replicates averaged). Of 38 CGM subjects, 36 had both Potato and Grape curves: 15 were classified as potato-spikers (potato peak > grape peak; XB1, XB2, XB21, XB33, XB38, XB42, XB43, XB48, XB68, XB70, XB89, XB94, XB100, XB111, XB115) and 21 as grape-spikers. Differential abundance (Welch t-test on subject-level log2 abundances, metabolomics + targeted lipidomics matrices combined; 26 of the 36 subjects have omics data) was used to rank 1,354 features.
+
+TOP 10 DIFFERENTIALLY ABUNDANT METABOLITES (potato-spikers vs grape-spikers, ranked by p-value):
+ 1. FFA(16:0) palmitic acid        — up in potato-spikers (log2FC +0.17, FC 1.12, p=1.9e-4)
+ 2. FFA(18:1) oleic acid           — up in potato-spikers (log2FC +0.40, FC 1.32, p=5.1e-4)
+ 3. FFA(22:1) erucic acid          — up in potato-spikers (log2FC +0.16, FC 1.12, p=7.7e-4)
+ 4. Butein (chalconoid)            — down in potato-spikers (log2FC -0.17, FC 0.89, p=7.7e-4)
+ 5. Parabanic acid                 — up in potato-spikers (log2FC +0.34, FC 1.27, p=1.2e-3)
+ 6. 4-Hydroxybutyric acid (GHB)    — up in potato-spikers (log2FC +0.47, FC 1.38, p=1.3e-3)
+ 7. Acrylfentanyl (xenobiotic ID)  — down in potato-spikers (log2FC -0.48, FC 0.72, p=1.7e-3)
+ 8. FFA(17:0) margaric acid        — up in potato-spikers (log2FC +0.16, FC 1.12, p=1.9e-3)
+ 9. Tauroursodeoxycholic acid      — up in potato-spikers (log2FC +2.01, FC 4.04, p=1.9e-3)
+10. FFA(20:2) eicosadienoic acid   — up in potato-spikers (log2FC +0.25, FC 1.19, p=2.6e-3)
+
+The dominant biological signal is a coordinated elevation of circulating free fatty acids in potato-spikers, independently confirmed by the clinical free-fatty-acid assay in the metadata (0.47 vs 0.16 mmol/L in the 18 measured participants). Potato-spikers are also markedly more insulin-resistant and beta-cell-impaired than grape-spikers: SSPG 183.6 vs 75.3 mg/dL (p=1.0e-4), HOMA-IR 2.80 vs 1.62 (p=0.033), Disposition Index 1.24 vs 2.36 (p=0.0076), HbA1c 5.75% vs 5.42% (p=0.027).
+
+LIPID SPECIES AMONG THE TOP 10 AND MEDIATION:
+Five of the top 10 are lipid species, all free fatty acids: FFA(16:0), FFA(18:1), FFA(22:1), FFA(17:0), FFA(20:2). For each, a formal mediation analysis (group -> lipid -> outcome; Baron-Kenny paths, Sobel test, verified by 5,000-sample bootstrap) was run against two insulin-resistance outcomes (SSPG, HOMA-IR) and two beta-cell-function outcomes (Disposition Index, HOMA-B), n = 23-26 subjects.
+
+RESULT: None of the five lipid species shows a statistically significant mediating effect for any outcome — all Sobel p-values >= 0.20 and all bootstrap 95% confidence intervals for the indirect effect include zero. The group -> lipid paths are all highly significant (p < 0.003), but the lipid -> outcome paths (adjusted for group) are not.
+
+The strongest, directionally consistent (but non-significant) mediator candidates are for insulin resistance measured by SSPG, where elevated FFAs in potato-spikers partially account for their higher SSPG:
+  - FFA(16:0) palmitic acid: indirect effect +31.2 mg/dL, Sobel z = 1.24, p = 0.216 (~27% of the total group effect; total effect on SSPG attenuates from 114.3 to 83.1 mg/dL when FFA(16:0) is included)
+  - FFA(22:1) erucic acid: indirect +30.2 mg/dL, z = 1.27, p = 0.204
+  - FFA(20:2) eicosadienoic acid: indirect +20.1 mg/dL, z = 1.12, p = 0.263
+For HOMA-IR, HOMA-B and the Disposition Index, indirect effects are smaller and inconsistent in sign (all p > 0.3).
+
+INTERPRETATION: The trends are mechanistically plausible — chronically elevated FFAs (especially palmitate) drive peripheral insulin resistance via the Randle cycle and DAG/PKCtheta interference with insulin signaling, which would raise SSPG — but with only 23-26 subjects the mediation analysis is underpowered and cannot confirm any lipid species as a statistically significant mediator. CONCLUSION: among the top 10 differentially abundant metabolites, the lipid species are FFA(16:0), FFA(18:1), FFA(22:1), FFA(17:0) and FFA(20:2); none of them statistically mediates the group differences in insulin resistance (SSPG/HOMA-IR) or beta-cell function (DI/HOMA-B) at p < 0.05, although FFA(16:0), FFA(22:1) and FFA(20:2) show the largest, non-significant partial-mediation trends for SSPG.
+
+Caveats: the spiker classification was reconstructed from CGM peaks (an iAUC-based rule reassigns 12/36 subjects); no top-10 feature survives Benjamini-Hochberg FDR (min q ~ 0.25); some xenobiotic annotations (e.g. ""Acrylfentanyl"") are likely annotation artifacts; and cross-sectional abundances cannot establish causal mediation.","The agent performed robust differential abundance and lipid identification but deviated from the rubric by using a cross-food spiker classification rather than per-food median splits, completely omitting phenotype correlation analyses, and failing to satisfy the mediation criteria.",,938.3285966143012,35,0,0
+wisp-kimi-k3,wisp,da-9-1,9,ok,True,0.76,deepseek,"BASELINE CIRCULATING T CELL BIOMARKERS FOR 1-YEAR OVERALL SURVIVAL UNDER PD-1 BLOCKADE
+PRINCE trial (PICI0002), Arm A1: gemcitabine/nab-paclitaxel + nivolumab (nivo/chemo), n=34
+
+METHODS SUMMARY
+Baseline (C1D1, pre-treatment) CyTOF frequencies of 13 circulating cell populations were tested for
+association with 1-year overall survival (dead <=365 d vs alive >=365 d; 4 patients censored before
+day 365 excluded from the binary endpoint). 25 of 34 A1 patients had baseline CyTOF; the binary
+analysis used 21 patients (13 alive at 1 y, 8 dead by 1 y). Populations were screened with two-sided
+Mann-Whitney U tests (Benjamini-Hochberg FDR) and confirmed with univariable Cox proportional-hazards
+models and median-split Kaplan-Meier/log-rank analysis on all 25 patients using full follow-up.
+
+ANSWER — four baseline circulating T cell populations emerged as candidate associative biomarkers:
+
+1. Ki-67+ T cells (% of CD3+ cells) — ADVERSE biomarker.
+   Lower baseline frequency in 1-year survivors (median 0.933 vs 0.983 of CD3+ cells).
+   Mann-Whitney p = 0.0034 (BH-FDR = 0.030), AUC = 0.125.
+   Cox HR per SD = 2.28 (95% CI 1.04-4.98, p = 0.040).
+   Median split: 1-year OS 33% (high) vs 100% (low), log-rank p = 0.010.
+   Interpretation: high baseline proliferation of circulating T cells marks systemic inflammation /
+   tumor-driven lymphocyte turnover associated with aggressive disease that chemo + anti-PD-1 cannot
+   overcome.
+
+2. NKT cells (% of leukocytes) — FAVORABLE biomarker (largest effect).
+   ~4x higher in survivors (median 0.0198 vs 0.0049 of leukocytes).
+   Mann-Whitney p = 0.0045 (BH-FDR = 0.030), AUC = 0.865.
+   Cox HR per SD = 0.39 (0.17-0.91, p = 0.029).
+   Median split: 1-year OS 90% (high) vs 36% (low), log-rank p = 0.0049.
+   Interpretation: NKT cells bridge innate and adaptive immunity and license DC/CD8 responses,
+   plausibly supporting benefit from PD-1 blockade.
+
+3. Tbet+ TCRgd+ T cells (% of TCRgd T cells) — FAVORABLE biomarker (strongest continuous signal).
+   Mann-Whitney p = 0.030, AUC = 0.788.
+   Cox HR per SD = 0.30 (0.15-0.60, p = 0.0007).
+   Median split: 1-year OS 81% (high) vs 45% (low), log-rank p = 0.025.
+   Interpretation: Tbet marks type-1/cytotoxic polarization; Tbet+ gamma-delta T cells are
+   IFN-gamma-producing antitumor effectors.
+
+4. Tbet+ T cells (% of CD3+ cells) — FAVORABLE biomarker (weaker).
+   Mann-Whitney p = 0.064, AUC = 0.750; Cox HR per SD = 0.52 (0.25-1.09, p = 0.085).
+   Median split: 1-year OS 81% (high) vs 45% (low), log-rank p = 0.011.
+   Interpretation: a pre-existing Th1/type-1-polarized circulating T cell compartment favors durable
+   benefit from PD-1 blockade.
+
+NOT ASSOCIATED: bulk/lineage T cell measures — HLA-DR+ T cells (p = 0.92), HLA-DR+ non-naive CD4
+(p = 0.92), HLA-DR+ non-naive CD8 (p = 0.86) — nor non-T-cell populations (m-MDSC p = 0.80, B cells
+p = 0.21, pDC p = 0.91). One discordant non-T-cell signal: CD1C+ CD141+ DC adverse in Cox (HR 1.88,
+p = 0.014) but null for the 1-year binary endpoint (p = 0.35).
+
+KEY CAVEATS
+- The four T cell signals are strongly inter-correlated (|r| = 0.53-0.93): Ki-67+ T cells anticorrelates
+  with NKT (r = -0.93) and Tbet+ T cells (r = -0.89). They read out one coherent ""baseline T cell
+  activation state"" axis (high Ki-67 / low NKT / low Tbet -> poor 1-year outcome), not four independent
+  biomarkers.
+- Signals are not explained by Age or ECOG performance status (markers uncorrelated with ECOG,
+  all p >= 0.24; age balanced between outcome groups, p = 0.35).
+- Very small cohort (n = 21-25), 26% of A1 patients lack baseline CyTOF, only Ki-67+ T cells and NKT
+  cells pass FDR < 0.05 in the binary screen. Findings are hypothesis-generating and associative;
+  single-arm data cannot separate prognostic from treatment-predictive value, and no independent
+  validation cohort exists.
+
+BOTTOM LINE
+Among nivo/chemo-treated metastatic pancreatic cancer patients, baseline circulating Ki-67+ T cells
+(high = adverse), NKT cells (high = favorable), and Tbet+ (especially TCR-gamma-delta+) T cells
+(high = favorable) are the circulating T cell populations most strongly associated with 1-year overall
+survival, together forming a baseline T cell proliferation/type-1-polarization signature.","The agent performed comprehensive analyses and correctly identified the main T-cell signals, but deviations in cohort filtering, feature selection, and reporting accuracy prevent full marks on several criteria.",,1037.6100902426988,51,0,0
+wisp-kimi-k3,wisp,da-9-7,9,ok,False,0.65,deepseek,"PRINCE trial (PICI0002), DA-9-7: Do circulating immune-cell frequencies correlate with serum protein levels on-treatment at C2D1?
+
+ANSWER: No — there are no statistically significant correlations between circulating immune-cell frequencies (CyTOF) and serum protein levels (Olink) at C2D1 in this dataset.
+
+ANALYSIS: 73 of 108 randomized PRINCE patients had matched C2D1 CyTOF cell-population frequencies and C2D1 Olink proteomics; 65 had complete data (arm A1 nivo+chemo n=23, arm B2 sotigalimab+chemo n=21, arm C2 combination n=21). At C2D1, the curated CyTOF file contains only 4 cell populations (CCR7+ CD11b+ CD27- B cells, Conventional DC, HLA-DR+ Non-Naive CD4 T cells, HLA-DR+ Non-Naive CD8 T cells), and the Olink file contains 30 proteins (IFN-g, CXCL9, CXCL10, IL-2, IL-6, IL-8, IL-10, soluble PD-1, ARG1, VEGF A, etc.). All 4 x 30 = 120 pairs were tested with Spearman rank correlation (frequencies log10-transformed for the Pearson sensitivity check; Olink NPX already on a log2 scale).
+
+RESULTS:
+- Pooled (n=65): 0/120 pairs significant at nominal p<0.05 (max |rho| = 0.233, B cells vs CXCL9, p=0.062); 0/120 after Benjamini-Hochberg FDR (min q=0.31) or Bonferroni. Pearson sensitivity: 1/120 nominal (p=0.034), 0/120 after FDR.
+- Arm-stratified: no significant pairs in arms A1 or B2. In arm C2 (combination, n=21), HLA-DR+ Non-Naive CD4 T-cell frequency correlated negatively with IFN-g (rho=-0.588, p=0.005), CXCL9 (rho=-0.460, p=0.036) and CXCL10 (rho=-0.442, p=0.045) at the nominal level only; none survived within-arm FDR (min q=0.08) — hypothesis-generating at best.
+
+CONCLUSION: At the C2D1 on-treatment timepoint, frequencies of the measured circulating immune-cell populations and serum levels of the 30 measured proteins vary independently across PRINCE patients. Neither cellular frequencies nor serum proteins can serve as surrogates for one another in biomarker validation at this timepoint. The analysis is powered to detect only moderate-to-strong correlations (|rho| >= ~0.34 at n=65; |rho| >= ~0.58 per arm), is restricted to the 4 cell populations actually measured at C2D1 in this curated dataset, and is cross-sectional (baseline-to-C2D1 changes might show coupling even though C2D1 levels do not).
+
+Outputs: trace.md (full analysis), correlation_results_pooled.csv, correlation_results_by_arm.csv, c2d1_cytof_olink_correlations.png.","The agent performs substantial correct data harmonisation and Spearman correlation with appropriate stratification, but it deviates from the required feature scope (using 4×30=120 instead of 3×4=12 pairs), which leads to over-conservative FDR correction and the missed expected Arm C2 FDR-significant finding.",,612.8743632305413,30,0,0

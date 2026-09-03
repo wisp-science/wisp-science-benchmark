@@ -6,6 +6,20 @@ This suite documents how we evaluate [wisp-science](https://github.com/xuzhougen
 
 The three working trees live under `~/benchmark/` (not inside this repo). Commands below assume that layout. Copy [`.env.example`](.env.example) from this directory.
 
+## Leaderboard
+
+The HTML board is generated from `reports/<run-id>/matrix.csv`:
+
+```bash
+python omicos-biomnibench/reports/build_index.py
+```
+
+That writes `omicos-biomnibench/reports/index.html` (open locally) and `docs/index.html` (GitHub Pages, `/docs` or the Pages workflow). Drop a new `biology-bench report` folder into `reports/` and rerun the script.
+
+Live: https://wisp-science.github.io/wisp-science-benchmark/
+
+Enable Pages once: **Settings → Pages → Source: GitHub Actions** (uses `.github/workflows/pages.yml`). Alternative: **Deploy from a branch → `main` / `/docs`**.
+
 ## Overview
 
 | Repo | Role | What it does |

@@ -28,6 +28,7 @@ PASS_THRESHOLD = 0.70
 LABELS = {
     "wisp-kimi-k3": "Kimi K3",
     "wisp-grok-4.6": "Grok 4.6",
+    "wisp-glm-5.3": "GLM-5.3",
     "wisp-deepseek-flash-vision": "DeepSeek Flash",
     "wisp-gpt-5.6-sol": "GPT-5.6",
 }

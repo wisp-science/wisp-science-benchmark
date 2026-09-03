@@ -1,0 +1,30 @@
+run_id,backend_id,task_id,paper,status,correct,score,grade_mode,final_answer,grader_notes,error,elapsed_s,tool_calls,input_tokens,output_tokens
+wisp-deepseek-v4-pro,wisp,da-11-1,11,ok,True,0.93,deepseek,"Top signaling pathways (beyond the established MHC-I interaction) predicted to mediate the suppressive function and cytotoxic targeting of KIR+CD8+ T cells against pathogenic gliadin-specific CD4+ T cells in celiac-disease inflamed tissue.
+
+Analysis: 10 single-cell count matrices (GSE193442; 6 CeD, 4 HC) were merged, QC-filtered (72,177 -> 67,286 cells), clustered (Leiden), and cell types assigned by marker rules. KIR+CD8+ T cells (CD3+ CD8+ and any KIR UMI: KIR2DL1/2DL3/3DL1/3DL2/3DL3/2DL4/3DX1) = 1,018 cells in CeD; pathogenic CD4+ T cells were proxied by activated CD4+ T cells (CD4+ and IL2RA/CD69/CD38+) = 3,778 cells. Cell-cell communication was inferred with CellChat v2.1.2 (CellChatDB.human, triMean, nboot=100 permutation) on the CeD T/NK compartment, and the cytotoxic/suppressive effector program was quantified directly because CellChatDB omits granule proteins.
+
+ANSWER
+
+The dominant interaction is MHC-I (HLA-A/B/C/E/F -> CD8A/CD8B, KIR3DL1, KIR2DL3; netP probability 2.28, Activated CD4 T -> KIR+CD8 T), which corresponds to the established recognition axis (HLA-E and KIR/HLA-C) and was therefore set aside. Beyond MHC-I, the top predicted pathways are:
+
+1) Cytotoxic targeting — granzyme/perforin + FASL/FAS death-receptor program (the strongest effector signal, measured directly because these are not CellChatDB L-R pairs):
+   - GZMA (91% of KIR+CD8 T), GZMB (82%), GZMH (86%), PRF1/perforin (91%), LAMP1 (49%) — a near-uniform cytolytic program, far above non-KIR CD8 T cells (GZMB 16%, PRF1 37%).
+   - FASLG-FAS: FASLG enriched on KIR+CD8 T (8.7% vs 2.4% non-KIR CD8 T), FAS on activated CD4 T (8.0%) — death-receptor killing.
+   - Granzyme A -> PAR-1 (the CellChat ""PARs"" pathway, GZMA->F2R) is significant (p<0.05), a pro-inflammatory/apoptotic signal.
+
+2) Chemokine targeting — CCL5/RANTES (98%) and CCL4/MIP-1b (78%) secreted by KIR+CD8 T (vs 52%/25% in non-KIR CD8 T), predicted to recruit and colocalize CCR5/CCR1-expressing pathogenic CD4 T cells.
+
+3) Suppressive signaling — TGFB1 (53% of KIR+CD8 T) signaling to TGFBR2 on CD4 T, and the co-inhibitory checkpoint module TIGIT (28%) and LAG3 (19%), elevated relative to non-KIR CD8 T. IL-10 is not a mediator (0% of cells).
+
+4) CellChat-significant adhesion/co-signaling and recognition-reinforcement pathways (all p<0.05):
+   - MIF (MIF -> CD74/CD44, CD74/CXCR4; prob 0.270, Activated CD4 T -> KIR+CD8 T)
+   - LCK (LCK -> CD8 receptor; prob 0.149)
+   - CD99 (CD99-CD99; prob 0.139, bidirectional)
+   - CypA (PPIA -> BSG/CD147; prob 0.133/0.050)
+   - SELPLG (PSGL-1 -> SELL; prob 0.113, KIR+CD8 T -> CD4 T)
+   - CLEC (CD69 -> KLRB1/CD161; CLEC2D/2B -> KLRB1; prob 0.061, Activated CD4 T -> KIR+CD8 T) — the activated CD69+ pathogenic CD4 T cell engages CD161 on the KIR+CD8 T cell
+   - ICAM (ICAM2 -> LFA-1/ITGAL-ITGB2; prob 0.017)
+   - SIRP (SIRPG -> CD47; prob 0.006)
+   - IL16 (IL16 -> CD4; prob 0.029) and MHC-II (HLA-DPA1/DPB1/DRB1 -> CD4; prob 0.178), from KIR+CD8 T to CD4 T.
+
+In summary, the suppressive/cytotoxic function is best attributed to (1) the granzyme/perforin + FASL cytolytic program and the granzyme A-PARs axis for direct killing, (2) CCL5/CCL4 chemokines for targeting/recruitment, and (3) TGF-beta plus the TIGIT/LAG3 checkpoint module for suppression, with MIF, LCK-CD8, CD99, CD69-KLRB1 (CLEC), ICAM/LFA-1 and SIRPG-CD47 as the significant non-MHC-I communication pathways that reinforce recognition, adhesion, and co-signaling. Caveats: gliadin specificity is a TCR property absent from these data (activated CD4+ T cells were used as proxy), and CCR5 detection is limited by scRNA drop-out.","The agent implemented a complete and rigorous scRNA-seq cell-cell communication pipeline with appropriate QC, normalization, clustering, marker-based annotation, CellChat inference with directionality and statistics, and direct effector quantification. Minor gap is using fixed >0 thresholds for cell-type positivity rather than data-driven percentile cutoffs.",,2381.1343921907246,93,0,0

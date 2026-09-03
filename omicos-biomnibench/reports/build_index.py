@@ -30,6 +30,7 @@ LABELS = {
     "wisp-grok-4.6": "Grok 4.6",
     "wisp-glm-5.3": "GLM-5.3",
     "wisp-deepseek-flash-vision": "DeepSeek Flash",
+    "wisp-deepseek-v4-pro": "DeepSeek v4-pro",
     "wisp-gpt-5.6-sol": "GPT-5.6",
 }
 

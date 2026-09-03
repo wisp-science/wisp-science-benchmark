@@ -27,10 +27,10 @@
       --display: "Syne", "Bahnschrift", "Arial Narrow", "PingFang SC", sans-serif;
       --body: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
       --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-      --radius-plate: 28px;
-      --well: 18px;
+      --radius-plate: 20px;
+      --well: 16px;
       --well-gap: 4px;
-      --cluster-gap: 14px;
+      --cluster-gap: 12px;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -64,19 +64,12 @@
       line-height: 1.5;
       background:
         radial-gradient(1200px 480px at 12% -10%, rgba(196, 150, 42, .10), transparent 55%),
-        repeating-linear-gradient(
-          90deg,
-          var(--tile) 0 28px,
-          var(--tile-2) 28px 29px
-        );
+        repeating-linear-gradient(90deg, var(--tile) 0 28px, var(--tile-2) 28px 29px);
     }
 
     a { color: var(--focus); text-underline-offset: 3px; }
     a:hover { color: var(--pass); }
-    :focus-visible {
-      outline: 2px solid var(--focus);
-      outline-offset: 2px;
-    }
+    :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
     .skip {
       position: absolute;
@@ -89,7 +82,7 @@
     .skip:focus { top: 12px; }
 
     .wrap {
-      width: min(1180px, calc(100% - 32px));
+      width: min(1080px, calc(100% - 32px));
       margin: 0 auto;
       padding: 28px 0 64px;
     }
@@ -112,29 +105,14 @@
     h1 {
       font-family: var(--display);
       font-weight: 800;
-      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
       letter-spacing: -.04em;
       line-height: .95;
       margin: 0;
     }
-    h1 span.times {
-      color: var(--gold);
-      font-weight: 700;
-      padding: 0 .08em;
-    }
-    .lede {
-      max-width: 46rem;
-      margin: 10px 0 0;
-      color: var(--muted);
-    }
-    .lede strong { color: var(--ink); font-weight: 600; }
+    h1 span.times { color: var(--gold); font-weight: 700; padding: 0 .08em; }
+    .lede { max-width: 46rem; margin: 10px 0 0; color: var(--muted); }
 
-    .controls {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-shrink: 0;
-    }
     .lang {
       display: inline-flex;
       border: 1px solid var(--edge);
@@ -157,35 +135,104 @@
       color: var(--plate);
     }
 
-    .plate {
+    .card {
       background: linear-gradient(180deg, var(--plate), var(--plate-2));
       border: 1px solid var(--edge);
       border-radius: var(--radius-plate);
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.55);
-      padding: 18px 18px 16px;
-      margin: 8px 0 28px;
     }
-    .plate-bar {
+
+    table.rank {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+    table.rank th {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-align: right;
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--edge);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    table.rank th:first-child,
+    table.rank th:nth-child(2),
+    table.rank td:first-child,
+    table.rank td:nth-child(2) { text-align: left; }
+    table.rank th[aria-sort="ascending"]::after { content: " ↑"; }
+    table.rank th[aria-sort="descending"]::after { content: " ↓"; }
+    table.rank td {
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--edge);
+      vertical-align: middle;
+      font-family: var(--mono);
+      font-size: 13px;
+      text-align: right;
+    }
+    table.rank td:nth-child(2) {
+      font-family: var(--body);
+      font-weight: 600;
+      font-size: 15px;
+    }
+    table.rank tr.sum-row { cursor: pointer; }
+    table.rank tr.sum-row:hover td { background: color-mix(in srgb, var(--gold-soft) 22%, transparent); }
+    table.rank tr.sum-row.is-open td { background: color-mix(in srgb, var(--gold) 14%, transparent); }
+    table.rank tbody tr.detail-row td {
+      padding: 0;
+      border-bottom: 1px solid var(--edge);
+      text-align: left;
+      font-family: var(--body);
+    }
+    table.rank tbody tr:last-child td { border-bottom: 0; }
+    .rank-n {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -.04em;
+      line-height: 1;
+      text-align: left;
+    }
+    .pass-n { font-weight: 600; }
+    .bar {
+      height: 5px;
+      width: 64px;
+      margin-left: auto;
+      background: var(--empty);
+      border-radius: 99px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: var(--pass);
+      border-radius: 99px;
+    }
+    .chev { font-size: 12px; color: var(--muted); text-align: center; }
+    tr.is-open .chev { color: var(--ink); }
+
+    .detail {
+      display: none;
+      padding: 8px 16px 18px;
+      background: color-mix(in srgb, var(--plate-2) 70%, transparent);
+    }
+    tr.is-open + tr.detail-row .detail { display: block; }
+
+    .detail-bar {
       display: flex;
       justify-content: space-between;
       gap: 12px;
       align-items: baseline;
-      margin: 0 6px 12px;
       flex-wrap: wrap;
-    }
-    .fig-label {
-      font-family: var(--mono);
+      margin: 8px 0 10px;
       font-size: 12px;
       color: var(--muted);
     }
-    .fig-label b { color: var(--ink); font-weight: 500; }
-    .legend {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .legend { display: flex; gap: 14px; align-items: center; }
     .swatch {
       width: var(--well);
       height: var(--well);
@@ -200,99 +247,27 @@
       box-shadow: 0 0 0 1.5px var(--gold), inset 0 2px 3px rgba(19,36,28,.2);
     }
     .swatch.fail { background: hsl(340 38% 62%); }
-    .swatch.empty { background: var(--empty); }
-
-    .filters {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin: 0 6px 14px;
-    }
-    .filters button {
-      appearance: none;
-      border: 1px solid var(--edge);
-      background: transparent;
-      color: var(--muted);
-      font: 500 12px/1 var(--mono);
-      padding: 7px 10px;
-      border-radius: 999px;
-      cursor: pointer;
-    }
-    .filters button[aria-pressed="true"] {
-      background: var(--ink);
-      color: var(--plate);
-      border-color: var(--ink);
-    }
-
-    .plate-scroll {
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      padding-bottom: 6px;
-    }
-    .band + .band {
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px dashed var(--edge);
-    }
-    .plate-head, .lane {
-      display: flex;
-      align-items: center;
-      min-width: max-content;
-    }
-    .plate-head { margin-bottom: 6px; }
-    .lane + .lane { margin-top: 10px; }
-    .lane-meta {
-      position: sticky;
-      left: 0;
-      z-index: 2;
-      flex: 0 0 196px;
-      padding: 4px 14px 4px 6px;
-      background: linear-gradient(90deg, var(--plate) 78%, transparent);
-    }
-    .plate-head .lane-meta { height: 18px; }
-    .rank {
-      font-family: var(--display);
-      font-weight: 800;
-      font-size: 1.35rem;
-      letter-spacing: -.04em;
-      line-height: 1;
-    }
-    .model-name {
-      font-weight: 600;
-      font-size: 14px;
-    }
-    .model-stats {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .model-stats b { color: var(--ink); font-weight: 500; }
-    .model-stats span { white-space: nowrap; }
 
     .clusters {
       display: flex;
-      gap: var(--cluster-gap);
-      align-items: center;
-      padding-right: 8px;
+      flex-wrap: wrap;
+      gap: 10px var(--cluster-gap);
     }
     .cluster {
       display: flex;
+      flex-wrap: wrap;
       gap: var(--well-gap);
-      width: max(3.2em, calc(var(--n) * var(--well) + (var(--n) - 1) * var(--well-gap)));
-      flex: 0 0 auto;
       justify-content: center;
+      width: max(3.2em, calc(var(--n) * var(--well) + (var(--n) - 1) * var(--well-gap)));
     }
-    .plate-head .cluster { justify-content: center; }
     .cluster-label {
+      flex: 1 0 100%;
       font-family: var(--mono);
       font-size: 10px;
       color: var(--muted);
       text-align: center;
       letter-spacing: .04em;
-      white-space: nowrap;
     }
-    .lane .cluster-label { display: none; }
 
     .well {
       width: var(--well);
@@ -304,85 +279,49 @@
       background: var(--empty);
       box-shadow: inset 0 2px 3px rgba(19, 36, 28, .18);
       flex: 0 0 var(--well);
-      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
     }
     .well.is-pass {
-      box-shadow:
-        0 0 0 1.5px var(--gold),
-        inset 0 2px 3px rgba(19, 36, 28, .22);
+      box-shadow: 0 0 0 1.5px var(--gold), inset 0 2px 3px rgba(19, 36, 28, .22);
     }
-    .well:hover, .well:focus-visible {
-      transform: scale(1.35);
-      z-index: 3;
-    }
-    .well.is-dim { opacity: .18; }
+    .well:hover, .well:focus-visible { transform: scale(1.35); }
 
-    .caption {
-      margin: 12px 6px 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    h2 {
-      font-family: var(--display);
-      font-weight: 700;
-      font-size: 1.35rem;
-      letter-spacing: -.03em;
-      margin: 0 0 10px;
-    }
-    .table-wrap {
-      overflow-x: auto;
+    .mini-wrap {
+      max-height: 360px;
+      overflow-y: auto;
+      margin-top: 12px;
       border: 1px solid var(--edge);
-      border-radius: 16px;
-      background: var(--plate);
-      box-shadow: var(--shadow);
+      border-radius: 12px;
     }
-    table.matrix {
-      border-collapse: collapse;
+    .mini {
       width: 100%;
-      min-width: 720px;
+      border-collapse: collapse;
       font-variant-numeric: tabular-nums;
     }
-    table.matrix th, table.matrix td {
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--edge);
-      text-align: right;
-      font-size: 13px;
+    .mini thead th {
+      position: sticky;
+      top: 0;
+      background: var(--plate);
+      z-index: 1;
     }
-    table.matrix th {
+    .mini th, .mini td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--edge);
+      font-size: 13px;
+      text-align: right;
+    }
+    .mini th {
       font-family: var(--mono);
       font-size: 11px;
       font-weight: 500;
       color: var(--muted);
       text-align: right;
-      position: sticky;
-      top: 0;
-      background: var(--plate);
-      cursor: pointer;
-      white-space: nowrap;
-      user-select: none;
     }
-    table.matrix th:first-child,
-    table.matrix td:first-child,
-    table.matrix th:nth-child(2),
-    table.matrix td:nth-child(2) {
-      text-align: left;
-    }
-    table.matrix th:first-child, table.matrix td:first-child {
-      position: sticky;
-      left: 0;
-      background: var(--plate);
-      z-index: 1;
-      font-family: var(--mono);
-      font-size: 12px;
-    }
-    table.matrix thead th:first-child { z-index: 3; }
-    table.matrix tbody tr:hover td { background: color-mix(in srgb, var(--gold-soft) 28%, var(--plate)); }
-    table.matrix tbody tr.is-hl td {
-      background: color-mix(in srgb, var(--gold) 22%, var(--plate));
-    }
-    table.matrix th[aria-sort="ascending"]::after { content: " ↑"; }
-    table.matrix th[aria-sort="descending"]::after { content: " ↓"; }
+    .mini th:first-child, .mini td:first-child,
+    .mini th:nth-child(2), .mini td:nth-child(2) { text-align: left; }
+    .mini td:first-child { font-family: var(--mono); font-size: 12px; }
+    .mini tbody tr.is-hl td { background: color-mix(in srgb, var(--gold) 22%, var(--plate)); }
+    .mini tbody tr:hover td { background: color-mix(in srgb, var(--gold-soft) 28%, var(--plate)); }
+
     .score {
       font-family: var(--mono);
       font-size: 12px;
@@ -400,6 +339,88 @@
     }
     .dot.pass { box-shadow: 0 0 0 1.5px var(--gold), inset 0 1px 1px rgba(19,36,28,.25); }
     .best { font-weight: 600; }
+    .tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 99px;
+      border: 1px solid var(--edge);
+    }
+    .tag.ok { color: var(--pass-ink); border-color: color-mix(in srgb, var(--pass) 45%, var(--edge)); }
+    .tag.no { color: var(--fail); }
+
+    .compare { margin-top: 22px; }
+    .compare > summary {
+      cursor: pointer;
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -.03em;
+      list-style: none;
+      padding: 14px 18px;
+    }
+    .compare > summary::-webkit-details-marker { display: none; }
+    .compare > summary::before {
+      content: "▸ ";
+      color: var(--gold);
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+    .compare[open] > summary::before { content: "▾ "; }
+    .compare-body { padding: 0 16px 18px; }
+
+    .filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 0 0 12px;
+    }
+    .filters button {
+      appearance: none;
+      border: 1px solid var(--edge);
+      background: transparent;
+      color: var(--muted);
+      font: 500 12px/1 var(--mono);
+      padding: 7px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .filters button[aria-pressed="true"] {
+      background: var(--ink);
+      color: var(--plate);
+      border-color: var(--ink);
+    }
+
+    .table-wrap { overflow-x: auto; }
+    table.matrix {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 720px;
+      font-variant-numeric: tabular-nums;
+    }
+    table.matrix th, table.matrix td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--edge);
+      text-align: right;
+      font-size: 13px;
+    }
+    table.matrix th {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      background: var(--plate);
+    }
+    table.matrix th:first-child, table.matrix td:first-child,
+    table.matrix th:nth-child(2), table.matrix td:nth-child(2) { text-align: left; }
+    table.matrix td:first-child { font-family: var(--mono); font-size: 12px; }
+    table.matrix th[aria-sort="ascending"]::after { content: " ↑"; }
+    table.matrix th[aria-sort="descending"]::after { content: " ↓"; }
+    table.matrix tbody tr:hover td { background: color-mix(in srgb, var(--gold-soft) 28%, var(--plate)); }
+    table.matrix tbody tr.is-hl td { background: color-mix(in srgb, var(--gold) 22%, var(--plate)); }
 
     #tip {
       position: fixed;
@@ -417,7 +438,6 @@
       display: none;
     }
     #tip .k { font-family: var(--mono); font-size: 11px; opacity: .8; }
-    #tip b { font-weight: 650; }
 
     footer.foot {
       margin-top: 36px;
@@ -428,44 +448,13 @@
       display: grid;
       gap: 8px;
     }
-    footer.foot code {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--ink);
-    }
 
-    @media (max-width: 720px) {
-      .wrap { width: calc(100% - 20px); padding-top: 18px; }
+    @media (max-width: 800px) {
+      .acc, .time, .tools { display: none; }
+      .wrap { width: calc(100% - 20px); }
       header.top { flex-direction: column; align-items: flex-start; }
-      :root { --well: 16px; --cluster-gap: 10px; }
       h1 { font-size: 2rem; }
-      .plate-head { display: none; }
-      .band + .band { margin-top: 8px; padding-top: 4px; border-top: 0; }
-      .lane {
-        flex-direction: column;
-        align-items: stretch;
-        min-width: 0;
-        gap: 8px;
-      }
-      .lane + .lane { margin-top: 16px; }
-      .lane-meta {
-        position: static;
-        flex: none;
-        width: auto;
-        background: none;
-        padding: 0 4px;
-      }
-      .clusters { flex-wrap: wrap; width: 100%; }
-      .cluster {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        width: auto;
-      }
-      .lane .cluster-label {
-        display: block;
-        flex: 1 0 100%;
-      }
+      table.rank td, table.rank th { padding: 12px 8px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -474,7 +463,7 @@
   </style>
 </head>
 <body>
-  <a class="skip" href="#matrix" data-i18n="skip"></a>
+  <a class="skip" href="#board" data-i18n="skip"></a>
   <div class="wrap">
     <header class="top">
       <div>
@@ -482,40 +471,30 @@
         <h1>Wisp <span class="times" aria-hidden="true">×</span> BiomniBench-DA</h1>
         <p class="lede" data-i18n="lede"></p>
       </div>
-      <div class="controls">
-        <div class="lang" role="group" aria-label="Language">
-          <button type="button" data-lang="zh" aria-pressed="true">中文</button>
-          <button type="button" data-lang="en" aria-pressed="false">EN</button>
-        </div>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
       </div>
     </header>
 
-    <div class="filters" role="tablist" aria-label="Task filter">
-      <button type="button" data-filter="all" aria-pressed="true" data-i18n="filter_all"></button>
-      <button type="button" data-filter="split" aria-pressed="false" data-i18n="filter_split"></button>
-      <button type="button" data-filter="fail" aria-pressed="false" data-i18n="filter_fail"></button>
-      <button type="button" data-filter="unique" aria-pressed="false" data-i18n="filter_unique"></button>
-    </div>
+    <section class="card" id="board" aria-labelledby="board-h">
+      <table class="rank" id="rank"></table>
+    </section>
 
-    <section class="plate" aria-labelledby="fig1">
-      <div class="plate-bar">
-        <div class="fig-label" id="fig1"><b>Fig. 1</b> · <span data-i18n="fig_title"></span></div>
-        <div class="legend">
-          <span><i class="swatch pass"></i><span data-i18n="leg_pass"></span></span>
-          <span><i class="swatch fail"></i><span data-i18n="leg_fail"></span></span>
-          <span><i class="swatch empty"></i>0</span>
+    <details class="card compare" id="compare">
+      <summary data-i18n="compare_title"></summary>
+      <div class="compare-body">
+        <div class="filters" role="tablist">
+          <button type="button" data-filter="all" aria-pressed="true" data-i18n="filter_all"></button>
+          <button type="button" data-filter="split" aria-pressed="false" data-i18n="filter_split"></button>
+          <button type="button" data-filter="fail" aria-pressed="false" data-i18n="filter_fail"></button>
+          <button type="button" data-filter="unique" aria-pressed="false" data-i18n="filter_unique"></button>
+        </div>
+        <div class="table-wrap">
+          <table class="matrix" id="matrix"></table>
         </div>
       </div>
-      <div class="plate-scroll" id="plate"></div>
-      <p class="caption" data-i18n="fig_caption"></p>
-    </section>
-
-    <section aria-labelledby="matrix-h">
-      <h2 id="matrix-h" data-i18n="table_title"></h2>
-      <div class="table-wrap">
-        <table class="matrix" id="matrix"></table>
-      </div>
-    </section>
+    </details>
 
     <footer class="foot">
       <div data-i18n="foot_protocol"></div>
@@ -532,74 +511,90 @@
     </footer>
   </div>
   <div id="tip" role="tooltip"></div>
-  <script type="application/json" id="bench-data">{"generated_at":"2026-09-03","generated_ts":"2026-09-03T06:37:47Z","protocol":{"agent":"wisp-science","backend":"wisp","judge":"deepseek-v4-pro","pass_threshold":0.7,"n_tasks":50,"n_models":5,"dataset":"BiomniBench-DA","dataset_url":"https://huggingface.co/datasets/phylobio/BiomniBench-DA","agent_url":"https://github.com/xuzhougeng/wisp-science","repo_url":"https://github.com/wisp-science/wisp-science-benchmark","protocol_url":"https://github.com/wisp-science/wisp-science-benchmark/blob/main/omicos-biomnibench/README.md"},"models":[{"id":"wisp-kimi-k3","label":"Kimi K3","ran":50,"answered":50,"passed":33,"accuracy":0.66,"mean_score":0.7156,"median_score":0.74,"mean_elapsed_s":762.5427568952739,"median_elapsed_s":553.8785995701328,"mean_tool_calls":32.26,"median_tool_calls":29.0,"perfect":5},{"id":"wisp-grok-4.6","label":"Grok 4.6","ran":50,"answered":50,"passed":32,"accuracy":0.64,"mean_score":0.7428,"median_score":0.78,"mean_elapsed_s":1178.351453275159,"median_elapsed_s":1037.538725502789,"mean_tool_calls":57.72,"median_tool_calls":56.0,"perfect":9},{"id":"wisp-glm-5.3","label":"GLM-5.3","ran":50,"answered":50,"passed":32,"accuracy":0.64,"mean_score":0.7338,"median_score":0.77,"mean_elapsed_s":1447.5274944160878,"median_elapsed_s":1147.7872294560075,"mean_tool_calls":85.3,"median_tool_calls":73.5,"perfect":5},{"id":"wisp-deepseek-flash-vision","label":"DeepSeek Flash","ran":50,"answered":50,"passed":24,"accuracy":0.48,"mean_score":0.6928,"median_score":0.69,"mean_elapsed_s":904.795293523483,"median_elapsed_s":673.8689262224361,"mean_tool_calls":70.76,"median_tool_calls":64.0,"perfect":4},{"id":"wisp-gpt-5.6-sol","label":"GPT-5.6","ran":50,"answered":50,"passed":23,"accuracy":0.46,"mean_score":0.6904,"median_score":0.6799999999999999,"mean_elapsed_s":764.036622802876,"median_elapsed_s":712.948938857764,"mean_tool_calls":34.76,"median_tool_calls":33.5,"perfect":6}],"tasks":[{"id":"da-1-3","paper":1},{"id":"da-1-4","paper":1},{"id":"da-3-4","paper":3},{"id":"da-3-5","paper":3},{"id":"da-4-1","paper":4},{"id":"da-4-6","paper":4},{"id":"da-4-7","paper":4},{"id":"da-5-1","paper":5},{"id":"da-5-3","paper":5},{"id":"da-6-2","paper":6},{"id":"da-6-5","paper":6},{"id":"da-8-1","paper":8},{"id":"da-8-2","paper":8},{"id":"da-8-3","paper":8},{"id":"da-9-1","paper":9},{"id":"da-9-7","paper":9},{"id":"da-10-1","paper":10},{"id":"da-10-3","paper":10},{"id":"da-11-1","paper":11},{"id":"da-12-2","paper":12},{"id":"da-12-4","paper":12},{"id":"da-13-1","paper":13},{"id":"da-13-3","paper":13},{"id":"da-13-5","paper":13},{"id":"da-13-6","paper":13},{"id":"da-14-1","paper":14},{"id":"da-14-3","paper":14},{"id":"da-14-8","paper":14},{"id":"da-15-1","paper":15},{"id":"da-15-2","paper":15},{"id":"da-15-7","paper":15},{"id":"da-15-8","paper":15},{"id":"da-16-1","paper":16},{"id":"da-17-1","paper":17},{"id":"da-17-3","paper":17},{"id":"da-17-5","paper":17},{"id":"da-18-1","paper":18},{"id":"da-18-5","paper":18},{"id":"da-18-7","paper":18},{"id":"da-19-1","paper":19},{"id":"da-19-3","paper":19},{"id":"da-19-4","paper":19},{"id":"da-19-6","paper":19},{"id":"da-20-1","paper":20},{"id":"da-20-3","paper":20},{"id":"da-20-4","paper":20},{"id":"da-24-3","paper":24},{"id":"da-25-1","paper":25},{"id":"da-26-2","paper":26},{"id":"da-26-4","paper":26}],"cells":{"wisp-deepseek-flash-vision":{"da-1-3":{"score":0.92,"pass":true,"elapsed_s":1377.4066165983677,"tool_calls":89,"status":"ok"},"da-1-4":{"score":0.79,"pass":true,"elapsed_s":469.45063129998744,"tool_calls":47,"status":"ok"},"da-3-4":{"score":1.0,"pass":true,"elapsed_s":466.7709950786084,"tool_calls":47,"status":"ok"},"da-3-5":{"score":0.69,"pass":false,"elapsed_s":666.3313825447112,"tool_calls":43,"status":"ok"},"da-4-1":{"score":0.82,"pass":true,"elapsed_s":861.4723384883255,"tool_calls":62,"status":"ok"},"da-4-6":{"score":0.58,"pass":false,"elapsed_s":368.73796043358743,"tool_calls":45,"status":"ok"},"da-4-7":{"score":0.58,"pass":false,"elapsed_s":529.0965161249042,"tool_calls":57,"status":"ok"},"da-5-1":{"score":0.63,"pass":false,"elapsed_s":492.99797611124814,"tool_calls":68,"status":"ok"},"da-5-3":{"score":0.85,"pass":true,"elapsed_s":297.43236274830997,"tool_calls":39,"status":"ok"},"da-6-2":{"score":0.35,"pass":false,"elapsed_s":982.2832577507943,"tool_calls":82,"status":"ok"},"da-6-5":{"score":0.85,"pass":true,"elapsed_s":773.2418801039457,"tool_calls":60,"status":"ok"},"da-8-1":{"score":0.92,"pass":true,"elapsed_s":495.9794270694256,"tool_calls":58,"status":"ok"},"da-8-2":{"score":0.59,"pass":false,"elapsed_s":535.0759612582624,"tool_calls":52,"status":"ok"},"da-8-3":{"score":0.64,"pass":false,"elapsed_s":1403.3123076390475,"tool_calls":127,"status":"ok"},"da-9-1":{"score":0.59,"pass":false,"elapsed_s":690.0046373680234,"tool_calls":68,"status":"ok"},"da-9-7":{"score":0.58,"pass":false,"elapsed_s":482.6080582141876,"tool_calls":55,"status":"ok"},"da-10-1":{"score":0.52,"pass":false,"elapsed_s":1296.4763984568417,"tool_calls":104,"status":"ok"},"da-10-3":{"score":1.0,"pass":true,"elapsed_s":2664.9713892415166,"tool_calls":94,"status":"ok"},"da-11-1":{"score":0.86,"pass":true,"elapsed_s":2254.6098938435316,"tool_calls":140,"status":"ok"},"da-12-2":{"score":0.57,"pass":false,"elapsed_s":262.0470759421587,"tool_calls":26,"status":"ok"},"da-12-4":{"score":1.0,"pass":true,"elapsed_s":692.0109185446054,"tool_calls":65,"status":"ok"},"da-13-1":{"score":0.69,"pass":false,"elapsed_s":933.1805744469166,"tool_calls":65,"status":"ok"},"da-13-3":{"score":0.78,"pass":true,"elapsed_s":310.5220420639962,"tool_calls":26,"status":"ok"},"da-13-5":{"score":0.6,"pass":false,"elapsed_s":2057.435946358368,"tool_calls":54,"status":"ok"},"da-13-6":{"score":0.5,"pass":false,"elapsed_s":530.3034535367042,"tool_calls":39,"status":"ok"},"da-14-1":{"score":0.8,"pass":true,"elapsed_s":464.84182194806635,"tool_calls":47,"status":"ok"},"da-14-3":{"score":1.0,"pass":true,"elapsed_s":635.281316999346,"tool_calls":69,"status":"ok"},"da-14-8":{"score":0.68,"pass":false,"elapsed_s":733.602295730263,"tool_calls":72,"status":"ok"},"da-15-1":{"score":0.8,"pass":true,"elapsed_s":660.9246275108308,"tool_calls":70,"status":"ok"},"da-15-2":{"score":0.55,"pass":false,"elapsed_s":1892.0333663839847,"tool_calls":103,"status":"ok"},"da-15-7":{"score":0.6,"pass":false,"elapsed_s":475.0773611124605,"tool_calls":43,"status":"ok"},"da-15-8":{"score":0.7,"pass":true,"elapsed_s":621.746902199462,"tool_calls":58,"status":"ok"},"da-16-1":{"score":0.85,"pass":true,"elapsed_s":851.5110128056258,"tool_calls":109,"status":"ok"},"da-17-1":{"score":0.84,"pass":true,"elapsed_s":525.2647308725864,"tool_calls":63,"status":"ok"},"da-17-3":{"score":0.81,"pass":true,"elapsed_s":641.0476043578237,"tool_calls":63,"status":"ok"},"da-17-5":{"score":0.72,"pass":true,"elapsed_s":447.56413605995476,"tool_calls":51,"status":"ok"},"da-18-1":{"score":0.92,"pass":true,"elapsed_s":434.8714045844972,"tool_calls":45,"status":"ok"},"da-18-5":{"score":0.51,"pass":false,"elapsed_s":1722.8527429662645,"tool_calls":65,"status":"ok"},"da-18-7":{"score":0.62,"pass":false,"elapsed_s":797.4400784056634,"tool_calls":69,"status":"ok"},"da-19-1":{"score":0.8,"pass":true,"elapsed_s":254.40925040468574,"tool_calls":30,"status":"ok"},"da-19-3":{"score":0.9,"pass":true,"elapsed_s":795.4343267735094,"tool_calls":120,"status":"ok"},"da-19-4":{"score":0.55,"pass":false,"elapsed_s":665.1425206623971,"tool_calls":87,"status":"ok"},"da-19-6":{"score":0.87,"pass":true,"elapsed_s":681.406469900161,"tool_calls":58,"status":"ok"},"da-20-1":{"score":0.51,"pass":false,"elapsed_s":728.4892822355032,"tool_calls":70,"status":"ok"},"da-20-3":{"score":0.73,"pass":true,"elapsed_s":621.3204729966819,"tool_calls":50,"status":"ok"},"da-20-4":{"score":0.28,"pass":false,"elapsed_s":1463.3895169980824,"tool_calls":119,"status":"ok"},"da-24-3":{"score":0.2,"pass":false,"elapsed_s":1127.5668495688587,"tool_calls":78,"status":"ok"},"da-25-1":{"score":0.61,"pass":false,"elapsed_s":835.2252138126642,"tool_calls":69,"status":"ok"},"da-26-2":{"score":0.35,"pass":false,"elapsed_s":1230.0651882477105,"tool_calls":116,"status":"ok"},"da-26-4":{"score":0.54,"pass":false,"elapsed_s":4039.4961813706905,"tool_calls":202,"status":"ok"}},"wisp-glm-5.3":{"da-1-3":{"score":0.78,"pass":true,"elapsed_s":1994.1267991382629,"tool_calls":183,"status":"ok"},"da-1-4":{"score":0.86,"pass":true,"elapsed_s":831.3587034139782,"tool_calls":32,"status":"ok"},"da-3-4":{"score":1.0,"pass":true,"elapsed_s":386.97392796352506,"tool_calls":43,"status":"ok"},"da-3-5":{"score":0.87,"pass":true,"elapsed_s":631.5139093585312,"tool_calls":56,"status":"ok"},"da-4-1":{"score":0.82,"pass":true,"elapsed_s":618.5740452595055,"tool_calls":59,"status":"ok"},"da-4-6":{"score":0.65,"pass":false,"elapsed_s":414.9646242521703,"tool_calls":21,"status":"ok"},"da-4-7":{"score":0.67,"pass":false,"elapsed_s":840.4597118236125,"tool_calls":52,"status":"ok"},"da-5-1":{"score":0.61,"pass":false,"elapsed_s":397.12637292966247,"tool_calls":41,"status":"ok"},"da-5-3":{"score":0.95,"pass":true,"elapsed_s":380.0062133092433,"tool_calls":31,"status":"ok"},"da-6-2":{"score":0.35,"pass":false,"elapsed_s":1233.796374399215,"tool_calls":120,"status":"ok"},"da-6-5":{"score":0.67,"pass":false,"elapsed_s":1956.667453987524,"tool_calls":100,"status":"ok"},"da-8-1":{"score":0.82,"pass":true,"elapsed_s":774.8956678193063,"tool_calls":61,"status":"ok"},"da-8-2":{"score":0.75,"pass":true,"elapsed_s":454.7503629196435,"tool_calls":46,"status":"ok"},"da-8-3":{"score":0.77,"pass":true,"elapsed_s":1396.3159092124552,"tool_calls":92,"status":"ok"},"da-9-1":{"score":0.88,"pass":true,"elapsed_s":1019.879257697612,"tool_calls":70,"status":"ok"},"da-9-7":{"score":0.68,"pass":false,"elapsed_s":469.89573760330677,"tool_calls":53,"status":"ok"},"da-10-1":{"score":0.77,"pass":true,"elapsed_s":2739.4788263645023,"tool_calls":92,"status":"ok"},"da-10-3":{"score":0.86,"pass":true,"elapsed_s":1490.9263063129038,"tool_calls":75,"status":"ok"},"da-11-1":{"score":0.86,"pass":true,"elapsed_s":4900.857257073745,"tool_calls":203,"status":"ok"},"da-12-2":{"score":0.75,"pass":true,"elapsed_s":470.679280532524,"tool_calls":39,"status":"ok"},"da-12-4":{"score":0.66,"pass":false,"elapsed_s":1195.185418624431,"tool_calls":40,"status":"ok"},"da-13-1":{"score":0.95,"pass":true,"elapsed_s":2315.1560617294163,"tool_calls":136,"status":"ok"},"da-13-3":{"score":0.87,"pass":true,"elapsed_s":657.5882836487144,"tool_calls":61,"status":"ok"},"da-13-5":{"score":0.8,"pass":true,"elapsed_s":1303.6632907558233,"tool_calls":114,"status":"ok"},"da-13-6":{"score":0.7,"pass":true,"elapsed_s":1055.4973637405783,"tool_calls":60,"status":"ok"},"da-14-1":{"score":1.0,"pass":true,"elapsed_s":1560.758971342817,"tool_calls":110,"status":"ok"},"da-14-3":{"score":0.85,"pass":true,"elapsed_s":925.2004875671118,"tool_calls":34,"status":"ok"},"da-14-8":{"score":0.58,"pass":false,"elapsed_s":1234.64816984348,"tool_calls":96,"status":"ok"},"da-15-1":{"score":1.0,"pass":true,"elapsed_s":2319.899376122281,"tool_calls":115,"status":"ok"},"da-15-2":{"score":0.85,"pass":true,"elapsed_s":1496.9392817355692,"tool_calls":120,"status":"ok"},"da-15-7":{"score":0.7,"pass":true,"elapsed_s":694.1069780960679,"tool_calls":74,"status":"ok"},"da-15-8":{"score":0.57,"pass":false,"elapsed_s":583.7892775610089,"tool_calls":61,"status":"ok"},"da-16-1":{"score":1.0,"pass":true,"elapsed_s":2290.305882755667,"tool_calls":136,"status":"ok"},"da-17-1":{"score":0.84,"pass":true,"elapsed_s":1198.7363106515259,"tool_calls":155,"status":"ok"},"da-17-3":{"score":0.81,"pass":true,"elapsed_s":1745.1252409536391,"tool_calls":73,"status":"ok"},"da-17-5":{"score":0.9,"pass":true,"elapsed_s":3449.0861708186567,"tool_calls":146,"status":"ok"},"da-18-1":{"score":1.0,"pass":true,"elapsed_s":573.3642533626407,"tool_calls":51,"status":"ok"},"da-18-5":{"score":0.66,"pass":false,"elapsed_s":810.3938636463135,"tool_calls":44,"status":"ok"},"da-18-7":{"score":0.52,"pass":false,"elapsed_s":801.4530815910548,"tool_calls":45,"status":"ok"},"da-19-1":{"score":0.72,"pass":true,"elapsed_s":642.8493582010269,"tool_calls":32,"status":"ok"},"da-19-3":{"score":0.62,"pass":false,"elapsed_s":878.3136382848024,"tool_calls":94,"status":"ok"},"da-19-4":{"score":0.7,"pass":true,"elapsed_s":1619.3128400240093,"tool_calls":50,"status":"ok"},"da-19-6":{"score":0.87,"pass":true,"elapsed_s":2346.67998274602,"tool_calls":90,"status":"ok"},"da-20-1":{"score":0.28,"pass":false,"elapsed_s":1376.5240922309458,"tool_calls":91,"status":"ok"},"da-20-3":{"score":0.81,"pass":true,"elapsed_s":1100.389040287584,"tool_calls":58,"status":"ok"},"da-20-4":{"score":0.15,"pass":false,"elapsed_s":2420.550083756447,"tool_calls":128,"status":"ok"},"da-24-3":{"score":0.23,"pass":false,"elapsed_s":4173.303713925183,"tool_calls":162,"status":"ok"},"da-25-1":{"score":0.64,"pass":false,"elapsed_s":1274.347220852971,"tool_calls":96,"status":"ok"},"da-26-2":{"score":0.43,"pass":false,"elapsed_s":990.2841439861804,"tool_calls":107,"status":"ok"},"da-26-4":{"score":0.61,"pass":false,"elapsed_s":5939.676100591198,"tool_calls":217,"status":"ok"}},"wisp-gpt-5.6-sol":{"da-1-3":{"score":0.75,"pass":true,"elapsed_s":732.8450622111559,"tool_calls":29,"status":"ok"},"da-1-4":{"score":0.85,"pass":true,"elapsed_s":714.3533490970731,"tool_calls":31,"status":"ok"},"da-3-4":{"score":0.89,"pass":true,"elapsed_s":688.1729820538312,"tool_calls":43,"status":"ok"},"da-3-5":{"score":0.79,"pass":true,"elapsed_s":959.1721105631441,"tool_calls":66,"status":"ok"},"da-4-1":{"score":0.82,"pass":true,"elapsed_s":812.449053408578,"tool_calls":43,"status":"ok"},"da-4-6":{"score":0.58,"pass":false,"elapsed_s":827.778958497569,"tool_calls":27,"status":"ok"},"da-4-7":{"score":0.69,"pass":false,"elapsed_s":1013.8662084154785,"tool_calls":24,"status":"ok"},"da-5-1":{"score":0.67,"pass":false,"elapsed_s":540.2042954787612,"tool_calls":20,"status":"ok"},"da-5-3":{"score":0.7,"pass":true,"elapsed_s":1130.9478919357061,"tool_calls":35,"status":"ok"},"da-6-2":{"score":0.37,"pass":false,"elapsed_s":725.9892875161022,"tool_calls":33,"status":"ok"},"da-6-5":{"score":0.66,"pass":false,"elapsed_s":708.3197341430932,"tool_calls":31,"status":"ok"},"da-8-1":{"score":0.86,"pass":true,"elapsed_s":547.1371783036739,"tool_calls":26,"status":"ok"},"da-8-2":{"score":0.59,"pass":false,"elapsed_s":673.3636893201619,"tool_calls":36,"status":"ok"},"da-8-3":{"score":0.64,"pass":false,"elapsed_s":624.6784148700535,"tool_calls":32,"status":"ok"},"da-9-1":{"score":0.42,"pass":false,"elapsed_s":583.533545024693,"tool_calls":31,"status":"ok"},"da-9-7":{"score":0.69,"pass":false,"elapsed_s":612.9171648174524,"tool_calls":35,"status":"ok"},"da-10-1":{"score":0.54,"pass":false,"elapsed_s":994.7943173032254,"tool_calls":28,"status":"ok"},"da-10-3":{"score":1.0,"pass":true,"elapsed_s":1169.3008619584143,"tool_calls":47,"status":"ok"},"da-11-1":{"score":0.61,"pass":false,"elapsed_s":1165.8734999019653,"tool_calls":48,"status":"ok"},"da-12-2":{"score":0.75,"pass":true,"elapsed_s":633.653711963445,"tool_calls":25,"status":"ok"},"da-12-4":{"score":0.86,"pass":true,"elapsed_s":813.3788120839745,"tool_calls":35,"status":"ok"},"da-13-1":{"score":0.95,"pass":true,"elapsed_s":660.8318330887705,"tool_calls":29,"status":"ok"},"da-13-3":{"score":0.64,"pass":false,"elapsed_s":434.2180351745337,"tool_calls":28,"status":"ok"},"da-13-5":{"score":0.7,"pass":true,"elapsed_s":711.5445286184549,"tool_calls":35,"status":"ok"},"da-13-6":{"score":0.9,"pass":true,"elapsed_s":542.5934711452574,"tool_calls":28,"status":"ok"},"da-14-1":{"score":1.0,"pass":true,"elapsed_s":768.2677385788411,"tool_calls":34,"status":"ok"},"da-14-3":{"score":1.0,"pass":true,"elapsed_s":526.1197799257934,"tool_calls":30,"status":"ok"},"da-14-8":{"score":0.58,"pass":false,"elapsed_s":471.3723312802613,"tool_calls":21,"status":"ok"},"da-15-1":{"score":1.0,"pass":true,"elapsed_s":888.2292503230274,"tool_calls":36,"status":"ok"},"da-15-2":{"score":0.58,"pass":false,"elapsed_s":942.5383273623884,"tool_calls":36,"status":"ok"},"da-15-7":{"score":0.67,"pass":false,"elapsed_s":534.7337686438113,"tool_calls":28,"status":"ok"},"da-15-8":{"score":0.55,"pass":false,"elapsed_s":563.7858821433038,"tool_calls":22,"status":"ok"},"da-16-1":{"score":1.0,"pass":true,"elapsed_s":809.9690340571105,"tool_calls":44,"status":"ok"},"da-17-1":{"score":0.84,"pass":true,"elapsed_s":708.4050614554435,"tool_calls":48,"status":"ok"},"da-17-3":{"score":0.9,"pass":true,"elapsed_s":1127.5355923268944,"tool_calls":49,"status":"ok"},"da-17-5":{"score":0.81,"pass":true,"elapsed_s":787.9977429658175,"tool_calls":37,"status":"ok"},"da-18-1":{"score":1.0,"pass":true,"elapsed_s":631.5508341565728,"tool_calls":22,"status":"ok"},"da-18-5":{"score":0.43,"pass":false,"elapsed_s":528.5556102842093,"tool_calls":34,"status":"ok"},"da-18-7":{"score":0.67,"pass":false,"elapsed_s":502.14842311292887,"tool_calls":33,"status":"ok"},"da-19-1":{"score":0.63,"pass":false,"elapsed_s":662.5527740828693,"tool_calls":33,"status":"ok"},"da-19-3":{"score":0.85,"pass":true,"elapsed_s":715.7426133677363,"tool_calls":36,"status":"ok"},"da-19-4":{"score":0.65,"pass":false,"elapsed_s":947.9685958176851,"tool_calls":37,"status":"ok"},"da-19-6":{"score":0.32,"pass":false,"elapsed_s":677.3095976449549,"tool_calls":36,"status":"ok"},"da-20-1":{"score":0.41,"pass":false,"elapsed_s":591.7152853850275,"tool_calls":29,"status":"ok"},"da-20-3":{"score":0.73,"pass":true,"elapsed_s":757.4813351798803,"tool_calls":44,"status":"ok"},"da-20-4":{"score":0.15,"pass":false,"elapsed_s":1441.8274344205856,"tool_calls":49,"status":"ok"},"da-24-3":{"score":0.4,"pass":false,"elapsed_s":634.8025331050158,"tool_calls":34,"status":"ok"},"da-25-1":{"score":0.61,"pass":false,"elapsed_s":740.6101278029382,"tool_calls":33,"status":"ok"},"da-26-2":{"score":0.35,"pass":false,"elapsed_s":728.7928411830217,"tool_calls":31,"status":"ok"},"da-26-4":{"score":0.47,"pass":false,"elapsed_s":1489.9006286431104,"tool_calls":57,"status":"ok"}},"wisp-grok-4.6":{"da-1-3":{"score":0.86,"pass":true,"elapsed_s":996.301063740626,"tool_calls":54,"status":"ok"},"da-1-4":{"score":0.94,"pass":true,"elapsed_s":780.5499484762549,"tool_calls":50,"status":"ok"},"da-3-4":{"score":1.0,"pass":true,"elapsed_s":580.1862179413438,"tool_calls":39,"status":"ok"},"da-3-5":{"score":0.87,"pass":true,"elapsed_s":1017.4050243217498,"tool_calls":48,"status":"ok"},"da-4-1":{"score":0.93,"pass":true,"elapsed_s":1602.6780507843941,"tool_calls":82,"status":"ok"},"da-4-6":{"score":0.55,"pass":false,"elapsed_s":636.4664853215218,"tool_calls":32,"status":"ok"},"da-4-7":{"score":0.6,"pass":false,"elapsed_s":1214.7203072775155,"tool_calls":38,"status":"ok"},"da-5-1":{"score":0.84,"pass":true,"elapsed_s":694.0755191799253,"tool_calls":36,"status":"ok"},"da-5-3":{"score":0.82,"pass":true,"elapsed_s":748.3124349117279,"tool_calls":48,"status":"ok"},"da-6-2":{"score":0.35,"pass":false,"elapsed_s":1505.2144566234201,"tool_calls":94,"status":"ok"},"da-6-5":{"score":0.67,"pass":false,"elapsed_s":1267.447415806353,"tool_calls":60,"status":"ok"},"da-8-1":{"score":0.92,"pass":true,"elapsed_s":1007.1145761460066,"tool_calls":30,"status":"ok"},"da-8-2":{"score":0.72,"pass":true,"elapsed_s":581.9144462198019,"tool_calls":25,"status":"ok"},"da-8-3":{"score":0.63,"pass":false,"elapsed_s":1267.535524226725,"tool_calls":58,"status":"ok"},"da-9-1":{"score":0.85,"pass":true,"elapsed_s":1204.4958834312856,"tool_calls":55,"status":"ok"},"da-9-7":{"score":1.0,"pass":true,"elapsed_s":928.3784854337573,"tool_calls":55,"status":"ok"},"da-10-1":{"score":0.78,"pass":true,"elapsed_s":1245.1397421974689,"tool_calls":62,"status":"ok"},"da-10-3":{"score":1.0,"pass":true,"elapsed_s":1990.0640505887568,"tool_calls":79,"status":"ok"},"da-11-1":{"score":0.94,"pass":true,"elapsed_s":2426.6753430329263,"tool_calls":102,"status":"ok"},"da-12-2":{"score":0.95,"pass":true,"elapsed_s":554.0386648122221,"tool_calls":42,"status":"ok"},"da-12-4":{"score":1.0,"pass":true,"elapsed_s":549.344221945852,"tool_calls":36,"status":"ok"},"da-13-1":{"score":1.0,"pass":true,"elapsed_s":895.1262319851667,"tool_calls":58,"status":"ok"},"da-13-3":{"score":0.78,"pass":true,"elapsed_s":482.0987123735249,"tool_calls":31,"status":"ok"},"da-13-5":{"score":0.7,"pass":true,"elapsed_s":713.8779806308448,"tool_calls":50,"status":"ok"},"da-13-6":{"score":0.9,"pass":true,"elapsed_s":850.6794169601053,"tool_calls":42,"status":"ok"},"da-14-1":{"score":1.0,"pass":true,"elapsed_s":1071.6161817703396,"tool_calls":60,"status":"ok"},"da-14-3":{"score":1.0,"pass":true,"elapsed_s":478.02663730829954,"tool_calls":35,"status":"ok"},"da-14-8":{"score":0.76,"pass":true,"elapsed_s":1491.617123613134,"tool_calls":61,"status":"ok"},"da-15-1":{"score":1.0,"pass":true,"elapsed_s":1216.880672680214,"tool_calls":65,"status":"ok"},"da-15-2":{"score":0.48,"pass":false,"elapsed_s":1333.2171511985362,"tool_calls":53,"status":"ok"},"da-15-7":{"score":0.67,"pass":false,"elapsed_s":861.7000282220542,"tool_calls":69,"status":"ok"},"da-15-8":{"score":0.5,"pass":false,"elapsed_s":765.2150015775114,"tool_calls":40,"status":"ok"},"da-16-1":{"score":0.89,"pass":true,"elapsed_s":1120.5048200506717,"tool_calls":87,"status":"ok"},"da-17-1":{"score":0.84,"pass":true,"elapsed_s":690.3649677336216,"tool_calls":37,"status":"ok"},"da-17-3":{"score":0.9,"pass":true,"elapsed_s":1624.3114585001022,"tool_calls":102,"status":"ok"},"da-17-5":{"score":0.82,"pass":true,"elapsed_s":1169.744964076206,"tool_calls":65,"status":"ok"},"da-18-1":{"score":1.0,"pass":true,"elapsed_s":1057.6724266838282,"tool_calls":65,"status":"ok"},"da-18-5":{"score":0.51,"pass":false,"elapsed_s":839.5486282892525,"tool_calls":37,"status":"ok"},"da-18-7":{"score":0.69,"pass":false,"elapsed_s":691.457304071635,"tool_calls":42,"status":"ok"},"da-19-1":{"score":0.76,"pass":true,"elapsed_s":544.6145057138056,"tool_calls":52,"status":"ok"},"da-19-3":{"score":0.62,"pass":false,"elapsed_s":852.7362147886306,"tool_calls":57,"status":"ok"},"da-19-4":{"score":0.6,"pass":false,"elapsed_s":1299.441423729062,"tool_calls":52,"status":"ok"},"da-19-6":{"score":0.34,"pass":false,"elapsed_s":915.0641416758299,"tool_calls":70,"status":"ok"},"da-20-1":{"score":0.26,"pass":false,"elapsed_s":5013.99291969277,"tool_calls":81,"status":"ok"},"da-20-3":{"score":0.73,"pass":true,"elapsed_s":1420.5858357604593,"tool_calls":60,"status":"ok"},"da-20-4":{"score":0.15,"pass":false,"elapsed_s":1424.6521442327648,"tool_calls":72,"status":"ok"},"da-24-3":{"score":0.23,"pass":false,"elapsed_s":1204.4277288410813,"tool_calls":65,"status":"ok"},"da-25-1":{"score":0.7,"pass":true,"elapsed_s":1810.2369564604014,"tool_calls":83,"status":"ok"},"da-26-2":{"score":0.43,"pass":false,"elapsed_s":1512.9116434939206,"tool_calls":71,"status":"ok"},"da-26-4":{"score":0.66,"pass":false,"elapsed_s":2767.191579224542,"tool_calls":99,"status":"ok"}},"wisp-kimi-k3":{"da-1-3":{"score":0.82,"pass":true,"elapsed_s":494.80776145495474,"tool_calls":32,"status":"ok"},"da-1-4":{"score":0.79,"pass":true,"elapsed_s":327.32293113321066,"tool_calls":20,"status":"ok"},"da-3-4":{"score":1.0,"pass":true,"elapsed_s":296.9525304827839,"tool_calls":17,"status":"ok"},"da-3-5":{"score":1.0,"pass":true,"elapsed_s":718.914042731747,"tool_calls":41,"status":"ok"},"da-4-1":{"score":1.0,"pass":true,"elapsed_s":551.7927959486842,"tool_calls":35,"status":"ok"},"da-4-6":{"score":0.65,"pass":false,"elapsed_s":242.63908485136926,"tool_calls":11,"status":"ok"},"da-4-7":{"score":0.76,"pass":true,"elapsed_s":555.9644031915814,"tool_calls":24,"status":"ok"},"da-5-1":{"score":0.95,"pass":true,"elapsed_s":455.4630244374275,"tool_calls":31,"status":"ok"},"da-5-3":{"score":0.82,"pass":true,"elapsed_s":301.6073314100504,"tool_calls":20,"status":"ok"},"da-6-2":{"score":0.42,"pass":false,"elapsed_s":509.8423996511847,"tool_calls":29,"status":"ok"},"da-6-5":{"score":0.67,"pass":false,"elapsed_s":887.9034000970423,"tool_calls":52,"status":"ok"},"da-8-1":{"score":0.82,"pass":true,"elapsed_s":640.5752078182995,"tool_calls":23,"status":"ok"},"da-8-2":{"score":0.72,"pass":true,"elapsed_s":485.9679412897676,"tool_calls":29,"status":"ok"},"da-8-3":{"score":0.63,"pass":false,"elapsed_s":938.3285966143012,"tool_calls":35,"status":"ok"},"da-9-1":{"score":0.76,"pass":true,"elapsed_s":1037.6100902426988,"tool_calls":51,"status":"ok"},"da-9-7":{"score":0.65,"pass":false,"elapsed_s":612.8743632305413,"tool_calls":30,"status":"ok"},"da-10-1":{"score":0.66,"pass":false,"elapsed_s":2390.782467192039,"tool_calls":65,"status":"ok"},"da-10-3":{"score":0.86,"pass":true,"elapsed_s":735.8684882521629,"tool_calls":53,"status":"ok"},"da-11-1":{"score":0.68,"pass":false,"elapsed_s":2051.15270431526,"tool_calls":71,"status":"ok"},"da-12-2":{"score":0.75,"pass":true,"elapsed_s":227.60466950014234,"tool_calls":15,"status":"ok"},"da-12-4":{"score":0.73,"pass":true,"elapsed_s":674.8729181420058,"tool_calls":18,"status":"ok"},"da-13-1":{"score":1.0,"pass":true,"elapsed_s":2295.619664883241,"tool_calls":56,"status":"ok"},"da-13-3":{"score":0.87,"pass":true,"elapsed_s":247.84378624893725,"tool_calls":12,"status":"ok"},"da-13-5":{"score":0.4,"pass":false,"elapsed_s":692.6541878990829,"tool_calls":13,"status":"ok"},"da-13-6":{"score":0.7,"pass":true,"elapsed_s":494.2572919726372,"tool_calls":22,"status":"ok"},"da-14-1":{"score":1.0,"pass":true,"elapsed_s":504.7107729893178,"tool_calls":36,"status":"ok"},"da-14-3":{"score":0.85,"pass":true,"elapsed_s":279.32406736165285,"tool_calls":16,"status":"ok"},"da-14-8":{"score":0.66,"pass":false,"elapsed_s":367.9222768805921,"tool_calls":29,"status":"ok"},"da-15-1":{"score":0.9,"pass":true,"elapsed_s":731.767789049074,"tool_calls":28,"status":"ok"},"da-15-2":{"score":0.75,"pass":true,"elapsed_s":2476.4709556512535,"tool_calls":87,"status":"ok"},"da-15-7":{"score":0.77,"pass":true,"elapsed_s":423.50655479356647,"tool_calls":26,"status":"ok"},"da-15-8":{"score":0.7,"pass":true,"elapsed_s":449.7642633728683,"tool_calls":27,"status":"ok"},"da-16-1":{"score":0.93,"pass":true,"elapsed_s":795.3111831620336,"tool_calls":36,"status":"ok"},"da-17-1":{"score":0.78,"pass":true,"elapsed_s":459.7003599368036,"tool_calls":26,"status":"ok"},"da-17-3":{"score":0.73,"pass":true,"elapsed_s":0.0002720393240451813,"tool_calls":0,"status":"ok"},"da-17-5":{"score":0.82,"pass":true,"elapsed_s":0.0003521740436553955,"tool_calls":0,"status":"ok"},"da-18-1":{"score":0.92,"pass":true,"elapsed_s":823.3255345113575,"tool_calls":45,"status":"ok"},"da-18-5":{"score":0.59,"pass":false,"elapsed_s":451.29945532791317,"tool_calls":18,"status":"ok"},"da-18-7":{"score":0.72,"pass":true,"elapsed_s":0.000293804332613945,"tool_calls":0,"status":"ok"},"da-19-1":{"score":0.71,"pass":true,"elapsed_s":0.00023668445646762848,"tool_calls":0,"status":"ok"},"da-19-3":{"score":0.9,"pass":true,"elapsed_s":508.14008412882686,"tool_calls":26,"status":"ok"},"da-19-4":{"score":0.5,"pass":false,"elapsed_s":788.5154755543917,"tool_calls":28,"status":"ok"},"da-19-6":{"score":0.82,"pass":true,"elapsed_s":540.0835194811225,"tool_calls":17,"status":"ok"},"da-20-1":{"score":0.31,"pass":false,"elapsed_s":874.7512082178146,"tool_calls":33,"status":"ok"},"da-20-3":{"score":0.28,"pass":false,"elapsed_s":1055.019796172157,"tool_calls":31,"status":"ok"},"da-20-4":{"score":0.15,"pass":false,"elapsed_s":1259.9558859542012,"tool_calls":58,"status":"ok"},"da-24-3":{"score":0.25,"pass":false,"elapsed_s":566.7335398066789,"tool_calls":30,"status":"ok"},"da-25-1":{"score":0.57,"pass":false,"elapsed_s":953.9448688589036,"tool_calls":43,"status":"ok"},"da-26-2":{"score":0.35,"pass":false,"elapsed_s":819.6631945446134,"tool_calls":52,"status":"ok"},"da-26-4":{"score":0.71,"pass":true,"elapsed_s":4128.003821315244,"tool_calls":116,"status":"ok"}}}}</script>
+  <script type="application/json" id="bench-data">{"generated_at":"2026-09-03","generated_ts":"2026-09-03T06:56:41Z","protocol":{"agent":"wisp-science","backend":"wisp","judge":"deepseek-v4-pro","pass_threshold":0.7,"n_tasks":50,"n_models":5,"dataset":"BiomniBench-DA","dataset_url":"https://huggingface.co/datasets/phylobio/BiomniBench-DA","agent_url":"https://github.com/xuzhougeng/wisp-science","repo_url":"https://github.com/wisp-science/wisp-science-benchmark","protocol_url":"https://github.com/wisp-science/wisp-science-benchmark/blob/main/omicos-biomnibench/README.md"},"models":[{"id":"wisp-kimi-k3","label":"Kimi K3","ran":50,"answered":50,"passed":33,"accuracy":0.66,"mean_score":0.7156,"median_score":0.74,"mean_elapsed_s":762.5427568952739,"median_elapsed_s":553.8785995701328,"mean_tool_calls":32.26,"median_tool_calls":29.0,"perfect":5},{"id":"wisp-grok-4.6","label":"Grok 4.6","ran":50,"answered":50,"passed":32,"accuracy":0.64,"mean_score":0.7428,"median_score":0.78,"mean_elapsed_s":1178.351453275159,"median_elapsed_s":1037.538725502789,"mean_tool_calls":57.72,"median_tool_calls":56.0,"perfect":9},{"id":"wisp-glm-5.3","label":"GLM-5.3","ran":50,"answered":50,"passed":32,"accuracy":0.64,"mean_score":0.7338,"median_score":0.77,"mean_elapsed_s":1447.5274944160878,"median_elapsed_s":1147.7872294560075,"mean_tool_calls":85.3,"median_tool_calls":73.5,"perfect":5},{"id":"wisp-deepseek-flash-vision","label":"DeepSeek Flash","ran":50,"answered":50,"passed":24,"accuracy":0.48,"mean_score":0.6928,"median_score":0.69,"mean_elapsed_s":904.795293523483,"median_elapsed_s":673.8689262224361,"mean_tool_calls":70.76,"median_tool_calls":64.0,"perfect":4},{"id":"wisp-gpt-5.6-sol","label":"GPT-5.6","ran":50,"answered":50,"passed":23,"accuracy":0.46,"mean_score":0.6904,"median_score":0.6799999999999999,"mean_elapsed_s":764.036622802876,"median_elapsed_s":712.948938857764,"mean_tool_calls":34.76,"median_tool_calls":33.5,"perfect":6}],"tasks":[{"id":"da-1-3","paper":1},{"id":"da-1-4","paper":1},{"id":"da-3-4","paper":3},{"id":"da-3-5","paper":3},{"id":"da-4-1","paper":4},{"id":"da-4-6","paper":4},{"id":"da-4-7","paper":4},{"id":"da-5-1","paper":5},{"id":"da-5-3","paper":5},{"id":"da-6-2","paper":6},{"id":"da-6-5","paper":6},{"id":"da-8-1","paper":8},{"id":"da-8-2","paper":8},{"id":"da-8-3","paper":8},{"id":"da-9-1","paper":9},{"id":"da-9-7","paper":9},{"id":"da-10-1","paper":10},{"id":"da-10-3","paper":10},{"id":"da-11-1","paper":11},{"id":"da-12-2","paper":12},{"id":"da-12-4","paper":12},{"id":"da-13-1","paper":13},{"id":"da-13-3","paper":13},{"id":"da-13-5","paper":13},{"id":"da-13-6","paper":13},{"id":"da-14-1","paper":14},{"id":"da-14-3","paper":14},{"id":"da-14-8","paper":14},{"id":"da-15-1","paper":15},{"id":"da-15-2","paper":15},{"id":"da-15-7","paper":15},{"id":"da-15-8","paper":15},{"id":"da-16-1","paper":16},{"id":"da-17-1","paper":17},{"id":"da-17-3","paper":17},{"id":"da-17-5","paper":17},{"id":"da-18-1","paper":18},{"id":"da-18-5","paper":18},{"id":"da-18-7","paper":18},{"id":"da-19-1","paper":19},{"id":"da-19-3","paper":19},{"id":"da-19-4","paper":19},{"id":"da-19-6","paper":19},{"id":"da-20-1","paper":20},{"id":"da-20-3","paper":20},{"id":"da-20-4","paper":20},{"id":"da-24-3","paper":24},{"id":"da-25-1","paper":25},{"id":"da-26-2","paper":26},{"id":"da-26-4","paper":26}],"cells":{"wisp-deepseek-flash-vision":{"da-1-3":{"score":0.92,"pass":true,"elapsed_s":1377.4066165983677,"tool_calls":89,"status":"ok"},"da-1-4":{"score":0.79,"pass":true,"elapsed_s":469.45063129998744,"tool_calls":47,"status":"ok"},"da-3-4":{"score":1.0,"pass":true,"elapsed_s":466.7709950786084,"tool_calls":47,"status":"ok"},"da-3-5":{"score":0.69,"pass":false,"elapsed_s":666.3313825447112,"tool_calls":43,"status":"ok"},"da-4-1":{"score":0.82,"pass":true,"elapsed_s":861.4723384883255,"tool_calls":62,"status":"ok"},"da-4-6":{"score":0.58,"pass":false,"elapsed_s":368.73796043358743,"tool_calls":45,"status":"ok"},"da-4-7":{"score":0.58,"pass":false,"elapsed_s":529.0965161249042,"tool_calls":57,"status":"ok"},"da-5-1":{"score":0.63,"pass":false,"elapsed_s":492.99797611124814,"tool_calls":68,"status":"ok"},"da-5-3":{"score":0.85,"pass":true,"elapsed_s":297.43236274830997,"tool_calls":39,"status":"ok"},"da-6-2":{"score":0.35,"pass":false,"elapsed_s":982.2832577507943,"tool_calls":82,"status":"ok"},"da-6-5":{"score":0.85,"pass":true,"elapsed_s":773.2418801039457,"tool_calls":60,"status":"ok"},"da-8-1":{"score":0.92,"pass":true,"elapsed_s":495.9794270694256,"tool_calls":58,"status":"ok"},"da-8-2":{"score":0.59,"pass":false,"elapsed_s":535.0759612582624,"tool_calls":52,"status":"ok"},"da-8-3":{"score":0.64,"pass":false,"elapsed_s":1403.3123076390475,"tool_calls":127,"status":"ok"},"da-9-1":{"score":0.59,"pass":false,"elapsed_s":690.0046373680234,"tool_calls":68,"status":"ok"},"da-9-7":{"score":0.58,"pass":false,"elapsed_s":482.6080582141876,"tool_calls":55,"status":"ok"},"da-10-1":{"score":0.52,"pass":false,"elapsed_s":1296.4763984568417,"tool_calls":104,"status":"ok"},"da-10-3":{"score":1.0,"pass":true,"elapsed_s":2664.9713892415166,"tool_calls":94,"status":"ok"},"da-11-1":{"score":0.86,"pass":true,"elapsed_s":2254.6098938435316,"tool_calls":140,"status":"ok"},"da-12-2":{"score":0.57,"pass":false,"elapsed_s":262.0470759421587,"tool_calls":26,"status":"ok"},"da-12-4":{"score":1.0,"pass":true,"elapsed_s":692.0109185446054,"tool_calls":65,"status":"ok"},"da-13-1":{"score":0.69,"pass":false,"elapsed_s":933.1805744469166,"tool_calls":65,"status":"ok"},"da-13-3":{"score":0.78,"pass":true,"elapsed_s":310.5220420639962,"tool_calls":26,"status":"ok"},"da-13-5":{"score":0.6,"pass":false,"elapsed_s":2057.435946358368,"tool_calls":54,"status":"ok"},"da-13-6":{"score":0.5,"pass":false,"elapsed_s":530.3034535367042,"tool_calls":39,"status":"ok"},"da-14-1":{"score":0.8,"pass":true,"elapsed_s":464.84182194806635,"tool_calls":47,"status":"ok"},"da-14-3":{"score":1.0,"pass":true,"elapsed_s":635.281316999346,"tool_calls":69,"status":"ok"},"da-14-8":{"score":0.68,"pass":false,"elapsed_s":733.602295730263,"tool_calls":72,"status":"ok"},"da-15-1":{"score":0.8,"pass":true,"elapsed_s":660.9246275108308,"tool_calls":70,"status":"ok"},"da-15-2":{"score":0.55,"pass":false,"elapsed_s":1892.0333663839847,"tool_calls":103,"status":"ok"},"da-15-7":{"score":0.6,"pass":false,"elapsed_s":475.0773611124605,"tool_calls":43,"status":"ok"},"da-15-8":{"score":0.7,"pass":true,"elapsed_s":621.746902199462,"tool_calls":58,"status":"ok"},"da-16-1":{"score":0.85,"pass":true,"elapsed_s":851.5110128056258,"tool_calls":109,"status":"ok"},"da-17-1":{"score":0.84,"pass":true,"elapsed_s":525.2647308725864,"tool_calls":63,"status":"ok"},"da-17-3":{"score":0.81,"pass":true,"elapsed_s":641.0476043578237,"tool_calls":63,"status":"ok"},"da-17-5":{"score":0.72,"pass":true,"elapsed_s":447.56413605995476,"tool_calls":51,"status":"ok"},"da-18-1":{"score":0.92,"pass":true,"elapsed_s":434.8714045844972,"tool_calls":45,"status":"ok"},"da-18-5":{"score":0.51,"pass":false,"elapsed_s":1722.8527429662645,"tool_calls":65,"status":"ok"},"da-18-7":{"score":0.62,"pass":false,"elapsed_s":797.4400784056634,"tool_calls":69,"status":"ok"},"da-19-1":{"score":0.8,"pass":true,"elapsed_s":254.40925040468574,"tool_calls":30,"status":"ok"},"da-19-3":{"score":0.9,"pass":true,"elapsed_s":795.4343267735094,"tool_calls":120,"status":"ok"},"da-19-4":{"score":0.55,"pass":false,"elapsed_s":665.1425206623971,"tool_calls":87,"status":"ok"},"da-19-6":{"score":0.87,"pass":true,"elapsed_s":681.406469900161,"tool_calls":58,"status":"ok"},"da-20-1":{"score":0.51,"pass":false,"elapsed_s":728.4892822355032,"tool_calls":70,"status":"ok"},"da-20-3":{"score":0.73,"pass":true,"elapsed_s":621.3204729966819,"tool_calls":50,"status":"ok"},"da-20-4":{"score":0.28,"pass":false,"elapsed_s":1463.3895169980824,"tool_calls":119,"status":"ok"},"da-24-3":{"score":0.2,"pass":false,"elapsed_s":1127.5668495688587,"tool_calls":78,"status":"ok"},"da-25-1":{"score":0.61,"pass":false,"elapsed_s":835.2252138126642,"tool_calls":69,"status":"ok"},"da-26-2":{"score":0.35,"pass":false,"elapsed_s":1230.0651882477105,"tool_calls":116,"status":"ok"},"da-26-4":{"score":0.54,"pass":false,"elapsed_s":4039.4961813706905,"tool_calls":202,"status":"ok"}},"wisp-glm-5.3":{"da-1-3":{"score":0.78,"pass":true,"elapsed_s":1994.1267991382629,"tool_calls":183,"status":"ok"},"da-1-4":{"score":0.86,"pass":true,"elapsed_s":831.3587034139782,"tool_calls":32,"status":"ok"},"da-3-4":{"score":1.0,"pass":true,"elapsed_s":386.97392796352506,"tool_calls":43,"status":"ok"},"da-3-5":{"score":0.87,"pass":true,"elapsed_s":631.5139093585312,"tool_calls":56,"status":"ok"},"da-4-1":{"score":0.82,"pass":true,"elapsed_s":618.5740452595055,"tool_calls":59,"status":"ok"},"da-4-6":{"score":0.65,"pass":false,"elapsed_s":414.9646242521703,"tool_calls":21,"status":"ok"},"da-4-7":{"score":0.67,"pass":false,"elapsed_s":840.4597118236125,"tool_calls":52,"status":"ok"},"da-5-1":{"score":0.61,"pass":false,"elapsed_s":397.12637292966247,"tool_calls":41,"status":"ok"},"da-5-3":{"score":0.95,"pass":true,"elapsed_s":380.0062133092433,"tool_calls":31,"status":"ok"},"da-6-2":{"score":0.35,"pass":false,"elapsed_s":1233.796374399215,"tool_calls":120,"status":"ok"},"da-6-5":{"score":0.67,"pass":false,"elapsed_s":1956.667453987524,"tool_calls":100,"status":"ok"},"da-8-1":{"score":0.82,"pass":true,"elapsed_s":774.8956678193063,"tool_calls":61,"status":"ok"},"da-8-2":{"score":0.75,"pass":true,"elapsed_s":454.7503629196435,"tool_calls":46,"status":"ok"},"da-8-3":{"score":0.77,"pass":true,"elapsed_s":1396.3159092124552,"tool_calls":92,"status":"ok"},"da-9-1":{"score":0.88,"pass":true,"elapsed_s":1019.879257697612,"tool_calls":70,"status":"ok"},"da-9-7":{"score":0.68,"pass":false,"elapsed_s":469.89573760330677,"tool_calls":53,"status":"ok"},"da-10-1":{"score":0.77,"pass":true,"elapsed_s":2739.4788263645023,"tool_calls":92,"status":"ok"},"da-10-3":{"score":0.86,"pass":true,"elapsed_s":1490.9263063129038,"tool_calls":75,"status":"ok"},"da-11-1":{"score":0.86,"pass":true,"elapsed_s":4900.857257073745,"tool_calls":203,"status":"ok"},"da-12-2":{"score":0.75,"pass":true,"elapsed_s":470.679280532524,"tool_calls":39,"status":"ok"},"da-12-4":{"score":0.66,"pass":false,"elapsed_s":1195.185418624431,"tool_calls":40,"status":"ok"},"da-13-1":{"score":0.95,"pass":true,"elapsed_s":2315.1560617294163,"tool_calls":136,"status":"ok"},"da-13-3":{"score":0.87,"pass":true,"elapsed_s":657.5882836487144,"tool_calls":61,"status":"ok"},"da-13-5":{"score":0.8,"pass":true,"elapsed_s":1303.6632907558233,"tool_calls":114,"status":"ok"},"da-13-6":{"score":0.7,"pass":true,"elapsed_s":1055.4973637405783,"tool_calls":60,"status":"ok"},"da-14-1":{"score":1.0,"pass":true,"elapsed_s":1560.758971342817,"tool_calls":110,"status":"ok"},"da-14-3":{"score":0.85,"pass":true,"elapsed_s":925.2004875671118,"tool_calls":34,"status":"ok"},"da-14-8":{"score":0.58,"pass":false,"elapsed_s":1234.64816984348,"tool_calls":96,"status":"ok"},"da-15-1":{"score":1.0,"pass":true,"elapsed_s":2319.899376122281,"tool_calls":115,"status":"ok"},"da-15-2":{"score":0.85,"pass":true,"elapsed_s":1496.9392817355692,"tool_calls":120,"status":"ok"},"da-15-7":{"score":0.7,"pass":true,"elapsed_s":694.1069780960679,"tool_calls":74,"status":"ok"},"da-15-8":{"score":0.57,"pass":false,"elapsed_s":583.7892775610089,"tool_calls":61,"status":"ok"},"da-16-1":{"score":1.0,"pass":true,"elapsed_s":2290.305882755667,"tool_calls":136,"status":"ok"},"da-17-1":{"score":0.84,"pass":true,"elapsed_s":1198.7363106515259,"tool_calls":155,"status":"ok"},"da-17-3":{"score":0.81,"pass":true,"elapsed_s":1745.1252409536391,"tool_calls":73,"status":"ok"},"da-17-5":{"score":0.9,"pass":true,"elapsed_s":3449.0861708186567,"tool_calls":146,"status":"ok"},"da-18-1":{"score":1.0,"pass":true,"elapsed_s":573.3642533626407,"tool_calls":51,"status":"ok"},"da-18-5":{"score":0.66,"pass":false,"elapsed_s":810.3938636463135,"tool_calls":44,"status":"ok"},"da-18-7":{"score":0.52,"pass":false,"elapsed_s":801.4530815910548,"tool_calls":45,"status":"ok"},"da-19-1":{"score":0.72,"pass":true,"elapsed_s":642.8493582010269,"tool_calls":32,"status":"ok"},"da-19-3":{"score":0.62,"pass":false,"elapsed_s":878.3136382848024,"tool_calls":94,"status":"ok"},"da-19-4":{"score":0.7,"pass":true,"elapsed_s":1619.3128400240093,"tool_calls":50,"status":"ok"},"da-19-6":{"score":0.87,"pass":true,"elapsed_s":2346.67998274602,"tool_calls":90,"status":"ok"},"da-20-1":{"score":0.28,"pass":false,"elapsed_s":1376.5240922309458,"tool_calls":91,"status":"ok"},"da-20-3":{"score":0.81,"pass":true,"elapsed_s":1100.389040287584,"tool_calls":58,"status":"ok"},"da-20-4":{"score":0.15,"pass":false,"elapsed_s":2420.550083756447,"tool_calls":128,"status":"ok"},"da-24-3":{"score":0.23,"pass":false,"elapsed_s":4173.303713925183,"tool_calls":162,"status":"ok"},"da-25-1":{"score":0.64,"pass":false,"elapsed_s":1274.347220852971,"tool_calls":96,"status":"ok"},"da-26-2":{"score":0.43,"pass":false,"elapsed_s":990.2841439861804,"tool_calls":107,"status":"ok"},"da-26-4":{"score":0.61,"pass":false,"elapsed_s":5939.676100591198,"tool_calls":217,"status":"ok"}},"wisp-gpt-5.6-sol":{"da-1-3":{"score":0.75,"pass":true,"elapsed_s":732.8450622111559,"tool_calls":29,"status":"ok"},"da-1-4":{"score":0.85,"pass":true,"elapsed_s":714.3533490970731,"tool_calls":31,"status":"ok"},"da-3-4":{"score":0.89,"pass":true,"elapsed_s":688.1729820538312,"tool_calls":43,"status":"ok"},"da-3-5":{"score":0.79,"pass":true,"elapsed_s":959.1721105631441,"tool_calls":66,"status":"ok"},"da-4-1":{"score":0.82,"pass":true,"elapsed_s":812.449053408578,"tool_calls":43,"status":"ok"},"da-4-6":{"score":0.58,"pass":false,"elapsed_s":827.778958497569,"tool_calls":27,"status":"ok"},"da-4-7":{"score":0.69,"pass":false,"elapsed_s":1013.8662084154785,"tool_calls":24,"status":"ok"},"da-5-1":{"score":0.67,"pass":false,"elapsed_s":540.2042954787612,"tool_calls":20,"status":"ok"},"da-5-3":{"score":0.7,"pass":true,"elapsed_s":1130.9478919357061,"tool_calls":35,"status":"ok"},"da-6-2":{"score":0.37,"pass":false,"elapsed_s":725.9892875161022,"tool_calls":33,"status":"ok"},"da-6-5":{"score":0.66,"pass":false,"elapsed_s":708.3197341430932,"tool_calls":31,"status":"ok"},"da-8-1":{"score":0.86,"pass":true,"elapsed_s":547.1371783036739,"tool_calls":26,"status":"ok"},"da-8-2":{"score":0.59,"pass":false,"elapsed_s":673.3636893201619,"tool_calls":36,"status":"ok"},"da-8-3":{"score":0.64,"pass":false,"elapsed_s":624.6784148700535,"tool_calls":32,"status":"ok"},"da-9-1":{"score":0.42,"pass":false,"elapsed_s":583.533545024693,"tool_calls":31,"status":"ok"},"da-9-7":{"score":0.69,"pass":false,"elapsed_s":612.9171648174524,"tool_calls":35,"status":"ok"},"da-10-1":{"score":0.54,"pass":false,"elapsed_s":994.7943173032254,"tool_calls":28,"status":"ok"},"da-10-3":{"score":1.0,"pass":true,"elapsed_s":1169.3008619584143,"tool_calls":47,"status":"ok"},"da-11-1":{"score":0.61,"pass":false,"elapsed_s":1165.8734999019653,"tool_calls":48,"status":"ok"},"da-12-2":{"score":0.75,"pass":true,"elapsed_s":633.653711963445,"tool_calls":25,"status":"ok"},"da-12-4":{"score":0.86,"pass":true,"elapsed_s":813.3788120839745,"tool_calls":35,"status":"ok"},"da-13-1":{"score":0.95,"pass":true,"elapsed_s":660.8318330887705,"tool_calls":29,"status":"ok"},"da-13-3":{"score":0.64,"pass":false,"elapsed_s":434.2180351745337,"tool_calls":28,"status":"ok"},"da-13-5":{"score":0.7,"pass":true,"elapsed_s":711.5445286184549,"tool_calls":35,"status":"ok"},"da-13-6":{"score":0.9,"pass":true,"elapsed_s":542.5934711452574,"tool_calls":28,"status":"ok"},"da-14-1":{"score":1.0,"pass":true,"elapsed_s":768.2677385788411,"tool_calls":34,"status":"ok"},"da-14-3":{"score":1.0,"pass":true,"elapsed_s":526.1197799257934,"tool_calls":30,"status":"ok"},"da-14-8":{"score":0.58,"pass":false,"elapsed_s":471.3723312802613,"tool_calls":21,"status":"ok"},"da-15-1":{"score":1.0,"pass":true,"elapsed_s":888.2292503230274,"tool_calls":36,"status":"ok"},"da-15-2":{"score":0.58,"pass":false,"elapsed_s":942.5383273623884,"tool_calls":36,"status":"ok"},"da-15-7":{"score":0.67,"pass":false,"elapsed_s":534.7337686438113,"tool_calls":28,"status":"ok"},"da-15-8":{"score":0.55,"pass":false,"elapsed_s":563.7858821433038,"tool_calls":22,"status":"ok"},"da-16-1":{"score":1.0,"pass":true,"elapsed_s":809.9690340571105,"tool_calls":44,"status":"ok"},"da-17-1":{"score":0.84,"pass":true,"elapsed_s":708.4050614554435,"tool_calls":48,"status":"ok"},"da-17-3":{"score":0.9,"pass":true,"elapsed_s":1127.5355923268944,"tool_calls":49,"status":"ok"},"da-17-5":{"score":0.81,"pass":true,"elapsed_s":787.9977429658175,"tool_calls":37,"status":"ok"},"da-18-1":{"score":1.0,"pass":true,"elapsed_s":631.5508341565728,"tool_calls":22,"status":"ok"},"da-18-5":{"score":0.43,"pass":false,"elapsed_s":528.5556102842093,"tool_calls":34,"status":"ok"},"da-18-7":{"score":0.67,"pass":false,"elapsed_s":502.14842311292887,"tool_calls":33,"status":"ok"},"da-19-1":{"score":0.63,"pass":false,"elapsed_s":662.5527740828693,"tool_calls":33,"status":"ok"},"da-19-3":{"score":0.85,"pass":true,"elapsed_s":715.7426133677363,"tool_calls":36,"status":"ok"},"da-19-4":{"score":0.65,"pass":false,"elapsed_s":947.9685958176851,"tool_calls":37,"status":"ok"},"da-19-6":{"score":0.32,"pass":false,"elapsed_s":677.3095976449549,"tool_calls":36,"status":"ok"},"da-20-1":{"score":0.41,"pass":false,"elapsed_s":591.7152853850275,"tool_calls":29,"status":"ok"},"da-20-3":{"score":0.73,"pass":true,"elapsed_s":757.4813351798803,"tool_calls":44,"status":"ok"},"da-20-4":{"score":0.15,"pass":false,"elapsed_s":1441.8274344205856,"tool_calls":49,"status":"ok"},"da-24-3":{"score":0.4,"pass":false,"elapsed_s":634.8025331050158,"tool_calls":34,"status":"ok"},"da-25-1":{"score":0.61,"pass":false,"elapsed_s":740.6101278029382,"tool_calls":33,"status":"ok"},"da-26-2":{"score":0.35,"pass":false,"elapsed_s":728.7928411830217,"tool_calls":31,"status":"ok"},"da-26-4":{"score":0.47,"pass":false,"elapsed_s":1489.9006286431104,"tool_calls":57,"status":"ok"}},"wisp-grok-4.6":{"da-1-3":{"score":0.86,"pass":true,"elapsed_s":996.301063740626,"tool_calls":54,"status":"ok"},"da-1-4":{"score":0.94,"pass":true,"elapsed_s":780.5499484762549,"tool_calls":50,"status":"ok"},"da-3-4":{"score":1.0,"pass":true,"elapsed_s":580.1862179413438,"tool_calls":39,"status":"ok"},"da-3-5":{"score":0.87,"pass":true,"elapsed_s":1017.4050243217498,"tool_calls":48,"status":"ok"},"da-4-1":{"score":0.93,"pass":true,"elapsed_s":1602.6780507843941,"tool_calls":82,"status":"ok"},"da-4-6":{"score":0.55,"pass":false,"elapsed_s":636.4664853215218,"tool_calls":32,"status":"ok"},"da-4-7":{"score":0.6,"pass":false,"elapsed_s":1214.7203072775155,"tool_calls":38,"status":"ok"},"da-5-1":{"score":0.84,"pass":true,"elapsed_s":694.0755191799253,"tool_calls":36,"status":"ok"},"da-5-3":{"score":0.82,"pass":true,"elapsed_s":748.3124349117279,"tool_calls":48,"status":"ok"},"da-6-2":{"score":0.35,"pass":false,"elapsed_s":1505.2144566234201,"tool_calls":94,"status":"ok"},"da-6-5":{"score":0.67,"pass":false,"elapsed_s":1267.447415806353,"tool_calls":60,"status":"ok"},"da-8-1":{"score":0.92,"pass":true,"elapsed_s":1007.1145761460066,"tool_calls":30,"status":"ok"},"da-8-2":{"score":0.72,"pass":true,"elapsed_s":581.9144462198019,"tool_calls":25,"status":"ok"},"da-8-3":{"score":0.63,"pass":false,"elapsed_s":1267.535524226725,"tool_calls":58,"status":"ok"},"da-9-1":{"score":0.85,"pass":true,"elapsed_s":1204.4958834312856,"tool_calls":55,"status":"ok"},"da-9-7":{"score":1.0,"pass":true,"elapsed_s":928.3784854337573,"tool_calls":55,"status":"ok"},"da-10-1":{"score":0.78,"pass":true,"elapsed_s":1245.1397421974689,"tool_calls":62,"status":"ok"},"da-10-3":{"score":1.0,"pass":true,"elapsed_s":1990.0640505887568,"tool_calls":79,"status":"ok"},"da-11-1":{"score":0.94,"pass":true,"elapsed_s":2426.6753430329263,"tool_calls":102,"status":"ok"},"da-12-2":{"score":0.95,"pass":true,"elapsed_s":554.0386648122221,"tool_calls":42,"status":"ok"},"da-12-4":{"score":1.0,"pass":true,"elapsed_s":549.344221945852,"tool_calls":36,"status":"ok"},"da-13-1":{"score":1.0,"pass":true,"elapsed_s":895.1262319851667,"tool_calls":58,"status":"ok"},"da-13-3":{"score":0.78,"pass":true,"elapsed_s":482.0987123735249,"tool_calls":31,"status":"ok"},"da-13-5":{"score":0.7,"pass":true,"elapsed_s":713.8779806308448,"tool_calls":50,"status":"ok"},"da-13-6":{"score":0.9,"pass":true,"elapsed_s":850.6794169601053,"tool_calls":42,"status":"ok"},"da-14-1":{"score":1.0,"pass":true,"elapsed_s":1071.6161817703396,"tool_calls":60,"status":"ok"},"da-14-3":{"score":1.0,"pass":true,"elapsed_s":478.02663730829954,"tool_calls":35,"status":"ok"},"da-14-8":{"score":0.76,"pass":true,"elapsed_s":1491.617123613134,"tool_calls":61,"status":"ok"},"da-15-1":{"score":1.0,"pass":true,"elapsed_s":1216.880672680214,"tool_calls":65,"status":"ok"},"da-15-2":{"score":0.48,"pass":false,"elapsed_s":1333.2171511985362,"tool_calls":53,"status":"ok"},"da-15-7":{"score":0.67,"pass":false,"elapsed_s":861.7000282220542,"tool_calls":69,"status":"ok"},"da-15-8":{"score":0.5,"pass":false,"elapsed_s":765.2150015775114,"tool_calls":40,"status":"ok"},"da-16-1":{"score":0.89,"pass":true,"elapsed_s":1120.5048200506717,"tool_calls":87,"status":"ok"},"da-17-1":{"score":0.84,"pass":true,"elapsed_s":690.3649677336216,"tool_calls":37,"status":"ok"},"da-17-3":{"score":0.9,"pass":true,"elapsed_s":1624.3114585001022,"tool_calls":102,"status":"ok"},"da-17-5":{"score":0.82,"pass":true,"elapsed_s":1169.744964076206,"tool_calls":65,"status":"ok"},"da-18-1":{"score":1.0,"pass":true,"elapsed_s":1057.6724266838282,"tool_calls":65,"status":"ok"},"da-18-5":{"score":0.51,"pass":false,"elapsed_s":839.5486282892525,"tool_calls":37,"status":"ok"},"da-18-7":{"score":0.69,"pass":false,"elapsed_s":691.457304071635,"tool_calls":42,"status":"ok"},"da-19-1":{"score":0.76,"pass":true,"elapsed_s":544.6145057138056,"tool_calls":52,"status":"ok"},"da-19-3":{"score":0.62,"pass":false,"elapsed_s":852.7362147886306,"tool_calls":57,"status":"ok"},"da-19-4":{"score":0.6,"pass":false,"elapsed_s":1299.441423729062,"tool_calls":52,"status":"ok"},"da-19-6":{"score":0.34,"pass":false,"elapsed_s":915.0641416758299,"tool_calls":70,"status":"ok"},"da-20-1":{"score":0.26,"pass":false,"elapsed_s":5013.99291969277,"tool_calls":81,"status":"ok"},"da-20-3":{"score":0.73,"pass":true,"elapsed_s":1420.5858357604593,"tool_calls":60,"status":"ok"},"da-20-4":{"score":0.15,"pass":false,"elapsed_s":1424.6521442327648,"tool_calls":72,"status":"ok"},"da-24-3":{"score":0.23,"pass":false,"elapsed_s":1204.4277288410813,"tool_calls":65,"status":"ok"},"da-25-1":{"score":0.7,"pass":true,"elapsed_s":1810.2369564604014,"tool_calls":83,"status":"ok"},"da-26-2":{"score":0.43,"pass":false,"elapsed_s":1512.9116434939206,"tool_calls":71,"status":"ok"},"da-26-4":{"score":0.66,"pass":false,"elapsed_s":2767.191579224542,"tool_calls":99,"status":"ok"}},"wisp-kimi-k3":{"da-1-3":{"score":0.82,"pass":true,"elapsed_s":494.80776145495474,"tool_calls":32,"status":"ok"},"da-1-4":{"score":0.79,"pass":true,"elapsed_s":327.32293113321066,"tool_calls":20,"status":"ok"},"da-3-4":{"score":1.0,"pass":true,"elapsed_s":296.9525304827839,"tool_calls":17,"status":"ok"},"da-3-5":{"score":1.0,"pass":true,"elapsed_s":718.914042731747,"tool_calls":41,"status":"ok"},"da-4-1":{"score":1.0,"pass":true,"elapsed_s":551.7927959486842,"tool_calls":35,"status":"ok"},"da-4-6":{"score":0.65,"pass":false,"elapsed_s":242.63908485136926,"tool_calls":11,"status":"ok"},"da-4-7":{"score":0.76,"pass":true,"elapsed_s":555.9644031915814,"tool_calls":24,"status":"ok"},"da-5-1":{"score":0.95,"pass":true,"elapsed_s":455.4630244374275,"tool_calls":31,"status":"ok"},"da-5-3":{"score":0.82,"pass":true,"elapsed_s":301.6073314100504,"tool_calls":20,"status":"ok"},"da-6-2":{"score":0.42,"pass":false,"elapsed_s":509.8423996511847,"tool_calls":29,"status":"ok"},"da-6-5":{"score":0.67,"pass":false,"elapsed_s":887.9034000970423,"tool_calls":52,"status":"ok"},"da-8-1":{"score":0.82,"pass":true,"elapsed_s":640.5752078182995,"tool_calls":23,"status":"ok"},"da-8-2":{"score":0.72,"pass":true,"elapsed_s":485.9679412897676,"tool_calls":29,"status":"ok"},"da-8-3":{"score":0.63,"pass":false,"elapsed_s":938.3285966143012,"tool_calls":35,"status":"ok"},"da-9-1":{"score":0.76,"pass":true,"elapsed_s":1037.6100902426988,"tool_calls":51,"status":"ok"},"da-9-7":{"score":0.65,"pass":false,"elapsed_s":612.8743632305413,"tool_calls":30,"status":"ok"},"da-10-1":{"score":0.66,"pass":false,"elapsed_s":2390.782467192039,"tool_calls":65,"status":"ok"},"da-10-3":{"score":0.86,"pass":true,"elapsed_s":735.8684882521629,"tool_calls":53,"status":"ok"},"da-11-1":{"score":0.68,"pass":false,"elapsed_s":2051.15270431526,"tool_calls":71,"status":"ok"},"da-12-2":{"score":0.75,"pass":true,"elapsed_s":227.60466950014234,"tool_calls":15,"status":"ok"},"da-12-4":{"score":0.73,"pass":true,"elapsed_s":674.8729181420058,"tool_calls":18,"status":"ok"},"da-13-1":{"score":1.0,"pass":true,"elapsed_s":2295.619664883241,"tool_calls":56,"status":"ok"},"da-13-3":{"score":0.87,"pass":true,"elapsed_s":247.84378624893725,"tool_calls":12,"status":"ok"},"da-13-5":{"score":0.4,"pass":false,"elapsed_s":692.6541878990829,"tool_calls":13,"status":"ok"},"da-13-6":{"score":0.7,"pass":true,"elapsed_s":494.2572919726372,"tool_calls":22,"status":"ok"},"da-14-1":{"score":1.0,"pass":true,"elapsed_s":504.7107729893178,"tool_calls":36,"status":"ok"},"da-14-3":{"score":0.85,"pass":true,"elapsed_s":279.32406736165285,"tool_calls":16,"status":"ok"},"da-14-8":{"score":0.66,"pass":false,"elapsed_s":367.9222768805921,"tool_calls":29,"status":"ok"},"da-15-1":{"score":0.9,"pass":true,"elapsed_s":731.767789049074,"tool_calls":28,"status":"ok"},"da-15-2":{"score":0.75,"pass":true,"elapsed_s":2476.4709556512535,"tool_calls":87,"status":"ok"},"da-15-7":{"score":0.77,"pass":true,"elapsed_s":423.50655479356647,"tool_calls":26,"status":"ok"},"da-15-8":{"score":0.7,"pass":true,"elapsed_s":449.7642633728683,"tool_calls":27,"status":"ok"},"da-16-1":{"score":0.93,"pass":true,"elapsed_s":795.3111831620336,"tool_calls":36,"status":"ok"},"da-17-1":{"score":0.78,"pass":true,"elapsed_s":459.7003599368036,"tool_calls":26,"status":"ok"},"da-17-3":{"score":0.73,"pass":true,"elapsed_s":0.0002720393240451813,"tool_calls":0,"status":"ok"},"da-17-5":{"score":0.82,"pass":true,"elapsed_s":0.0003521740436553955,"tool_calls":0,"status":"ok"},"da-18-1":{"score":0.92,"pass":true,"elapsed_s":823.3255345113575,"tool_calls":45,"status":"ok"},"da-18-5":{"score":0.59,"pass":false,"elapsed_s":451.29945532791317,"tool_calls":18,"status":"ok"},"da-18-7":{"score":0.72,"pass":true,"elapsed_s":0.000293804332613945,"tool_calls":0,"status":"ok"},"da-19-1":{"score":0.71,"pass":true,"elapsed_s":0.00023668445646762848,"tool_calls":0,"status":"ok"},"da-19-3":{"score":0.9,"pass":true,"elapsed_s":508.14008412882686,"tool_calls":26,"status":"ok"},"da-19-4":{"score":0.5,"pass":false,"elapsed_s":788.5154755543917,"tool_calls":28,"status":"ok"},"da-19-6":{"score":0.82,"pass":true,"elapsed_s":540.0835194811225,"tool_calls":17,"status":"ok"},"da-20-1":{"score":0.31,"pass":false,"elapsed_s":874.7512082178146,"tool_calls":33,"status":"ok"},"da-20-3":{"score":0.28,"pass":false,"elapsed_s":1055.019796172157,"tool_calls":31,"status":"ok"},"da-20-4":{"score":0.15,"pass":false,"elapsed_s":1259.9558859542012,"tool_calls":58,"status":"ok"},"da-24-3":{"score":0.25,"pass":false,"elapsed_s":566.7335398066789,"tool_calls":30,"status":"ok"},"da-25-1":{"score":0.57,"pass":false,"elapsed_s":953.9448688589036,"tool_calls":43,"status":"ok"},"da-26-2":{"score":0.35,"pass":false,"elapsed_s":819.6631945446134,"tool_calls":52,"status":"ok"},"da-26-4":{"score":0.71,"pass":true,"elapsed_s":4128.003821315244,"tool_calls":116,"status":"ok"}}}}</script>
   <script>
     const DATA = JSON.parse(document.getElementById("bench-data").textContent);
     const THRESHOLD = DATA.protocol.pass_threshold;
     const I18N = {
       zh: {
-        lede: "同一套 BiomniBench-DA 公开题（50 道）、同一位评审模型 DeepSeek v4-pro，只更换 Wisp 智能体背后的大模型。rubric 得分 ≥ 0.70 记为及格：圆点颜色即得分，金圈表示及格。",
-        fig_title: "按来源论文分组的逐题成绩板",
-        fig_caption: "每行一个模型，每孔一道题，按 DA 论文编号分组；颜色深浅对应 0–1 得分，金圈为及格。模型按及格数排名，及格数相同再比均分。点击圆孔可定位到下方表格中的对应题目。",
+        lede: "同一套 BiomniBench-DA 公开题（50 道）、同一位评审模型 DeepSeek v4-pro，只更换 Wisp 智能体背后的大模型。rubric 得分 ≥ 0.70 记为及格。先看总表，点开一行看该模型每一题。",
+        skip: "跳到排行榜",
+        col_rank: "#",
+        col_model: "模型",
+        col_pass: "及格",
+        col_acc: "正确率",
+        col_mean: "均分",
+        col_time: "中位耗时",
+        col_tools: "中位工具",
+        col_task: "题目",
+        col_paper: "论文",
+        col_score: "得分",
+        col_result: "结果",
+        col_spread: "最大分差",
+        open_row: "查看逐题",
+        close_row: "收起",
+        detail_caption: "按来源论文分组。颜色深浅是 0–1 分，金圈为及格。点圆孔会滚到下面这张逐题表。",
+        compare_title: "逐题对比（所有模型）",
         filter_all: "全部 50 题",
         filter_split: "模型有分歧",
         filter_fail: "全员不及格",
         filter_unique: "仅一个模型及格",
-        table_title: "逐题分数",
         leg_pass: "及格 ≥ 0.70",
         leg_fail: "不及格",
-        col_task: "题目",
-        col_paper: "论文",
-        col_spread: "最大分差",
-        score_word: "得分",
         pass_word: "及格",
         fail_word: "不及格",
         min: "分钟",
-        tools: "次工具调用",
-        mean: "均分",
-        median_time: "中位耗时",
+        tools: "次",
+        score_word: "得分",
         foot_protocol: "答题方固定为 wisp-science（backend wisp），评审模型固定为 deepseek-v4-pro；不同评审模型给出的分数不可直接横向比较。",
         foot_build: "本页由 omicos-biomnibench/reports/build_index.py 汇总各次 run 的 matrix.csv 生成（生成日期 2026-09-03）。新增模型：将 biology-bench 产出的报告目录放入 reports/ 后重新运行该脚本。",
-        skip: "跳到逐题分数表",
       },
       en: {
-        lede: "Same 50 public BiomniBench-DA tasks, same judge model (DeepSeek v4-pro) — only the model behind the Wisp agent changes. A rubric score ≥ 0.70 counts as a pass: well color encodes the score, a gold ring marks a pass.",
-        fig_title: "Per-task results grouped by source paper",
-        fig_caption: "One lane per model, one well per task, grouped by DA paper id. Fill intensity encodes the 0–1 score; a gold ring marks a pass. Models are ranked by number of passes, ties broken by mean score. Click a well to jump to its row in the table below.",
+        lede: "Same 50 public BiomniBench-DA tasks, same judge (DeepSeek v4-pro) — only the model behind the Wisp agent changes. Pass = rubric score ≥ 0.70. Start with the ranking table; open a row for that model’s per-task scores.",
+        skip: "Skip to ranking",
+        col_rank: "#",
+        col_model: "model",
+        col_pass: "passed",
+        col_acc: "accuracy",
+        col_mean: "mean",
+        col_time: "median time",
+        col_tools: "median tools",
+        col_task: "task",
+        col_paper: "paper",
+        col_score: "score",
+        col_result: "result",
+        col_spread: "max gap",
+        open_row: "Per-task scores",
+        close_row: "Close",
+        detail_caption: "Grouped by source paper. Fill is the 0–1 score; a gold ring marks a pass. Click a well to jump to that row in the table.",
+        compare_title: "Per-task comparison (all models)",
         filter_all: "All 50 tasks",
         filter_split: "Models disagree",
         filter_fail: "No model passed",
         filter_unique: "Only one model passed",
-        table_title: "Per-task scores",
         leg_pass: "pass ≥ 0.70",
         leg_fail: "fail",
-        col_task: "task",
-        col_paper: "paper",
-        col_spread: "max gap",
-        score_word: "score",
         pass_word: "pass",
         fail_word: "fail",
         min: "min",
-        tools: "tool calls",
-        mean: "mean",
-        median_time: "median",
+        tools: "calls",
+        score_word: "score",
         foot_protocol: "The agent is fixed to wisp-science (backend wisp) and the judge to deepseek-v4-pro. Scores produced by different judges are not directly comparable.",
         foot_build: "Built by omicos-biomnibench/reports/build_index.py from the matrix.csv of each run (generated 2026-09-03). To add a model, drop the biology-bench report folder into reports/ and rerun the script.",
-        skip: "Skip to per-task table",
       },
     };
 
     const state = {
       lang: localStorage.getItem("biomni-lang") || "zh",
       filter: "all",
-      sortKey: "task",
-      sortDir: 1,
+      rankSort: "rank",
+      rankDir: 1,
+      matrixSort: "task",
+      matrixDir: 1,
+      openId: null,
     };
 
-    function t(key) {
-      return I18N[state.lang][key];
-    }
-
+    function t(key) { return I18N[state.lang][key]; }
     function fmtScore(v, digits) {
       return v == null ? "—" : Number(v).toFixed(digits == null ? 2 : digits);
     }
@@ -607,6 +602,7 @@
       if (seconds == null) return "—";
       return (seconds / 60).toFixed(1);
     }
+    function fmtPct(v) { return (v * 100).toFixed(0) + "%"; }
     function cell(modelId, taskId) {
       return (DATA.cells[modelId] || {})[taskId] || null;
     }
@@ -622,30 +618,8 @@
       }
       return groups;
     }
-    function chunkGroups(groups) {
-      const total = groups.reduce((sum, g) => sum + g.tasks.length, 0);
-      const target = Math.ceil(total / 2);
-      const rows = [];
-      let cur = [];
-      let n = 0;
-      for (const g of groups) {
-        if (cur.length && n >= target) {
-          rows.push(cur);
-          cur = [];
-          n = 0;
-        }
-        cur.push(g);
-        n += g.tasks.length;
-      }
-      if (cur.length) rows.push(cur);
-      return rows;
-    }
     function verdict(taskId) {
-      const vals = DATA.models.map((m) => {
-        const c = cell(m.id, taskId);
-        return !!(c && c.pass);
-      });
-      const n = vals.filter(Boolean).length;
+      const n = DATA.models.filter((m) => cell(m.id, taskId)?.pass).length;
       if (n === 0) return "fail";
       if (n === DATA.models.length) return "all";
       if (n === 1) return "unique";
@@ -662,15 +636,24 @@
     function scoreColor(score, passed) {
       if (score == null) return "var(--empty)";
       if (passed) {
-        const t = Math.min(1, Math.max(0, (score - THRESHOLD) / (1 - THRESHOLD)));
-        const l = 46 - t * 16;
-        const s = 58 + t * 12;
-        return "hsl(162 " + s + "% " + l + "%)";
+        const u = Math.min(1, Math.max(0, (score - THRESHOLD) / (1 - THRESHOLD)));
+        return "hsl(162 " + (58 + u * 12) + "% " + (46 - u * 16) + "%)";
       }
-      const t = Math.min(1, Math.max(0, score / THRESHOLD));
-      const l = 74 - t * 20;
-      const s = 16 + t * 28;
-      return "hsl(340 " + s + "% " + l + "%)";
+      const u = Math.min(1, Math.max(0, score / THRESHOLD));
+      return "hsl(340 " + (16 + u * 28) + "% " + (74 - u * 20) + "%)";
+    }
+    function bestScore(taskId) {
+      let best = -1;
+      for (const m of DATA.models) {
+        const s = cell(m.id, taskId)?.score;
+        if (s != null && s > best) best = s;
+      }
+      return best;
+    }
+    function spread(taskId) {
+      const scores = DATA.models.map((m) => cell(m.id, taskId)?.score).filter((v) => v != null);
+      if (!scores.length) return 0;
+      return Math.max(...scores) - Math.min(...scores);
     }
 
     function applyI18n() {
@@ -683,81 +666,125 @@
       });
     }
 
-    function renderPlate() {
-      const plate = document.getElementById("plate");
-      const groupsAll = paperGroups();
-      const bands = window.matchMedia("(max-width: 720px)").matches
-        ? [groupsAll]
-        : chunkGroups(groupsAll);
-      plate.innerHTML = bands.map((groups, bandIdx) => {
-        const headClusters = groups.map((g) => {
-          return `<div class="cluster" style="--n:${g.tasks.length}"><span class="cluster-label">DA-${g.paper}</span></div>`;
+    function rankedModels() {
+      const rows = DATA.models.map((m, i) => Object.assign({ rank: i + 1 }, m));
+      const dir = state.rankDir;
+      const key = state.rankSort;
+      rows.sort((a, b) => {
+        if (key === "label") return a.label.localeCompare(b.label) * dir;
+        if (key === "rank") return (a.rank - b.rank) * dir;
+        const va = a[key] ?? -1;
+        const vb = b[key] ?? -1;
+        return (va - vb) * dir;
+      });
+      return rows;
+    }
+
+    function wellsHtml(modelId) {
+      return paperGroups().map((g) => {
+        const wells = g.tasks.map((task) => {
+          const c = cell(modelId, task.id);
+          const score = c ? c.score : null;
+          const passed = !!(c && c.pass);
+          const ring = passed ? " is-pass" : "";
+          return `<button type="button" class="well${ring}" data-model="${modelId}" data-task="${task.id}" style="background:${scoreColor(score, passed)}" aria-label="${task.id} ${fmtScore(score)}"></button>`;
         }).join("");
-        const lanes = DATA.models.map((m, idx) => {
-          const clusters = groups.map((g) => {
-            const wells = g.tasks.map((task) => {
-              const c = cell(m.id, task.id);
-              const score = c ? c.score : null;
-              const passed = !!(c && c.pass);
-              const dim = matchFilter(task.id) ? "" : " is-dim";
-              const ring = passed ? " is-pass" : "";
-              return `<button type="button" class="well${ring}${dim}" data-model="${m.id}" data-task="${task.id}" style="background:${scoreColor(score, passed)}" aria-label="${m.label} ${task.id} ${fmtScore(score)}"></button>`;
-            }).join("");
-            return `<div class="cluster" style="--n:${g.tasks.length}"><span class="cluster-label">DA-${g.paper}</span>${wells}</div>`;
-          }).join("");
-          const meta = bandIdx === 0
-            ? `<div class="rank">${idx + 1}</div>
-               <div class="model-name">${m.label}</div>
-               <div class="model-stats"><span><b>${m.passed}/${m.ran}</b> ${t("pass_word")}</span> · <span>${t("mean")} ${fmtScore(m.mean_score, 3)}</span> · <span>${t("median_time")} ${fmtMin(m.median_elapsed_s)} ${t("min")}</span></div>`
-            : `<div class="model-name">${m.label}</div>`;
-          return `<div class="lane" data-model="${m.id}">
-            <div class="lane-meta">${meta}</div>
-            <div class="clusters">${clusters}</div>
-          </div>`;
-        }).join("");
-        return `<div class="band">
-          <div class="plate-head">
-            <div class="lane-meta"></div>
-            <div class="clusters">${headClusters}</div>
-          </div>
-          ${lanes}
-        </div>`;
+        return `<div class="cluster" style="--n:${g.tasks.length}"><span class="cluster-label">DA-${g.paper}</span>${wells}</div>`;
       }).join("");
     }
 
-    function bestScore(taskId) {
-      let best = -1;
-      for (const m of DATA.models) {
-        const c = cell(m.id, taskId);
-        if (c && c.score != null && c.score > best) best = c.score;
-      }
-      return best;
+    function miniTable(modelId) {
+      const rows = DATA.tasks.map((task) => {
+        const c = cell(modelId, task.id) || {};
+        const passed = !!c.pass;
+        return `<tr data-task="${task.id}">
+          <td>${task.id}</td>
+          <td>DA-${task.paper}</td>
+          <td><span class="score"><i class="dot ${passed ? "pass" : ""}" style="background:${scoreColor(c.score, passed)}"></i>${fmtScore(c.score)}</span></td>
+          <td><span class="tag ${passed ? "ok" : "no"}">${passed ? t("pass_word") : t("fail_word")}</span></td>
+          <td>${fmtMin(c.elapsed_s)} ${t("min")}</td>
+          <td>${c.tool_calls ?? "—"}</td>
+        </tr>`;
+      }).join("");
+      return `<div class="mini-wrap"><table class="mini">
+        <thead><tr>
+          <th>${t("col_task")}</th><th>${t("col_paper")}</th><th>${t("col_score")}</th>
+          <th>${t("col_result")}</th><th>${t("col_time")}</th><th>${t("col_tools")}</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
     }
 
-    function renderTable() {
+    function sortMark(key, current, dir) {
+      if (key !== current) return "";
+      return ` aria-sort="${dir > 0 ? "ascending" : "descending"}"`;
+    }
+
+    function renderBoard() {
+      const table = document.getElementById("rank");
+      const models = rankedModels();
+      const head = `<thead><tr>
+        <th data-rsort="rank"${sortMark("rank", state.rankSort, state.rankDir)}>${t("col_rank")}</th>
+        <th data-rsort="label"${sortMark("label", state.rankSort, state.rankDir)}>${t("col_model")}</th>
+        <th data-rsort="passed"${sortMark("passed", state.rankSort, state.rankDir)}>${t("col_pass")}</th>
+        <th class="acc" data-rsort="accuracy"${sortMark("accuracy", state.rankSort, state.rankDir)}>${t("col_acc")}</th>
+        <th data-rsort="mean_score"${sortMark("mean_score", state.rankSort, state.rankDir)}>${t("col_mean")}</th>
+        <th class="time" data-rsort="median_elapsed_s"${sortMark("median_elapsed_s", state.rankSort, state.rankDir)}>${t("col_time")}</th>
+        <th class="tools" data-rsort="median_tool_calls"${sortMark("median_tool_calls", state.rankSort, state.rankDir)}>${t("col_tools")}</th>
+        <th></th>
+      </tr></thead>`;
+      const body = models.map((m) => {
+        const open = state.openId === m.id;
+        const pct = m.ran ? (100 * m.passed / m.ran) : 0;
+        return `<tr class="sum-row ${open ? "is-open" : ""}" data-open="${m.id}" aria-expanded="${open ? "true" : "false"}">
+            <td class="rank-n">${m.rank}</td>
+            <td>${m.label}</td>
+            <td><span class="pass-n">${m.passed}/${m.ran}</span><span class="bar"><span style="width:${pct}%"></span></span></td>
+            <td class="acc">${fmtPct(m.accuracy)}</td>
+            <td>${fmtScore(m.mean_score, 3)}</td>
+            <td class="time">${fmtMin(m.median_elapsed_s)} ${t("min")}</td>
+            <td class="tools">${m.median_tool_calls ?? "—"}</td>
+            <td class="chev">${open ? "▾" : "▸"}</td>
+          </tr>
+          <tr class="detail-row">
+            <td colspan="8">
+              <div class="detail">
+                <div class="detail-bar">
+                  <span>${t("detail_caption")}</span>
+                  <span class="legend">
+                    <span><i class="swatch pass"></i>${t("leg_pass")}</span>
+                    <span><i class="swatch fail"></i>${t("leg_fail")}</span>
+                  </span>
+                </div>
+                <div class="clusters">${open ? wellsHtml(m.id) : ""}</div>
+                ${open ? miniTable(m.id) : ""}
+              </div>
+            </td>
+          </tr>`;
+      }).join("");
+      table.innerHTML = head + `<tbody>${body}</tbody>`;
+    }
+
+    function renderMatrix() {
       const table = document.getElementById("matrix");
       const modelHeads = DATA.models.map((m) =>
-        `<th data-sort="${m.id}" ${state.sortKey === m.id ? `aria-sort="${state.sortDir > 0 ? "ascending" : "descending"}"` : ""}>${m.label}</th>`
+        `<th data-msort="${m.id}"${sortMark(m.id, state.matrixSort, state.matrixDir)}>${m.label}</th>`
       ).join("");
       const head = `<thead><tr>
-        <th data-sort="task" ${state.sortKey === "task" ? `aria-sort="${state.sortDir > 0 ? "ascending" : "descending"}"` : ""}>${t("col_task")}</th>
-        <th data-sort="paper" ${state.sortKey === "paper" ? `aria-sort="${state.sortDir > 0 ? "ascending" : "descending"}"` : ""}>${t("col_paper")}</th>
+        <th data-msort="task"${sortMark("task", state.matrixSort, state.matrixDir)}>${t("col_task")}</th>
+        <th data-msort="paper"${sortMark("paper", state.matrixSort, state.matrixDir)}>${t("col_paper")}</th>
         ${modelHeads}
-        <th data-sort="spread" ${state.sortKey === "spread" ? `aria-sort="${state.sortDir > 0 ? "ascending" : "descending"}"` : ""}>${t("col_spread")}</th>
+        <th data-msort="spread"${sortMark("spread", state.matrixSort, state.matrixDir)}>${t("col_spread")}</th>
       </tr></thead>`;
-
       const rows = DATA.tasks.filter((task) => matchFilter(task.id)).slice();
+      const dir = state.matrixDir;
+      const key = state.matrixSort;
       rows.sort((a, b) => {
-        const dir = state.sortDir;
-        const key = state.sortKey;
         if (key === "task") return a.id.localeCompare(b.id, "en", { numeric: true }) * dir;
         if (key === "paper") return (Number(a.paper) - Number(b.paper) || a.id.localeCompare(b.id)) * dir;
         if (key === "spread") return (spread(a.id) - spread(b.id)) * dir;
-        const sa = cell(key, a.id)?.score;
-        const sb = cell(key, b.id)?.score;
-        return ((sa ?? -1) - (sb ?? -1)) * dir;
+        return ((cell(key, a.id)?.score ?? -1) - (cell(key, b.id)?.score ?? -1)) * dir;
       });
-
       const body = rows.map((task) => {
         const scores = DATA.models.map((m) => cell(m.id, task.id)?.score).filter((v) => v != null);
         const hi = bestScore(task.id);
@@ -771,20 +798,13 @@
         const sp = scores.length ? (Math.max(...scores) - Math.min(...scores)).toFixed(2) : "—";
         return `<tr data-task="${task.id}"><td>${task.id}</td><td>DA-${task.paper}</td>${cells}<td class="score">${sp}</td></tr>`;
       }).join("");
-
       table.innerHTML = head + `<tbody>${body}</tbody>`;
-    }
-
-    function spread(taskId) {
-      const scores = DATA.models.map((m) => cell(m.id, taskId)?.score).filter((v) => v != null);
-      if (!scores.length) return 0;
-      return Math.max(...scores) - Math.min(...scores);
     }
 
     function render() {
       applyI18n();
-      renderPlate();
-      renderTable();
+      renderBoard();
+      renderMatrix();
     }
 
     function showTip(event, modelId, taskId) {
@@ -793,9 +813,8 @@
       const task = DATA.tasks.find((x) => x.id === taskId);
       const c = cell(modelId, taskId);
       if (!c) return;
-      const passed = c.pass ? t("pass_word") : t("fail_word");
       tip.innerHTML = `<div><b>${m.label}</b> · ${taskId} · DA-${task.paper}</div>
-        <div class="k">${t("score_word")} ${fmtScore(c.score)} · ${passed}</div>
+        <div class="k">${t("score_word")} ${fmtScore(c.score)} · ${c.pass ? t("pass_word") : t("fail_word")}</div>
         <div class="k">${fmtMin(c.elapsed_s)} ${t("min")} · ${c.tool_calls ?? "—"} ${t("tools")}</div>`;
       tip.style.display = "block";
       moveTip(event);
@@ -807,15 +826,13 @@
       tip.style.left = x + "px";
       tip.style.top = y + "px";
     }
-    function hideTip() {
-      document.getElementById("tip").style.display = "none";
-    }
+    function hideTip() { document.getElementById("tip").style.display = "none"; }
 
     function highlightTask(taskId) {
-      document.querySelectorAll("table.matrix tbody tr").forEach((tr) => {
+      document.querySelectorAll(".mini tbody tr, table.matrix tbody tr").forEach((tr) => {
         tr.classList.toggle("is-hl", tr.dataset.task === taskId);
       });
-      const row = document.querySelector(`table.matrix tbody tr[data-task="${taskId}"]`);
+      const row = document.querySelector(`.mini tbody tr[data-task="${taskId}"]`);
       if (row) row.scrollIntoView({ block: "center", behavior: "smooth" });
     }
 
@@ -826,6 +843,43 @@
       localStorage.setItem("biomni-lang", state.lang);
       render();
     });
+
+    document.getElementById("rank").addEventListener("click", (e) => {
+      const th = e.target.closest("th[data-rsort]");
+      if (th) {
+        const key = th.dataset.rsort;
+        if (state.rankSort === key) state.rankDir *= -1;
+        else {
+          state.rankSort = key;
+          state.rankDir = key === "label" || key === "rank" ? 1 : -1;
+        }
+        renderBoard();
+        return;
+      }
+      const row = e.target.closest("tr[data-open]");
+      if (!row) return;
+      const id = row.dataset.open;
+      state.openId = state.openId === id ? null : id;
+      renderBoard();
+    });
+
+    document.getElementById("rank").addEventListener("pointerover", (e) => {
+      const well = e.target.closest(".well");
+      if (!well) return;
+      showTip(e, well.dataset.model, well.dataset.task);
+    });
+    document.getElementById("rank").addEventListener("pointermove", (e) => {
+      if (e.target.closest(".well")) moveTip(e);
+    });
+    document.getElementById("rank").addEventListener("pointerout", (e) => {
+      if (!e.relatedTarget || !e.relatedTarget.closest?.(".well")) hideTip();
+    });
+    document.getElementById("rank").addEventListener("click", (e) => {
+      const well = e.target.closest(".well");
+      if (!well) return;
+      highlightTask(well.dataset.task);
+    });
+
     document.querySelector(".filters").addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-filter]");
       if (!btn) return;
@@ -833,38 +887,21 @@
       document.querySelectorAll(".filters button").forEach((b) => {
         b.setAttribute("aria-pressed", b === btn ? "true" : "false");
       });
-      render();
-    });
-    document.getElementById("plate").addEventListener("pointerover", (e) => {
-      const well = e.target.closest(".well");
-      if (!well) return;
-      showTip(e, well.dataset.model, well.dataset.task);
-    });
-    document.getElementById("plate").addEventListener("pointermove", (e) => {
-      if (e.target.closest(".well")) moveTip(e);
-    });
-    document.getElementById("plate").addEventListener("pointerout", (e) => {
-      if (!e.relatedTarget || !e.relatedTarget.closest?.(".well")) hideTip();
-    });
-    document.getElementById("plate").addEventListener("click", (e) => {
-      const well = e.target.closest(".well");
-      if (!well) return;
-      highlightTask(well.dataset.task);
+      renderMatrix();
     });
     document.getElementById("matrix").addEventListener("click", (e) => {
-      const th = e.target.closest("th[data-sort]");
+      const th = e.target.closest("th[data-msort]");
       if (!th) return;
-      const key = th.dataset.sort;
-      if (state.sortKey === key) state.sortDir *= -1;
+      const key = th.dataset.msort;
+      if (state.matrixSort === key) state.matrixDir *= -1;
       else {
-        state.sortKey = key;
-        state.sortDir = key === "task" || key === "paper" ? 1 : -1;
+        state.matrixSort = key;
+        state.matrixDir = key === "task" || key === "paper" ? 1 : -1;
       }
-      renderTable();
+      renderMatrix();
     });
 
     render();
-    window.addEventListener("resize", () => { renderPlate(); });
   </script>
 </body>
 </html>

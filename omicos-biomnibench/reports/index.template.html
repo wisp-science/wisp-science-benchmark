@@ -268,6 +268,7 @@
       margin-top: 2px;
     }
     .model-stats b { color: var(--ink); font-weight: 500; }
+    .model-stats span { white-space: nowrap; }
 
     .clusters {
       display: flex;
@@ -473,7 +474,7 @@
   </style>
 </head>
 <body>
-  <a class="skip" href="#matrix">Skip to per-task table</a>
+  <a class="skip" href="#matrix" data-i18n="skip"></a>
   <div class="wrap">
     <header class="top">
       <div>
@@ -537,50 +538,54 @@
     const THRESHOLD = DATA.protocol.pass_threshold;
     const I18N = {
       zh: {
-        lede: "同一套 50 道 BiomniBench-DA 公开题，同一个 DeepSeek v4-pro judge，只换 Wisp 背后的模型。及格线 score ≥ 0.70。孔的填充是 rubric 分，金圈是及格。",
-        fig_title: "按来源论文排布的 assay plate",
-        fig_caption: "每一行是一个模型，每一孔是一道题，按 DA 论文编号分组。填充饱和度 = 0–1 分；金圈 = 及格。排名先看及格数，均分作并列时的次序。",
+        lede: "同一套 BiomniBench-DA 公开题（50 道）、同一位评审模型 DeepSeek v4-pro，只更换 Wisp 智能体背后的大模型。rubric 得分 ≥ 0.70 记为及格：圆点颜色即得分，金圈表示及格。",
+        fig_title: "按来源论文分组的逐题成绩板",
+        fig_caption: "每行一个模型，每孔一道题，按 DA 论文编号分组；颜色深浅对应 0–1 得分，金圈为及格。模型按及格数排名，及格数相同再比均分。点击圆孔可定位到下方表格中的对应题目。",
         filter_all: "全部 50 题",
         filter_split: "模型有分歧",
         filter_fail: "全员不及格",
-        filter_unique: "仅一模型及格",
+        filter_unique: "仅一个模型及格",
         table_title: "逐题分数",
         leg_pass: "及格 ≥ 0.70",
         leg_fail: "不及格",
         col_task: "题目",
         col_paper: "论文",
-        col_spread: "极差",
+        col_spread: "最大分差",
+        score_word: "得分",
         pass_word: "及格",
         fail_word: "不及格",
         min: "分钟",
-        tools: "次工具",
+        tools: "次工具调用",
         mean: "均分",
-        acc: "正确率",
-        foot_protocol: "Agent 是 wisp-science（backend wisp）。Judge 固定 deepseek-v4-pro。不同 judge 的分数不能横比。",
-        foot_build: "页面由 omicos-biomnibench/reports/build_index.py 从各 run 的 matrix.csv 生成。生成日期 @@GENERATED_AT@@。新模型：把 biology-bench report 产出的目录放进 reports/，再跑一次脚本。",
+        median_time: "中位耗时",
+        foot_protocol: "答题方固定为 wisp-science（backend wisp），评审模型固定为 deepseek-v4-pro；不同评审模型给出的分数不可直接横向比较。",
+        foot_build: "本页由 omicos-biomnibench/reports/build_index.py 汇总各次 run 的 matrix.csv 生成（生成日期 @@GENERATED_AT@@）。新增模型：将 biology-bench 产出的报告目录放入 reports/ 后重新运行该脚本。",
+        skip: "跳到逐题分数表",
       },
       en: {
-        lede: "Same 50 public BiomniBench-DA tasks, same DeepSeek v4-pro judge, only the Wisp agent model changes. Pass = score ≥ 0.70. Well fill is the rubric score; a gold ring marks a pass.",
-        fig_title: "Assay plate grouped by source paper",
-        fig_caption: "One lane per model, one well per task, clustered by DA paper id. Fill encodes the 0–1 score; gold ring = pass. Ranked by passes, then mean score.",
+        lede: "Same 50 public BiomniBench-DA tasks, same judge model (DeepSeek v4-pro) — only the model behind the Wisp agent changes. A rubric score ≥ 0.70 counts as a pass: well color encodes the score, a gold ring marks a pass.",
+        fig_title: "Per-task results grouped by source paper",
+        fig_caption: "One lane per model, one well per task, grouped by DA paper id. Fill intensity encodes the 0–1 score; a gold ring marks a pass. Models are ranked by number of passes, ties broken by mean score. Click a well to jump to its row in the table below.",
         filter_all: "All 50 tasks",
         filter_split: "Models disagree",
         filter_fail: "No model passed",
-        filter_unique: "Only one passed",
+        filter_unique: "Only one model passed",
         table_title: "Per-task scores",
         leg_pass: "pass ≥ 0.70",
         leg_fail: "fail",
         col_task: "task",
         col_paper: "paper",
-        col_spread: "range",
+        col_spread: "max gap",
+        score_word: "score",
         pass_word: "pass",
         fail_word: "fail",
         min: "min",
-        tools: "tools",
+        tools: "tool calls",
         mean: "mean",
-        acc: "accuracy",
-        foot_protocol: "Agent: wisp-science (backend wisp). Judge fixed at deepseek-v4-pro. Scores from different judges are not comparable.",
-        foot_build: "Built by omicos-biomnibench/reports/build_index.py from each run’s matrix.csv. Generated @@GENERATED_AT@@. To add a model, drop the biology-bench report folder into reports/ and rerun the script.",
+        median_time: "median",
+        foot_protocol: "The agent is fixed to wisp-science (backend wisp) and the judge to deepseek-v4-pro. Scores produced by different judges are not directly comparable.",
+        foot_build: "Built by omicos-biomnibench/reports/build_index.py from the matrix.csv of each run (generated @@GENERATED_AT@@). To add a model, drop the biology-bench report folder into reports/ and rerun the script.",
+        skip: "Skip to per-task table",
       },
     };
 
@@ -597,9 +602,6 @@
 
     function fmtScore(v, digits) {
       return v == null ? "—" : Number(v).toFixed(digits == null ? 2 : digits);
-    }
-    function fmtPct(v) {
-      return (v * 100).toFixed(0) + "%";
     }
     function fmtMin(seconds) {
       if (seconds == null) return "—";
@@ -706,7 +708,7 @@
           const meta = bandIdx === 0
             ? `<div class="rank">${idx + 1}</div>
                <div class="model-name">${m.label}</div>
-               <div class="model-stats"><b>${m.passed}/${m.ran}</b> · ${fmtPct(m.accuracy)} · ${t("mean")} ${fmtScore(m.mean_score, 3)} · ${fmtMin(m.median_elapsed_s)} ${t("min")}</div>`
+               <div class="model-stats"><span><b>${m.passed}/${m.ran}</b> ${t("pass_word")}</span> · <span>${t("mean")} ${fmtScore(m.mean_score, 3)}</span> · <span>${t("median_time")} ${fmtMin(m.median_elapsed_s)} ${t("min")}</span></div>`
             : `<div class="model-name">${m.label}</div>`;
           return `<div class="lane" data-model="${m.id}">
             <div class="lane-meta">${meta}</div>
@@ -793,7 +795,7 @@
       if (!c) return;
       const passed = c.pass ? t("pass_word") : t("fail_word");
       tip.innerHTML = `<div><b>${m.label}</b> · ${taskId} · DA-${task.paper}</div>
-        <div class="k">${fmtScore(c.score)} · ${passed}</div>
+        <div class="k">${t("score_word")} ${fmtScore(c.score)} · ${passed}</div>
         <div class="k">${fmtMin(c.elapsed_s)} ${t("min")} · ${c.tool_calls ?? "—"} ${t("tools")}</div>`;
       tip.style.display = "block";
       moveTip(event);

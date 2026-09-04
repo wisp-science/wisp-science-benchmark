@@ -68,6 +68,12 @@ from typing import cast
 import threading
 import pandas as pd
 
+# python run_benchmark.py registers as __main__, not run_benchmark.
+# wisp_provider does `import run_benchmark`; without this alias that
+# re-executes the file and deadlocks on WispProvider.
+if __name__ == "__main__":
+    sys.modules.setdefault("run_benchmark", sys.modules["__main__"])
+
 
 # ============================================================================
 # GRACEFUL SHUTDOWN

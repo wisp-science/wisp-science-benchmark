@@ -1,0 +1,69 @@
+# Computational Biology Environment for Benchmark Questions
+# This environment provides common tools for bioinformatics analysis
+name: compbio-benchmark
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  # Core Python
+  - python=3.11
+  - pip
+
+  # Data Analysis & Scientific Computing
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+
+  # Visualization
+  - matplotlib
+  - seaborn
+
+  # Bioinformatics - Core
+  - biopython
+  - pysam
+  - pybedtools
+
+  # Genomics Tools
+  - samtools
+  - bcftools
+  - bedtools
+  - tabix
+  # bgzip is part of htslib
+
+  # Sequence Alignment
+  - blast
+  - minimap2
+  - bwa
+
+  # VCF/Variant Analysis
+  - cyvcf2
+  - vcftools
+
+  # GTF/GFF Processing
+  - gffutils
+
+  # RNA-seq / Expression Analysis
+  - htseq
+  - subread  # provides featureCounts
+
+  # Hi-C / 3D Genomics
+  - cooler
+  - cooltools
+
+  # File Format Utilities
+  - htslib
+
+  # General Utilities
+  - requests
+  - tqdm
+  - ipython
+
+  # LLM CLI Dependencies
+  - nodejs  # Required for gemini and codex CLIs
+
+  # Pip-only packages
+  - pip:
+    - pyBigWig
+    - pyliftover

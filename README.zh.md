@@ -9,3 +9,4 @@
 | 套件 | Benchmark |
 | --- | --- |
 | [omicos-biomnibench](omicos-biomnibench/README.md) | [BiomniBench-DA](https://huggingface.co/datasets/phylobio/BiomniBench-DA) |
+| [compbiobench](compbiobench/README.md) | [CompBioBench](https://github.com/Genentech/compbiobench-runner) |

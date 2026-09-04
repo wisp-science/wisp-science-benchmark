@@ -1,0 +1,3 @@
+question_id,question,curator_name,domain,date_added,difficulty,file_paths
+annotate-variant-gene-impact-q2072,"What is the clinical significance reported in the ClinVar database for the SPI1 variant represented by the HGVS notation NM_003120.3(SPI1):c.143-2A>C? Respond with only the correct cateogry. Answer in all lowercase.",Gokcen Eraslan,Variant Annotation,2025-09-03,1.0,
+variant-coordinate-lookup-1-q2821,"Retrieve the single base genomic position for the variant identifier rs200533370 on the GRCh38 reference assembly, and report it in chr#:position format (1-based, inclusive).",Laura Gunsalus,Variant Annotation,2025-09-03,1.0,

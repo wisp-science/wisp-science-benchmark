@@ -3,3 +3,7 @@ runs/
 upstream/
 __pycache__/
 .env
+compbiobench-data/
+compbiobench/benchmark.csv
+compbiobench/benchmark_runs/
+compbiobench/benchmark_results.csv

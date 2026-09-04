@@ -175,10 +175,33 @@
       font-size: 13px;
       text-align: right;
     }
-    table.rank td:nth-child(2) {
+    table.rank td.model {
       font-family: var(--body);
       font-weight: 600;
       font-size: 15px;
+      overflow: visible;
+      padding-right: 52px;
+    }
+    .model-name {
+      position: relative;
+      display: inline-block;
+    }
+    .effort {
+      position: absolute;
+      left: 100%;
+      top: -0.55em;
+      margin-left: 4px;
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: var(--muted);
+      line-height: 1;
+      padding: 2px 6px;
+      border: 1px solid var(--edge);
+      border-radius: 99px;
+      background: var(--plate);
+      white-space: nowrap;
     }
     table.rank td.ver {
       font-family: var(--mono);
@@ -643,6 +666,8 @@
         col_rank: "#",
         col_model: "模型",
         col_wisp: "Wisp",
+        effort_default: "未设置 reasoning 参数（服务商默认）",
+        effort_word: "reasoning effort",
         col_pass: "及格",
         col_acc: "正确率",
         col_mean: "均分",
@@ -685,6 +710,8 @@
         col_rank: "#",
         col_model: "model",
         col_wisp: "Wisp",
+        effort_default: "reasoning param not set (provider default)",
+        effort_word: "reasoning effort",
         col_pass: "passed",
         col_acc: "accuracy",
         col_mean: "mean",
@@ -734,6 +761,11 @@
     };
 
     function t(key) { return I18N[state.lang][key]; }
+    function effortTitle(m) {
+      const effort = m.reasoning_effort || "default";
+      if (effort === "default") return t("effort_default");
+      return t("effort_word") + ": " + effort;
+    }
     function fmtScore(v, digits) {
       return v == null ? "—" : Number(v).toFixed(digits == null ? 2 : digits);
     }
@@ -880,7 +912,7 @@
         const pct = m.ran ? (100 * m.passed / m.ran) : 0;
         return `<tr class="sum-row ${open ? "is-open" : ""}" data-open="${m.id}" aria-expanded="${open ? "true" : "false"}">
             <td class="rank-n">${m.rank}</td>
-            <td>${m.label}</td>
+            <td class="model"><span class="model-name">${m.label}<span class="effort" title="${effortTitle(m)}">${m.reasoning_effort || "default"}</span></span></td>
             <td class="ver">${m.wisp_version || "—"}</td>
             <td><span class="pass-n">${m.passed}/${m.ran}</span><span class="bar"><span style="width:${pct}%"></span></span></td>
             <td class="acc">${fmtPct(m.accuracy)}</td>

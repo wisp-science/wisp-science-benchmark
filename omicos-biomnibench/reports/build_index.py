@@ -24,6 +24,7 @@ from pathlib import Path
 
 PASS_THRESHOLD = 0.70
 DEFAULT_WISP_VERSION = "1.8.1"
+DEFAULT_REASONING_EFFORT = "default"
 
 # Display names for known run-ids. Unknown ids fall back to stripping "wisp-".
 LABELS = {
@@ -112,9 +113,10 @@ def load_run(csv_path: Path) -> list[dict]:
 
 
 def load_run_meta(run_dir: Path) -> dict:
-    """Optional per-run metadata. Missing run.json falls back to DEFAULT_WISP_VERSION."""
+    """Optional per-run metadata. Missing fields fall back to the defaults."""
     meta_path = run_dir / "run.json"
     version = DEFAULT_WISP_VERSION
+    effort = DEFAULT_REASONING_EFFORT
     if meta_path.is_file():
         try:
             data = json.loads(meta_path.read_text(encoding="utf-8"))
@@ -124,7 +126,10 @@ def load_run_meta(run_dir: Path) -> dict:
             raw = str(data.get("wisp_version") or "").strip()
             if raw:
                 version = raw
-    return {"wisp_version": version}
+            raw_effort = str(data.get("reasoning_effort") or "").strip()
+            if raw_effort:
+                effort = raw_effort
+    return {"wisp_version": version, "reasoning_effort": effort}
 
 
 def summarize(run_id: str, rows: list[dict], meta: dict) -> dict:
@@ -138,6 +143,7 @@ def summarize(run_id: str, rows: list[dict], meta: dict) -> dict:
         "id": run_id,
         "label": label_for(run_id),
         "wisp_version": meta.get("wisp_version") or DEFAULT_WISP_VERSION,
+        "reasoning_effort": meta.get("reasoning_effort") or DEFAULT_REASONING_EFFORT,
         "ran": n,
         "answered": sum(1 for r in rows if r["status"] == "ok"),
         "passed": passed,

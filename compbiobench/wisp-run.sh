@@ -21,4 +21,7 @@ if [[ ! -x "$WISP_BIN" ]]; then
 fi
 
 export WISP_MODEL="$model"
+# Headless Wisp runs `uv pip install` with captured output and no timeout.
+# A blocked pypi.org hangs the question with zero logs; cap HTTP waits.
+export UV_HTTP_TIMEOUT="${UV_HTTP_TIMEOUT:-30}"
 exec "$WISP_BIN" run --output jsonl "$prompt"

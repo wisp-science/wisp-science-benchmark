@@ -1331,21 +1331,86 @@ def cleanup_conda_env(env_name: str, logger: logging.Logger) -> None:
         logger.warning(f"Failed to cleanup conda env {env_name}: {e}")
 
 
+def conda_env_prefix(env_name: str) -> str | None:
+    """Return the filesystem prefix of a named conda env, or None."""
+    try:
+        result = subprocess.run(
+            ["conda", "env", "list", "--json"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if result.returncode != 0:
+            return None
+        for path in json.loads(result.stdout).get("envs", []):
+            if os.path.basename(path.rstrip(os.sep)) == env_name:
+                return path
+    except Exception:
+        return None
+    return None
+
+
+class ProcessStartupHang(Exception):
+    """Child produced no stdout/stderr before the startup silence limit."""
+
+    def __init__(self, stdout: str, stderr: str, elapsed: float):
+        super().__init__(f"no process output for {elapsed:.0f}s")
+        self.stdout = stdout
+        self.stderr = stderr
+        self.elapsed = elapsed
+
+
+def _startup_silence_sec() -> int:
+    raw = os.environ.get("BENCH_STARTUP_SILENCE_SEC", "180")
+    try:
+        return max(0, int(raw))
+    except ValueError:
+        return 180
+
+
 def execute_llm_process(
     cmd: list[str],
     work_dir: str,
     timeout_seconds: int,
     question_id: str,
     logger: logging.Logger,
-    conda_env: str | None = None
+    conda_env: str | None = None,
+    conda_run: bool = True,
 ) -> tuple[str, str, int | None, float]:
     """Execute LLM process with optional conda environment. Returns (stdout, stderr, return_code, elapsed_time)."""
-    # Check if shutdown was requested before starting
     if is_shutdown_requested():
         raise InterruptedError("Shutdown requested")
 
+    silence_limit = _startup_silence_sec()
+    last_hang: ProcessStartupHang | None = None
+    for attempt in (1, 2):
+        try:
+            return _execute_llm_process_once(
+                cmd, work_dir, timeout_seconds, question_id, logger,
+                conda_env, conda_run, silence_limit,
+            )
+        except ProcessStartupHang as hang:
+            last_hang = hang
+            if attempt == 2:
+                raise
+            logger.warning(
+                f"[{question_id}] Startup hang after {hang.elapsed:.0f}s; retrying once"
+            )
+            shutil.rmtree(os.path.join(work_dir, ".wisp"), ignore_errors=True)
+    raise last_hang  # pragma: no cover
+
+
+def _execute_llm_process_once(
+    cmd: list[str],
+    work_dir: str,
+    timeout_seconds: int,
+    question_id: str,
+    logger: logging.Logger,
+    conda_env: str | None,
+    conda_run: bool,
+    silence_limit: int,
+) -> tuple[str, str, int | None, float]:
     start_time = time.time()
     stdout_lines, stderr_lines = [], []
+    launch_cmd = list(cmd)
 
     def read_stream(stream, lines_list, stream_name):
         try:
@@ -1358,23 +1423,27 @@ def execute_llm_process(
         finally:
             stream.close()
 
-    # Create environment without CLAUDECODE to allow nested Claude Code sessions
     env = os.environ.copy()
-    env.pop("CLAUDECODE", None)  # Remove to prevent "nested session" error
+    env.pop("CLAUDECODE", None)
 
-    # Wrap command with conda run if conda_env is specified
     if conda_env:
-        # Use --live-stream to preserve PATH and allow access to system node/CLIs
-        # The cloned env provides Python isolation while the CLI tools remain accessible
-        cmd = ["conda", "run", "-n", conda_env, "--live-stream"] + cmd
-        logger.debug(f"[{question_id}] Using conda env: {conda_env}")
+        if conda_run:
+            # --live-stream keeps system PATH (node/CLIs) visible to Claude/Codex/Gemini.
+            launch_cmd = ["conda", "run", "-n", conda_env, "--live-stream"] + launch_cmd
+            logger.debug(f"[{question_id}] Using conda run: {conda_env}")
+        else:
+            prefix = conda_env_prefix(conda_env)
+            if not prefix:
+                raise RuntimeError(f"conda env not found: {conda_env}")
+            env["PATH"] = os.path.join(prefix, "bin") + os.pathsep + env.get("PATH", "")
+            env["CONDA_PREFIX"] = prefix
+            env["CONDA_DEFAULT_ENV"] = conda_env
+            logger.debug(f"[{question_id}] Using conda PATH: {prefix}")
 
-    # Start process in its own process group so we can kill all children
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                               text=True, cwd=work_dir, bufsize=1, env=env,
-                               start_new_session=True)
-
-    # Register process for cleanup on shutdown
+    process = subprocess.Popen(
+        launch_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        text=True, cwd=work_dir, bufsize=1, env=env, start_new_session=True,
+    )
     register_process(process)
 
     stdout_thread = threading.Thread(target=read_stream, args=(process.stdout, stdout_lines, "stdout"))
@@ -1382,30 +1451,62 @@ def execute_llm_process(
     stdout_thread.start()
     stderr_thread.start()
 
-    try:
-        return_code = process.wait(timeout=timeout_seconds)
-    except subprocess.TimeoutExpired:
-        logger.warning(f"[{question_id}] Timeout after {timeout_seconds}s")
-        # Kill the entire process group (including child processes like claude)
+    def _kill() -> None:
         try:
             os.killpg(process.pid, signal.SIGKILL)
         except ProcessLookupError:
-            pass  # Process already terminated
+            pass
         process.wait()
-        # Join reader threads to collect any partial output before re-raising
         stdout_thread.join(timeout=5)
         stderr_thread.join(timeout=5)
-        exc = subprocess.TimeoutExpired(cmd, timeout_seconds)
-        exc.stdout = ''.join(stdout_lines).strip()
-        exc.stderr = ''.join(stderr_lines).strip()
-        raise exc
+
+    try:
+        deadline = start_time + timeout_seconds
+        silence_deadline = start_time + silence_limit if silence_limit else None
+        warned_silence = False
+        while True:
+            now = time.time()
+            if now >= deadline:
+                logger.warning(f"[{question_id}] Timeout after {timeout_seconds}s")
+                _kill()
+                exc = subprocess.TimeoutExpired(launch_cmd, timeout_seconds)
+                exc.stdout = ''.join(stdout_lines).strip()
+                exc.stderr = ''.join(stderr_lines).strip()
+                raise exc
+            if (
+                silence_deadline
+                and now >= silence_deadline
+                and not stdout_lines
+                and not stderr_lines
+            ):
+                elapsed = now - start_time
+                logger.warning(f"[{question_id}] No output for {elapsed:.0f}s; killing hung startup")
+                _kill()
+                raise ProcessStartupHang("", "", elapsed)
+            if (
+                not warned_silence
+                and not stdout_lines
+                and not stderr_lines
+                and now - start_time >= 60
+            ):
+                logger.warning(f"[{question_id}] Still no output after {now - start_time:.0f}s")
+                warned_silence = True
+            try:
+                return_code = process.wait(timeout=min(5.0, deadline - now))
+                break
+            except subprocess.TimeoutExpired:
+                continue
     finally:
-        # Unregister process after completion
         unregister_process(process)
 
     stdout_thread.join(timeout=5)
     stderr_thread.join(timeout=5)
-    return ''.join(stdout_lines).strip(), ''.join(stderr_lines).strip(), return_code, time.time() - start_time
+    return (
+        ''.join(stdout_lines).strip(),
+        ''.join(stderr_lines).strip(),
+        return_code,
+        time.time() - start_time,
+    )
 
 
 # ============================================================================
@@ -1664,7 +1765,8 @@ def run_question(idx: int, row: pd.Series, llm: str, model: str, timeout_seconds
 
     try:
         stdout, stderr, return_code, elapsed_time = execute_llm_process(
-            cmd, work_dir, timeout_seconds, question_id, logger, conda_env
+            cmd, work_dir, timeout_seconds, question_id, logger, conda_env,
+            conda_run=(llm != "wisp"),
         )
 
         # Parse LLM output into trace + usage, then extract answer via provider-specific channel.
@@ -1682,6 +1784,13 @@ def run_question(idx: int, row: pd.Series, llm: str, model: str, timeout_seconds
             final_output = read_answer_file_raw(answer_file)
         if answer.startswith("ERROR:"):
             logger.warning(f"[{question_id}] Answer extraction issue: {answer}")
+
+    except ProcessStartupHang as e:
+        elapsed_time, answer = e.elapsed, "ERROR: startup hang"
+        stdout = e.stdout or ""
+        stderr = (e.stderr or "") + f"\n\nSTARTUP HANG after {e.elapsed:.0f}s"
+        result_text = stdout
+        logger.warning(f"[{question_id}] {answer}")
 
     except subprocess.TimeoutExpired as e:
         elapsed_time, answer = float(timeout_seconds), "ERROR: timeout"

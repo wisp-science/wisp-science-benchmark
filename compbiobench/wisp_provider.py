@@ -12,6 +12,64 @@ _HERE = Path(__file__).resolve().parent
 _WRAPPER = _HERE / "wisp-run.sh"
 
 
+def _content_text(value: object) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return "\n".join(filter(None, (_content_text(item) for item in value)))
+    if isinstance(value, dict):
+        return str(value.get("text") or "")
+    return str(value)
+
+
+def wisp_answer_text(stdout: str) -> str:
+    """Final answer from `wisp.agent-event.v1` JSONL.
+
+    Headless Wisp finishes through `attempt_completion`; streamed `text`
+    deltas are often absent. The last stdout line is `type=done`, not the
+    answer.
+    """
+    answer = ""
+    text_chunks: list[str] = []
+    last_error = ""
+    for event, line in rb.parse_jsonl_events(stdout):
+        kind = event.get("type", "")
+        if kind == "error":
+            last_error = str(event.get("message") or line)
+        elif kind == "text":
+            text_chunks.append(event.get("delta") or "")
+        elif kind == "tool_call" and event.get("name") == "attempt_completion":
+            args = event.get("arguments") or {}
+            if isinstance(args, dict):
+                text = str(args.get("result") or "").strip()
+                if text:
+                    answer = text
+        elif kind == "tool_result" and event.get("name") == "attempt_completion":
+            if event.get("ok", True):
+                text = (event.get("content") or "").strip()
+                if text:
+                    answer = text
+        elif kind == "message":
+            role = (event.get("role") or "").lower()
+            text = _content_text(event.get("content")).strip()
+            if not text:
+                continue
+            if role == "assistant" or (
+                role == "tool" and event.get("tool_name") == "attempt_completion"
+            ):
+                answer = text
+    if answer:
+        return answer
+    streamed = rb.extract_last_non_empty_line("".join(text_chunks))
+    if streamed:
+        return streamed
+    if last_error:
+        return f"ERROR: {last_error}"
+    return ""
+
+
 def wisp_bin() -> str:
     return os.environ.get("WISP_BIN", "").strip() or "wisp-science"
 
@@ -93,6 +151,8 @@ class WispProvider(rb.LLMProvider):
                 flush_text()
                 flush_think()
                 name = event.get("name") or "unknown"
+                if name == "attempt_completion":
+                    continue
                 args = event.get("arguments") or {}
                 if name in ("bash", "shell") or "command" in args:
                     cmd = args.get("command") or event.get("preview") or ""
@@ -107,6 +167,11 @@ class WispProvider(rb.LLMProvider):
                     preview = event.get("preview") or ""
                     trace_parts.append(rb.format_tool_call(name, str(preview)))
             elif kind == "tool_result":
+                if event.get("name") == "attempt_completion":
+                    msg = rb.format_assistant_message("Wisp", event.get("content") or "")
+                    if msg:
+                        trace_parts.append(msg)
+                    continue
                 result = rb.format_tool_result(event.get("content") or "")
                 if result:
                     trace_parts.append(result)
@@ -133,15 +198,31 @@ class WispProvider(rb.LLMProvider):
     def extract_answer(
         self, stdout: str, model: str, answer_output_path: str | None = None
     ) -> str:
-        chunks: list[str] = []
-        parsed = False
-        for event, _line in rb.parse_jsonl_events(stdout):
-            if event.get("type") == "text":
-                parsed = True
-                chunks.append(event.get("delta") or "")
-            elif event.get("type") == "error":
-                parsed = True
-                return rb.parse_answer(f"ERROR: {event.get('message') or 'wisp error'}")
-        if parsed:
-            return rb.parse_answer(rb.extract_last_non_empty_line("".join(chunks)))
-        return rb.parse_answer(rb.extract_last_non_empty_line(stdout))
+        text = wisp_answer_text(stdout)
+        if text.startswith("ERROR:"):
+            return rb.parse_answer(text)
+        if text:
+            return rb.parse_answer(rb.extract_last_non_empty_line(text))
+        return rb.parse_answer("ERROR: empty answer")
+
+
+if __name__ == "__main__":
+    done = '{"ok":true,"schema":"wisp.agent-event.v1","sequence":200,"type":"done"}'
+    sample = "\n".join(
+        [
+            '{"type":"text","delta":"working..."}',
+            '{"type":"tool_call","name":"attempt_completion","arguments":{"result":"BRCA1"}}',
+            '{"type":"tool_result","name":"attempt_completion","ok":true,"content":"BRCA1"}',
+            '{"type":"message","role":"tool","tool_name":"attempt_completion","content":"BRCA1"}',
+            done,
+        ]
+    )
+    assert wisp_answer_text(sample) == "BRCA1", wisp_answer_text(sample)
+    assert wisp_answer_text(done) == ""
+    assert WispProvider().extract_answer(done, "m").startswith("ERROR")
+    assert WispProvider().extract_answer(sample, "m") == "BRCA1"
+    multiline = '{"type":"tool_result","name":"attempt_completion","ok":true,"content":"note\\nTP53"}'
+    assert WispProvider().extract_answer(multiline, "m") == "TP53"
+    parts = '{"type":"message","role":"assistant","content":[{"type":"text","text":"chr2:123"}]}'
+    assert wisp_answer_text(parts) == "chr2:123"
+    print("ok")

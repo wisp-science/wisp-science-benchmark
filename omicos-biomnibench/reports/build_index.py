@@ -23,6 +23,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 PASS_THRESHOLD = 0.70
+DEFAULT_WISP_VERSION = "1.8.1"
 
 # Display names for known run-ids. Unknown ids fall back to stripping "wisp-".
 LABELS = {
@@ -110,7 +111,23 @@ def load_run(csv_path: Path) -> list[dict]:
     return rows
 
 
-def summarize(run_id: str, rows: list[dict]) -> dict:
+def load_run_meta(run_dir: Path) -> dict:
+    """Optional per-run metadata. Missing run.json falls back to DEFAULT_WISP_VERSION."""
+    meta_path = run_dir / "run.json"
+    version = DEFAULT_WISP_VERSION
+    if meta_path.is_file():
+        try:
+            data = json.loads(meta_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            print(f"bad JSON in {meta_path}: {e}", file=sys.stderr)
+        else:
+            raw = str(data.get("wisp_version") or "").strip()
+            if raw:
+                version = raw
+    return {"wisp_version": version}
+
+
+def summarize(run_id: str, rows: list[dict], meta: dict) -> dict:
     scores = [r["score"] for r in rows if r["score"] is not None]
     elapsed = [r["elapsed_s"] for r in rows if r["elapsed_s"] is not None]
     tools = [r["tool_calls"] for r in rows if r["tool_calls"] is not None]
@@ -120,6 +137,7 @@ def summarize(run_id: str, rows: list[dict]) -> dict:
     return {
         "id": run_id,
         "label": label_for(run_id),
+        "wisp_version": meta.get("wisp_version") or DEFAULT_WISP_VERSION,
         "ran": n,
         "answered": sum(1 for r in rows if r["status"] == "ok"),
         "passed": passed,
@@ -136,6 +154,7 @@ def summarize(run_id: str, rows: list[dict]) -> dict:
 
 def collect(reports_dir: Path) -> dict:
     runs: dict[str, list[dict]] = {}
+    metas: dict[str, dict] = {}
     for child in sorted(reports_dir.iterdir()):
         if not child.is_dir():
             continue
@@ -147,11 +166,12 @@ def collect(reports_dir: Path) -> dict:
             print(f"skip empty {csv_path}", file=sys.stderr)
             continue
         runs[child.name] = rows
+        metas[child.name] = load_run_meta(child)
 
     if not runs:
         raise SystemExit(f"no matrix.csv runs found under {reports_dir}")
 
-    models = [summarize(run_id, rows) for run_id, rows in runs.items()]
+    models = [summarize(run_id, rows, metas[run_id]) for run_id, rows in runs.items()]
     models.sort(
         key=lambda m: (
             -m["passed"],

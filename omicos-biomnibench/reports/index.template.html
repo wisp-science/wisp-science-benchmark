@@ -161,8 +161,10 @@
     }
     table.rank th:first-child,
     table.rank th:nth-child(2),
+    table.rank th:nth-child(3),
     table.rank td:first-child,
-    table.rank td:nth-child(2) { text-align: left; }
+    table.rank td:nth-child(2),
+    table.rank td:nth-child(3) { text-align: left; }
     table.rank th[aria-sort="ascending"]::after { content: " ↑"; }
     table.rank th[aria-sort="descending"]::after { content: " ↓"; }
     table.rank td {
@@ -177,6 +179,12 @@
       font-family: var(--body);
       font-weight: 600;
       font-size: 15px;
+    }
+    table.rank td.ver {
+      font-family: var(--mono);
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--muted);
     }
     table.rank tr.sum-row { cursor: pointer; }
     table.rank tr.sum-row:hover td { background: color-mix(in srgb, var(--gold-soft) 22%, transparent); }
@@ -634,6 +642,7 @@
         skip: "跳到排行榜",
         col_rank: "#",
         col_model: "模型",
+        col_wisp: "Wisp",
         col_pass: "及格",
         col_acc: "正确率",
         col_mean: "均分",
@@ -675,6 +684,7 @@
         skip: "Skip to ranking",
         col_rank: "#",
         col_model: "model",
+        col_wisp: "Wisp",
         col_pass: "passed",
         col_acc: "accuracy",
         col_mean: "mean",
@@ -800,7 +810,9 @@
       const dir = state.rankDir;
       const key = state.rankSort;
       rows.sort((a, b) => {
-        if (key === "label") return a.label.localeCompare(b.label) * dir;
+        if (key === "label" || key === "wisp_version") {
+          return String(a[key] || "").localeCompare(String(b[key] || ""), "en", { numeric: true }) * dir;
+        }
         if (key === "rank") return (a.rank - b.rank) * dir;
         const va = a[key] ?? -1;
         const vb = b[key] ?? -1;
@@ -855,6 +867,7 @@
       const head = `<thead><tr>
         <th data-rsort="rank"${sortMark("rank", state.rankSort, state.rankDir)}>${t("col_rank")}</th>
         <th data-rsort="label"${sortMark("label", state.rankSort, state.rankDir)}>${t("col_model")}</th>
+        <th data-rsort="wisp_version"${sortMark("wisp_version", state.rankSort, state.rankDir)}>${t("col_wisp")}</th>
         <th data-rsort="passed"${sortMark("passed", state.rankSort, state.rankDir)}>${t("col_pass")}</th>
         <th class="acc" data-rsort="accuracy"${sortMark("accuracy", state.rankSort, state.rankDir)}>${t("col_acc")}</th>
         <th data-rsort="mean_score"${sortMark("mean_score", state.rankSort, state.rankDir)}>${t("col_mean")}</th>
@@ -868,6 +881,7 @@
         return `<tr class="sum-row ${open ? "is-open" : ""}" data-open="${m.id}" aria-expanded="${open ? "true" : "false"}">
             <td class="rank-n">${m.rank}</td>
             <td>${m.label}</td>
+            <td class="ver">${m.wisp_version || "—"}</td>
             <td><span class="pass-n">${m.passed}/${m.ran}</span><span class="bar"><span style="width:${pct}%"></span></span></td>
             <td class="acc">${fmtPct(m.accuracy)}</td>
             <td>${fmtScore(m.mean_score, 3)}</td>
@@ -876,7 +890,7 @@
             <td class="chev">${open ? "▾" : "▸"}</td>
           </tr>
           <tr class="detail-row">
-            <td colspan="8">
+            <td colspan="9">
               <div class="detail">
                 <div class="detail-bar">
                   <span>${t("detail_caption")}</span>
@@ -1044,7 +1058,7 @@
         if (state.rankSort === key) state.rankDir *= -1;
         else {
           state.rankSort = key;
-          state.rankDir = key === "label" || key === "rank" ? 1 : -1;
+          state.rankDir = key === "label" || key === "rank" || key === "wisp_version" ? 1 : -1;
         }
         renderBoard();
         return;

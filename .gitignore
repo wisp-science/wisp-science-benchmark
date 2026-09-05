@@ -7,3 +7,4 @@ compbiobench-data/
 compbiobench/benchmark.csv
 compbiobench/benchmark_runs/
 compbiobench/benchmark_results.csv
+compbiobench/benchmark_results-full.csv

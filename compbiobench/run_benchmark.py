@@ -1841,7 +1841,7 @@ def run_question(idx: int, row: pd.Series, llm: str, model: str, timeout_seconds
         progress_state['total_cost'] = progress_state.get('total_cost', 0.0) + usage.get('cost_usd', 0.0)
         is_error = answer.startswith("ERROR")
         progress_state['errors' if is_error else 'successful'] += 1
-        status = "ERR" if is_error else "OK"
+        status = "ERR" if is_error else "DONE"
         cost_str = f"${usage.get('cost_usd', 0):.4f}"
         logger.info(f"[{progress_state['completed']:3d}/{progress_state['total']}] "
                     f"{question_id[:30]:<30} | D:{difficulty:<3} | {elapsed_time:5.0f}s | {cost_str:>8} | [{status}] {str(answer)[:25]}")
@@ -1883,6 +1883,28 @@ def get_questions_to_skip(run_dir: str) -> set[str]:
 # RUN COMMAND
 # ============================================================================
 
+# Local resource profile, not an official CompBioBench split. Bump the version
+# when changing membership so resumed/merged runs keep the same task population.
+BENCHMARK_PROFILE_VERSION = 1
+FULL_ONLY_QUESTIONS = {
+    "contaminated-rna-q1": "External taxonomic reference database; supplied FASTQ is already local",
+    "contaminated-rna-q2": "External taxonomic reference database; supplied FASTQ is already local",
+    "contaminated-rna-q3": "External taxonomic reference database; supplied FASTQ is already local",
+    "encode-atac-pipeline-q1": "External ENCODE ATAC reference bundle and alignment indexes",
+    "find-deletion-q1": "External hg38 genome and alignment index; supplied FASTQs are already local",
+}
+
+
+def select_questions(df: pd.DataFrame, profile: str, exclude=()) -> tuple[pd.DataFrame, dict[str, str]]:
+    """Apply resource exclusions independently of model answers or elapsed time."""
+    if profile not in ("default", "full"):
+        raise ValueError(f"Unknown benchmark profile: {profile}")
+    reasons = dict(FULL_ONLY_QUESTIONS) if profile == "default" else {}
+    reasons.update({qid: "Excluded by --exclude" for qid in exclude})
+    skipped = {qid: reasons[qid] for qid in df['question_id'] if qid in reasons}
+    return df.loc[~df['question_id'].isin(skipped)].copy(), skipped
+
+
 def cmd_run(args) -> None:
     """Run benchmark with a specific LLM.
 
@@ -1910,7 +1932,9 @@ def cmd_run(args) -> None:
                 resume_clean_workspace=resume_clean_workspace,
                 model_reasoning_effort=model_reasoning_effort,
                 reverse=getattr(args, 'reverse', False),
-                exclude=getattr(args, 'exclude', [])
+                exclude=getattr(args, 'exclude', []),
+                profile=getattr(args, 'profile', None),
+                list_questions=getattr(args, 'list_questions', False),
             )
             _run_single_model(single_args)
         return
@@ -1928,6 +1952,46 @@ def _run_single_model(args) -> None:
     resume = getattr(args, 'resume', None)
     resume_clean_workspace = getattr(args, 'resume_clean_workspace', False)
     model_reasoning_effort = getattr(args, 'model_reasoning_effort', None)
+
+    profile = getattr(args, 'profile', None)
+    if resume:
+        run_dir = os.path.join(args.results_dir, resume)
+        metadata_path = os.path.join(run_dir, "run_metadata.json")
+        if not os.path.isfile(metadata_path):
+            raise ValueError(f"Run directory not found or invalid: {run_dir}")
+        expected_prefix = f"{llm}_{model}_"
+        if not resume.startswith(expected_prefix):
+            raise ValueError(f"Resume directory must start with {expected_prefix}")
+        with open(metadata_path, encoding='utf-8') as f:
+            previous = json.load(f)
+        # Runs created before profiles used the complete input CSV.
+        previous_profile = previous.get("benchmark_profile", "full")
+        if profile is not None and profile != previous_profile:
+            raise ValueError(f"Cannot resume {previous_profile} as {profile}; start a new run")
+        profile = previous_profile
+        if profile == "default" and previous.get("benchmark_profile_version") != BENCHMARK_PROFILE_VERSION:
+            raise ValueError("Default profile membership changed; start a new run")
+    else:
+        profile = profile or "default"
+        run_dir = os.path.join(args.results_dir, f"{llm}_{model}_{profile}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+
+    df = pd.read_csv(args.input)
+    valid, err = validate_csv(df, ['question_id', 'question', 'file_paths'])
+    if not valid:
+        raise ValueError(f"Invalid CSV: {err}")
+    input_question_count = len(df)
+    df, profile_skipped = select_questions(df, profile, getattr(args, 'exclude', []))
+    label = "Benchmark-full" if profile == "full" else "Benchmark"
+    print(f"{label}: {len(df)}/{input_question_count} questions selected; {len(profile_skipped)} skipped")
+    for qid, reason in profile_skipped.items():
+        print(f"  [SKIP] {qid}: {reason}")
+    if getattr(args, 'list_questions', False):
+        for qid in df['question_id']:
+            print(f"  [SELECT] {qid}")
+        return
+    if df.empty:
+        print("No questions selected.")
+        return
 
     try:
         provider.get_model_pricing(model)
@@ -1971,27 +2035,11 @@ def _run_single_model(args) -> None:
         resume_clean_workspace = False
 
     if resume:
-        run_dir = os.path.join(args.results_dir, resume)
-        if not os.path.isdir(run_dir) or not os.path.exists(os.path.join(run_dir, "run_metadata.json")):
-            print(f"ERROR: Run directory not found or invalid: {run_dir}")
-            return
-        expected_prefix = f"{llm}_{model}_"
-        if not resume.startswith(expected_prefix):
-            print(f"ERROR: Resume directory '{resume}' does not match --llm {llm} and -m {model} (expected prefix '{expected_prefix}')")
-            return
         print(f"Resuming: {run_dir}")
-    else:
-        run_dir = os.path.join(args.results_dir, f"{llm}_{model}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
 
     os.makedirs(run_dir, exist_ok=True)
     os.makedirs(os.path.join(run_dir, "questions"), exist_ok=True)
     logger = setup_logging(run_dir, llm, model)
-
-    df = pd.read_csv(args.input)
-    valid, err = validate_csv(df, ['question_id', 'question', 'file_paths'])
-    if not valid:
-        logger.error(f"Invalid CSV: {err}")
-        return
 
     if resume:
         skip_qids = get_questions_to_skip(run_dir)
@@ -1999,11 +2047,6 @@ def _run_single_model(args) -> None:
         logger.info(f"Resume: skipping {len(skip_qids)} completed")
     else:
         questions: list[tuple[int, pd.Series]] = [(cast(int, i), r) for i, r in df.iterrows()]
-
-    exclude_qids = set(getattr(args, 'exclude', []))
-    if exclude_qids:
-        questions = [(i, r) for i, r in questions if r['question_id'] not in exclude_qids]
-        logger.info(f"Excluding {len(exclude_qids)} question(s): {', '.join(sorted(exclude_qids))}")
 
     if getattr(args, 'reverse', False):
         questions.reverse()
@@ -2013,8 +2056,10 @@ def _run_single_model(args) -> None:
         return
 
     logger.info("=" * 80)
+    logger.info(f"{label} | Resource profile version: {BENCHMARK_PROFILE_VERSION} | Skipped: {len(profile_skipped)}")
     logger.info(f"LLM: {llm} | Model: {model} | Base env: {BASE_ENV_NAME}")
     logger.info(f"Questions: {len(questions)} | Parallel: {args.parallel} | Timeout: {args.timeout}min")
+    logger.info("[DONE] means output returned; answer correctness is not graded by this runner.")
     logger.info("=" * 80)
 
     with open(os.path.join(run_dir, "run_metadata.json"), 'w') as f:
@@ -2026,6 +2071,11 @@ def _run_single_model(args) -> None:
             "resume_clean_workspace": resume_clean_workspace,
             "model_reasoning_effort": model_reasoning_effort,
             "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
+            "benchmark_profile": profile,
+            "benchmark_profile_version": BENCHMARK_PROFILE_VERSION,
+            "input_questions": input_question_count,
+            "selected_question_ids": df['question_id'].tolist(),
+            "skipped_questions": profile_skipped,
             "total_questions": len(df), "questions_to_run": len(questions),
         }, f, indent=2)
 
@@ -2059,7 +2109,7 @@ def _run_single_model(args) -> None:
 
     logger.info("-" * 80)
     total_cost = progress.get('total_cost', 0.0)
-    logger.info(f"Done! OK: {progress['successful']} | Errors: {progress['errors']} | Total Cost: ${total_cost:.4f}")
+    logger.info(f"Done! Outputs: {progress['successful']} | Errors: {progress['errors']} | Total Cost: ${total_cost:.4f}")
     if progress['errors'] > 0:
         logger.info(f"Retry: python run_benchmark.py run --llm {llm} --resume {os.path.basename(run_dir)}")
 
@@ -2070,6 +2120,9 @@ def _run_single_model(args) -> None:
 
 def cmd_run_all(args) -> None:
     """Run benchmark with all LLMs and merge."""
+    if getattr(args, 'resume', None) and getattr(args, 'profile', None) is None:
+        with open(os.path.join(args.results_dir, args.resume, "run_metadata.json"), encoding='utf-8') as f:
+            args.profile = json.load(f).get("benchmark_profile", "full")
     llms = [(name, provider.default_model) for name, provider in LLM_PROVIDERS.items()]
 
     print("=" * 80)
@@ -2099,7 +2152,8 @@ def cmd_run_all(args) -> None:
             resume_clean_workspace=getattr(args, 'resume_clean_workspace', False),
             model_reasoning_effort=getattr(args, 'model_reasoning_effort', None),
             reverse=getattr(args, 'reverse', False),
-            exclude=getattr(args, 'exclude', [])
+            exclude=getattr(args, 'exclude', []),
+            profile=getattr(args, 'profile', None),
         )
         try:
             cmd_run(run_args)
@@ -2109,7 +2163,8 @@ def cmd_run_all(args) -> None:
             failed.append((llm, model))
 
     print(f"\n{'#'*80}\n# Merging\n{'#'*80}\n")
-    cmd_merge(argparse.Namespace(runs_dir=args.results_dir, input=args.input, output=args.output))
+    cmd_merge(argparse.Namespace(runs_dir=args.results_dir, input=args.input, output=args.output,
+                               profile=getattr(args, 'profile', None)))
     print(f"\n{'='*80}\nDone! OK: {len(success)} | Failed: {len(failed)}\nOutput: {args.output}")
 
 
@@ -2119,6 +2174,7 @@ def cmd_run_all(args) -> None:
 
 def cmd_merge(args) -> None:
     """Merge results from multiple runs."""
+    profile = getattr(args, 'profile', None) or "default"
     if not os.path.exists(args.runs_dir):
         print(f"No runs directory: {args.runs_dir}")
         return
@@ -2136,7 +2192,17 @@ def cmd_merge(args) -> None:
     for run_dir in sorted(run_dirs):
         with open(os.path.join(run_dir, "run_metadata.json")) as f:
             meta = json.load(f)
+        if meta.get("benchmark_profile", "full") != profile:
+            print(f"Skipping other profile: {run_dir}")
+            continue
+        if profile == "default" and meta.get("benchmark_profile_version") != BENCHMARK_PROFILE_VERSION:
+            print(f"Skipping different default profile version: {run_dir}")
+            continue
         run_meta.append((run_dir, meta))
+
+    if not run_meta:
+        print(f"No runs found for profile {profile!r}.")
+        return
 
     base_input_abs = os.path.abspath(args.input)
     meta_inputs = sorted({m.get("input_csv") for _, m in run_meta if m.get("input_csv")})
@@ -2150,7 +2216,8 @@ def cmd_merge(args) -> None:
                 print(f"  Hint: rerun merge with `-i {meta_inputs[0]}`")
 
     df = pd.read_csv(args.input)
-    print(f"Base: {args.input} ({len(df)} questions)")
+    df, _ = select_questions(df, profile)
+    print(f"Base: {args.input} ({len(df)} questions; profile: {profile})")
 
     # Track costs and question counts per run
     run_costs = {}
@@ -2416,12 +2483,18 @@ def main():
                    help="Permission mode: skip (bypass all, default), default (prompt), acceptEdits (auto-accept edits), dontAsk (auto-deny)")
     p.add_argument("--reverse", action="store_true", help="Run questions in reverse order")
     p.add_argument("--exclude", nargs="+", default=[], help="Question IDs to exclude (e.g., --exclude q1 q2 q3)")
+    p.add_argument("--profile", choices=["default", "full"], default=None,
+                   help="default: skip listed large external references; full: all input questions. Resume inherits the original profile.")
+    p.add_argument("--list-questions", action="store_true",
+                   help="List selected/skipped questions without starting a model or preparing environments")
 
     # Merge
     p = subparsers.add_parser("merge", help="Merge results")
     p.add_argument("--runs-dir", default="benchmark_runs")
     p.add_argument("-i", "--input", default="benchmark.csv")
     p.add_argument("-o", "--output", default="benchmark_results.csv")
+    p.add_argument("--profile", choices=["default", "full"], default="default",
+                   help="Merge only runs and questions from this resource profile (legacy runs are full)")
 
     # Run-all
     p = subparsers.add_parser("run-all", help="Run all LLMs and merge")
@@ -2441,6 +2514,8 @@ def main():
                    help="Permission mode: skip (bypass all, default), default (prompt), acceptEdits (auto-accept edits), dontAsk (auto-deny)")
     p.add_argument("--reverse", action="store_true", help="Run questions in reverse order")
     p.add_argument("--exclude", nargs="+", default=[], help="Question IDs to exclude (e.g., --exclude q1 q2 q3)")
+    p.add_argument("--profile", choices=["default", "full"], default=None,
+                   help="default: skip listed large external references; full: all input questions. Resume inherits the original profile.")
 
     args = parser.parse_args()
     cmds = {"prepare": cmd_prepare, "run": cmd_run, "merge": cmd_merge, "run-all": cmd_run_all}

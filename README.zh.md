@@ -4,7 +4,23 @@
 
 [Wisp Science](https://github.com/xuzhougeng/wisp-science) 在公开科研 agent benchmark 上的评测。每个子目录是一套。
 
-在线榜单（GitHub Pages）：https://wisp-science.github.io/wisp-science-benchmark/
+Benchmark 首页（GitHub Pages）：https://wisp-science.github.io/wisp-science-benchmark/
+
+网站分为两级：首页介绍评测项目，进入子页查看各自结果或评测方案：
+[BiomniBench-DA](https://wisp-science.github.io/wisp-science-benchmark/omicos-biomnibench/)、
+[CompBioBench 答案表](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/)、
+[NatureBench](https://wisp-science.github.io/wisp-science-benchmark/naturebench/)。
+
+CompBioBench 目前整理了 100 道题、4 个模型的原始答案；timeout 显示为 `NA`，暂不评判正确性。
+
+重建项目页面（首页独立维护，不会被构建脚本覆盖）：
+
+```bash
+python compbiobench/reports/build_index.py
+python compbiobench/reports/test_build_index.py
+python omicos-biomnibench/reports/build_index.py
+python -m http.server 8000 --directory docs
+```
 
 | 套件 | Benchmark |
 | --- | --- |

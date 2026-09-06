@@ -590,6 +590,7 @@
 <body>
   <a class="skip" href="#board" data-i18n="skip"></a>
   <div class="wrap">
+    <nav aria-label="Breadcrumb" style="margin-bottom:24px"><a href="@@HOME_URL@@" data-i18n="home">← 所有 Benchmarks</a></nav>
     <header class="top">
       <div>
         <p class="eyebrow">omicos-biomnibench</p>
@@ -661,6 +662,7 @@
     const THRESHOLD = DATA.protocol.pass_threshold;
     const I18N = {
       zh: {
+        home: "← 所有 Benchmarks",
         lede: "同一套 BiomniBench-DA 公开题（50 道）、同一位评审模型 DeepSeek v4-pro，只更换 Wisp 智能体背后的大模型。rubric 得分 ≥ 0.70 记为及格。先看总表，点开一行看该模型每一题。",
         skip: "跳到排行榜",
         col_rank: "#",
@@ -705,6 +707,7 @@
         foot_build: "本页由 omicos-biomnibench/reports/build_index.py 汇总各次 run 的 matrix.csv 生成（生成日期 @@GENERATED_AT@@）。新增模型：将 biology-bench 产出的报告目录放入 reports/ 后重新运行该脚本。",
       },
       en: {
+        home: "← All benchmarks",
         lede: "Same 50 public BiomniBench-DA tasks, same judge (DeepSeek v4-pro) — only the model behind the Wisp agent changes. Pass = rubric score ≥ 0.70. Start with the ranking table; open a row for that model’s per-task scores.",
         skip: "Skip to ranking",
         col_rank: "#",

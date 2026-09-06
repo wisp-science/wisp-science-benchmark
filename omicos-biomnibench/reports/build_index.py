@@ -3,13 +3,13 @@
 
 Usage:
     python omicos-biomnibench/reports/build_index.py
-    python omicos-biomnibench/reports/build_index.py --out docs/index.html
+    python omicos-biomnibench/reports/build_index.py --out docs/omicos-biomnibench/index.html
 
 Scans sibling run folders (each with matrix.csv), embeds compact scores into
 index.template.html, and writes:
 
     omicos-biomnibench/reports/index.html   (open locally)
-    docs/index.html                         (GitHub Pages, /docs)
+    docs/omicos-biomnibench/index.html      (GitHub Pages project page)
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ import json
 import statistics
 import sys
 from datetime import date, datetime, timezone
+from os.path import relpath
 from pathlib import Path
 
 PASS_THRESHOLD = 0.70
@@ -262,7 +263,7 @@ def main() -> None:
         "--out",
         type=Path,
         action="append",
-        help="output HTML path (repeatable). Defaults: reports/index.html and docs/index.html",
+        help="output HTML path (repeatable). Defaults: reports/index.html and docs/omicos-biomnibench/index.html",
     )
     args = parser.parse_args()
     reports_dir = args.reports_dir.resolve()
@@ -270,11 +271,12 @@ def main() -> None:
     html = render(data)
     traces_json = json.dumps(traces, ensure_ascii=False, separators=(",", ":"))
 
-    outs = args.out or [HERE / "index.html", REPO_ROOT / "docs" / "index.html"]
+    outs = args.out or [HERE / "index.html", REPO_ROOT / "docs" / "omicos-biomnibench" / "index.html"]
     for out in outs:
         out = out.resolve()
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(html, encoding="utf-8")
+        home = Path(relpath(REPO_ROOT / "docs" / "index.html", out.parent)).as_posix()
+        out.write_text(html.replace("@@HOME_URL@@", home), encoding="utf-8")
         cells_path = out.parent / "cells.json"
         cells_path.write_text(traces_json, encoding="utf-8")
         print(

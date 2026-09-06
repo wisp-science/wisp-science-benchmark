@@ -14,9 +14,9 @@ The HTML board is generated from `reports/<run-id>/matrix.csv`:
 python omicos-biomnibench/reports/build_index.py
 ```
 
-That writes `omicos-biomnibench/reports/index.html` (open locally) and `docs/index.html` (GitHub Pages, `/docs` or the Pages workflow). Drop a new `biology-bench report` folder into `reports/` and rerun the script.
+That writes `omicos-biomnibench/reports/index.html` (local report) and `docs/omicos-biomnibench/index.html` (GitHub Pages project page), with `cells.json` beside each HTML file. The benchmark hub at `docs/index.html` is maintained separately. Drop a new `biology-bench report` folder into `reports/` and rerun the script.
 
-Live: https://wisp-science.github.io/wisp-science-benchmark/
+Live: https://wisp-science.github.io/wisp-science-benchmark/omicos-biomnibench/
 
 Enable Pages once: **Settings → Pages → Source: GitHub Actions** (uses `.github/workflows/pages.yml`). Alternative: **Deploy from a branch → `main` / `/docs`**.
 

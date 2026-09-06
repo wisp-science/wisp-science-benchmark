@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CompBioBench · Wisp Science Benchmarks</title>
+  <meta name="description" content="Wisp Science 在 CompBioBench 上的 @@QUESTIONS@@ 题作答结果，按题目和模型并排展示原始答案。timeout 显示 NA，暂不评判正确性。">
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body>
+  <a class="skip" href="#results">跳到答案表</a>
+  <div class="wrap wide">
+    <nav class="topbar" aria-label="主导航">
+      <a class="brand" href="../index.html">← 所有 Benchmarks</a>
+      <span>Wisp Science / CompBioBench</span>
+    </nav>
+    <main>
+      <header class="hero">
+        <p class="eyebrow">Computational biology · Model answers</p>
+        <h1>CompBioBench</h1>
+        <p class="lede">同一套 @@QUESTIONS@@ 道计算生物学题目，不同模型驱动 Wisp Science 作答。行是题目名称，列是模型，单元格为答案。</p>
+        <span class="pill">部分模型运行结果 · 暂不评判正确性</span>
+        <div class="stats" aria-label="运行概况">
+          <div class="stat"><strong>@@QUESTIONS@@</strong><span>题目</span></div>
+          <div class="stat"><strong>@@MODELS@@</strong><span>模型</span></div>
+          <div class="stat"><strong>@@TIMEOUTS@@</strong><span>超时记录 → NA</span></div>
+        </div>
+      </header>
+      <section id="results" aria-labelledby="answers-title">
+        <h2 id="answers-title">逐题答案</h2>
+        <div class="toolbar">
+          <div class="search">
+            <label for="search">搜索</label>
+            <input type="search" id="search" placeholder="题目名称、题干或答案" aria-controls="answer-table" autocomplete="off">
+            <span class="count" id="count" role="status">@@QUESTIONS@@ / @@QUESTIONS@@ 题</span>
+          </div>
+          <a class="button" href="answers.csv" download>下载答案 CSV ↓</a>
+        </div>
+        <p class="note" id="table-note" style="margin:0 0 16px">点击题目名称展开题干。表格可上下、左右滚动，题目列与模型表头固定。timeout 暂记 NA；模型自身输出的 NA 和其他运行错误保留原样。</p>
+        <div class="table-wrap" role="region" aria-label="CompBioBench 答案表，可滚动" tabindex="0">
+          <table class="answers" id="answer-table" aria-labelledby="answers-title" aria-describedby="table-note">
+            <thead><tr><th scope="col">题目名称<small>点击展开题干</small></th>@@HEADERS@@</tr></thead>
+            <tbody>@@ROWS@@</tbody>
+          </table>
+          <p class="empty" id="empty" hidden>没有匹配的题目，请尝试其他关键词。</p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>来源：@@SOURCE@@ · 运行日期：@@DATES@@。答案保留运行记录的原始文本，仅将 timeout 显示为 NA。</p>
+      <a href="../index.html">所有 Benchmarks</a>
+      <a href="https://github.com/wisp-science/wisp-science-benchmark/blob/main/compbiobench/README.zh.md">评测与数据说明</a>
+      <a href="https://github.com/Genentech/compbiobench-runner">CompBioBench</a>
+    </footer>
+  </div>
+  <script>
+    const rows = Array.from(document.querySelectorAll("#answer-table tbody tr"));
+    const search = document.getElementById("search");
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      let visible = 0;
+      rows.forEach(row => {
+        row.hidden = !row.textContent.toLowerCase().includes(query);
+        if (!row.hidden) visible++;
+      });
+      document.getElementById("count").textContent = `${visible} / ${rows.length} 题`;
+      document.getElementById("empty").hidden = visible !== 0;
+    });
+  </script>
+</body>
+</html>

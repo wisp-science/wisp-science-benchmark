@@ -1,0 +1,2739 @@
+{
+  "source": "archive_clean.zip",
+  "models": [
+    {
+      "id": "GLM-5.3",
+      "run": "wisp_GLM-5.3_20260904_214426",
+      "timestamp": "20260904_214426",
+      "timeout_minutes": 120,
+      "reasoning_effort": null,
+      "total_questions": 100
+    },
+    {
+      "id": "gpt-5.6-sol",
+      "run": "wisp_gpt-5.6-sol_20260905_161343",
+      "timestamp": "20260906_071632",
+      "timeout_minutes": 120,
+      "reasoning_effort": null,
+      "total_questions": 100
+    },
+    {
+      "id": "grok-4.6",
+      "run": "wisp_grok-4.6_20260905_092351",
+      "timestamp": "20260905_092351",
+      "timeout_minutes": 120,
+      "reasoning_effort": null,
+      "total_questions": 100
+    },
+    {
+      "id": "kimi-k3",
+      "run": "wisp_kimi-k3_20260904_185546",
+      "timestamp": "20260906_141816",
+      "timeout_minutes": 120,
+      "reasoning_effort": null,
+      "total_questions": 100
+    }
+  ],
+  "questions": [
+    {
+      "id": "ensembl-grab-q1",
+      "index": 0,
+      "question": "Convert all of the following to Ensembl gene IDs. Provide the ID without the Ensembl version (e.g., ENSGXXXXXXXXXXXX not ENSGXXXXXXXXXXXX.XX). Respond with semi-colon separated values, no spaces. Inputs: 1. NM_001276266.2 2. TERB2 3. ENST00000267814 4. chr15:45167214-45187966 (hg38) 5. GeneID:9153 6. NP_922946.1 7. MIM:617658 8. BEN domain containing 5, transcript variant 6.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373",
+          "status": "success",
+          "timestamp": "2026-09-04T21:44:26.197991"
+        },
+        "gpt-5.6-sol": {
+          "answer": "ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373",
+          "status": "success",
+          "timestamp": "2026-09-05T16:13:43.122690"
+        },
+        "grok-4.6": {
+          "answer": "ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373",
+          "status": "success",
+          "timestamp": "2026-09-05T09:23:51.144276"
+        },
+        "kimi-k3": {
+          "answer": "ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373",
+          "status": "success",
+          "timestamp": "2026-09-04T18:55:46.939121"
+        }
+      }
+    },
+    {
+      "id": "bam-infer-read-length-q1",
+      "index": 1,
+      "question": "For the given BAM file mt.sorted.bam, infer if it's paired or single ended reads and the read length. Expected output format: 1x57",
+      "results": {
+        "GLM-5.3": {
+          "answer": "2x101",
+          "status": "success",
+          "timestamp": "2026-09-04T21:44:26.200269"
+        },
+        "gpt-5.6-sol": {
+          "answer": "2x101",
+          "status": "success",
+          "timestamp": "2026-09-05T16:13:43.152784"
+        },
+        "grok-4.6": {
+          "answer": "2x101",
+          "status": "success",
+          "timestamp": "2026-09-05T09:23:51.181098"
+        },
+        "kimi-k3": {
+          "answer": "2x101",
+          "status": "success",
+          "timestamp": "2026-09-04T18:55:46.940089"
+        }
+      }
+    },
+    {
+      "id": "differential-composition-q1",
+      "index": 2,
+      "question": "differential.composition.q1.1.mtx.gz and differential.composition.q1.2.mtx.gz contain raw scRNA counts matrices derived from retinal samples of two individuals (one per file, each column is a unique barcode that passes QC). differential.composition.q1.genes.txt.gz is the list of common genes. One of the cell types is severely depleted in one of the two individuals. What is this cell type? Return only the name of the depleted cell type from this list: astrocyte, microglial cell, RPE cell, cone cell, rod cell, horizontal cell, bipolar cell, RGC, T cells, macrophage, Schwann cell, Pericyte, B cell, fibroblast, endothelial cell, muller glia cell.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "horizontal cell",
+          "status": "success",
+          "timestamp": "2026-09-04T21:44:26.240179"
+        },
+        "gpt-5.6-sol": {
+          "answer": "horizontal cell",
+          "status": "success",
+          "timestamp": "2026-09-05T16:13:43.334476"
+        },
+        "grok-4.6": {
+          "answer": "horizontal cell",
+          "status": "success",
+          "timestamp": "2026-09-05T09:23:51.352876"
+        },
+        "kimi-k3": {
+          "answer": "horizontal cell",
+          "status": "success",
+          "timestamp": "2026-09-04T18:55:47.142450"
+        }
+      }
+    },
+    {
+      "id": "genomic-state-q1",
+      "index": 3,
+      "question": "Consider chr11:124,738,681-124,738,772 (hg38). What is the likely purpose of this region? Choose only one. A. Active enhancer, Liver B. Active enhancer, Brain frontal lobe C. Active enhancer, ESC D. Active transcription, ubiquitous E. TSS poised or flanking, ubiquitous F. Polycomb repression, ubiquitous. Respond with a single letter.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-04T21:45:31.827318"
+        },
+        "gpt-5.6-sol": {
+          "answer": "B",
+          "status": "success",
+          "timestamp": "2026-09-05T16:14:47.663059"
+        },
+        "grok-4.6": {
+          "answer": "B",
+          "status": "success",
+          "timestamp": "2026-09-05T09:25:23.919707"
+        },
+        "kimi-k3": {
+          "answer": "B",
+          "status": "success",
+          "timestamp": "2026-09-05T16:37:56.461270"
+        }
+      }
+    },
+    {
+      "id": "cryptic-exon-q1",
+      "index": 4,
+      "question": "I have a bulk human RNA-seq fastq file cryptic.exon.q1.fq.gz. There is exactly one highly expressed coding gene that has a cryptic exon in it formed by two novel junctions. Report the HGNC gene symbol (uppercase) for that gene.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-04T21:51:24.704481"
+        },
+        "gpt-5.6-sol": {
+          "answer": "GNG10",
+          "status": "success",
+          "timestamp": "2026-09-05T16:16:20.458170"
+        },
+        "grok-4.6": {
+          "answer": "GNG10",
+          "status": "success",
+          "timestamp": "2026-09-05T09:27:54.656919"
+        },
+        "kimi-k3": {
+          "answer": "GNG10",
+          "status": "success",
+          "timestamp": "2026-09-04T19:03:58.280944"
+        }
+      }
+    },
+    {
+      "id": "read-paper-download-file-parse-q1",
+      "index": 5,
+      "question": "Take a look at the pdf here: https://www.biorxiv.org/content/10.1101/2023.10.04.560808v2.full.pdf, can you find the exact number of peaks in the COC/L1 cluster? Follow any external links in the paper if additional data is required to answer this question. Respond with only the number.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "6907",
+          "status": "success",
+          "timestamp": "2026-09-04T21:52:25.943424"
+        },
+        "gpt-5.6-sol": {
+          "answer": "6907",
+          "status": "success",
+          "timestamp": "2026-09-05T16:17:49.403362"
+        },
+        "grok-4.6": {
+          "answer": "6907",
+          "status": "success",
+          "timestamp": "2026-09-05T09:35:13.852344"
+        },
+        "kimi-k3": {
+          "answer": "6907",
+          "status": "success",
+          "timestamp": "2026-09-04T19:13:09.098764"
+        }
+      }
+    },
+    {
+      "id": "huggingface-entropy-q1",
+      "index": 6,
+      "question": "Run the DNA language model here: https://huggingface.co/kuleshov-group/caduceus-ph_seqlen-131k_d_model-256_n_layer-16 on the 1000 bp long DNA sequence at hg38 chr12:7792299-7793299. Specifically, mask each base one at a time, keeping all others unmasked, and compute the per position base 2 entropy of the predictions. Return the substring corresponding to the longest run with <0.5 entropy.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "GTCTCTACTAAAAATACAAAATTAGCC",
+          "status": "success",
+          "timestamp": "2026-09-04T22:21:18.785521"
+        },
+        "gpt-5.6-sol": {
+          "answer": "GTCTCTACTAAAAATACAAAATTAGCC",
+          "status": "success",
+          "timestamp": "2026-09-05T16:18:10.893359"
+        },
+        "grok-4.6": {
+          "answer": "GTCTCTACTAAAAATACAAAATTAGCC",
+          "status": "success",
+          "timestamp": "2026-09-05T09:40:54.188674"
+        },
+        "kimi-k3": {
+          "answer": "GTCTCTACTAAAAATACAAAATTAGCC",
+          "status": "success",
+          "timestamp": "2026-09-05T16:37:56.361643"
+        }
+      }
+    },
+    {
+      "id": "ml-model-track-overlap-q1",
+      "index": 7,
+      "question": "Borzoi (Linder et al., doi:10.1038/s41588-024-02053-6) and Sei (Chen et al., doi:10.1038/s41588-022-01102-2) are both DNA sequence models trained to predict genomic assay outputs. Out of the Sei tracks that are linked to a specific Cistrome ID, how many tracks share provenance with any of the tracks in Borzoi? Round your answer to the nearest 100.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-04T23:19:07.572350"
+        },
+        "gpt-5.6-sol": {
+          "answer": "1300",
+          "status": "success",
+          "timestamp": "2026-09-05T16:30:20.176015"
+        },
+        "grok-4.6": {
+          "answer": "3600",
+          "status": "success",
+          "timestamp": "2026-09-05T10:11:29.540695"
+        },
+        "kimi-k3": {
+          "answer": "1300",
+          "status": "success",
+          "timestamp": "2026-09-06T14:18:21.436590"
+        }
+      }
+    },
+    {
+      "id": "compute-gc-content-interval-q1",
+      "index": 8,
+      "question": "Using the GRCh38.p13 human reference genome, retrieve the reference DNA sequence for chromosome 1 from positions 1,000,000 to 1,000,100 (1-based, inclusive) on the '+' strand, and calculate: (1) gc_percent (rounded to 2 decimals), (2) length, (3) n_count (the number of Ns in the sequence), and (4) sequence_md5 (MD5 of the uppercase interval sequence). Return the results as a comma-separated string in the format: gc_percent,length,n_count,sequence_md5. For example: \"31.86,10,50,v24a827t740a77764d0d8e35ba56f612\"  ",
+      "results": {
+        "GLM-5.3": {
+          "answer": "83.17,101,0,c94c827d740a77064d0d8e35bb54f686",
+          "status": "success",
+          "timestamp": "2026-09-04T23:46:02.237470"
+        },
+        "gpt-5.6-sol": {
+          "answer": "83.17,101,0,c94c827d740a77064d0d8e35bb54f686",
+          "status": "success",
+          "timestamp": "2026-09-05T16:32:54.410798"
+        },
+        "grok-4.6": {
+          "answer": "83.17,101,0,c94c827d740a77064d0d8e35bb54f686",
+          "status": "success",
+          "timestamp": "2026-09-05T10:23:31.374800"
+        },
+        "kimi-k3": {
+          "answer": "83.17,101,0,c94c827d740a77064d0d8e35bb54f686",
+          "status": "success",
+          "timestamp": "2026-09-04T20:57:17.927527"
+        }
+      }
+    },
+    {
+      "id": "reverse-search-gwas-q1",
+      "index": 9,
+      "question": "Identify the PubMed ID of the study from which this summary statistics in reverse.search.gwas.q1.tsv.gz are derived. Print only the PMID, e.g. 31510655. ",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-04T23:47:19.114225"
+        },
+        "gpt-5.6-sol": {
+          "answer": "37164013",
+          "status": "success",
+          "timestamp": "2026-09-05T16:33:57.444902"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T10:27:35.528248"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T14:18:18.466519"
+        }
+      }
+    },
+    {
+      "id": "pathogenic-variant-lookup-q1",
+      "index": 10,
+      "question": "Using the human SHH MANE Select transcript on hg38, consider the coding sequence within exon 1. Within this interval, identify all OMIM allelic variants with phenotypes that map to single-nucleotide missense substitutions in SHH. Retrieve the AlphaMissense pathogenicity scores for those amino-acid substitutions. Return the single variant with the highest AlphaMissense score, in chr:pos (1-based) format.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "chr7:155811860",
+          "status": "success",
+          "timestamp": "2026-09-04T23:51:53.498691"
+        },
+        "gpt-5.6-sol": {
+          "answer": "chr7:155811860",
+          "status": "success",
+          "timestamp": "2026-09-05T16:40:00.507284"
+        },
+        "grok-4.6": {
+          "answer": "chr7:155811860",
+          "status": "success",
+          "timestamp": "2026-09-05T10:58:42.448995"
+        },
+        "kimi-k3": {
+          "answer": "chr7:155806509",
+          "status": "success",
+          "timestamp": "2026-09-04T21:21:56.031788"
+        }
+      }
+    },
+    {
+      "id": "identify-donor-q1",
+      "index": 11,
+      "question": "The pair end fastqs (identify.donor.R1.fq.gz, identify.donor.R2.fq.gz) correspond to reads from one of the 1000G donors (2504 high coverage set) from a 5Mb region of the genome. Identify the donor and report the 1000G sample ID, e.g. HG03884",
+      "results": {
+        "GLM-5.3": {
+          "answer": "HG03861",
+          "status": "success",
+          "timestamp": "2026-09-05T00:13:48.295433"
+        },
+        "gpt-5.6-sol": {
+          "answer": "HG03861",
+          "status": "success",
+          "timestamp": "2026-09-05T16:42:08.237946"
+        },
+        "grok-4.6": {
+          "answer": "HG03861",
+          "status": "success",
+          "timestamp": "2026-09-05T11:40:09.535557"
+        },
+        "kimi-k3": {
+          "answer": "HG03861",
+          "status": "success",
+          "timestamp": "2026-09-04T21:37:31.779286"
+        }
+      }
+    },
+    {
+      "id": "contaminated-rna-q3",
+      "index": 12,
+      "question": "You are given a single-end RNA-seq FASTQ file (contaminated.rna.q3.fq.gz). The sample is expected to be human, but it may contain reads from another organism. Determine the genus of the most likely non-human organism present, if any. Report your answer as the exact scientific genus name in all lowercase letters (for example, mus), else respond with \"none\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "mesomycoplasma",
+          "status": "success",
+          "timestamp": "2026-09-05T00:53:18.934452"
+        },
+        "gpt-5.6-sol": {
+          "answer": "pan",
+          "status": "success",
+          "timestamp": "2026-09-06T07:16:37.036301"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T11:54:19.189724"
+        },
+        "kimi-k3": {
+          "answer": "mesomycoplasma",
+          "status": "success",
+          "timestamp": "2026-09-05T17:35:47.773526"
+        }
+      }
+    },
+    {
+      "id": "hic-differential-loop-q1",
+      "index": 13,
+      "question": "Consider the MicroC data for H1 and HFF cells from the following paper: https://doi.org/10.1016/j.molcel.2020.03.003. In the sub-compartment containing the NANOG gene (chr12:7629950-7809597), there is a differential loop between the two samples. Report the position of the loop (on chr12) in the following format start;end, with start<end rounded to the nearest 20000 and no commas.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "7720000;7800000",
+          "status": "success",
+          "timestamp": "2026-09-05T01:19:38.693440"
+        },
+        "gpt-5.6-sol": {
+          "answer": "7720000;7800000",
+          "status": "success",
+          "timestamp": "2026-09-05T16:54:35.378335"
+        },
+        "grok-4.6": {
+          "answer": "7720000;7800000",
+          "status": "success",
+          "timestamp": "2026-09-05T11:56:00.363097"
+        },
+        "kimi-k3": {
+          "answer": "7640000;7760000",
+          "status": "success",
+          "timestamp": "2026-09-04T22:59:09.062069"
+        }
+      }
+    },
+    {
+      "id": "encode-atac-pipeline-q1",
+      "index": 14,
+      "question": "encode.atac.pipeline.q1.R1.fq.gz and encode.atac.pipeline.q1.R2.fq.gz are paired-end ATAC-seq reads from a human sample. Process them through the ENCODE ATAC-seq pipeline v2.2.3 (https://github.com/ENCODE-DCC/atac-seq-pipeline/tree/v2.2.3). Keep the input json similar to https://github.com/ENCODE-DCC/atac-seq-pipeline/blob/v2.2.3/example_input_json/ENCSR356KRQ_subsampled.json, but remove the atac.enable_xcor line. After the pipeline completes, report the reproducibility IDR N_opt number from the qc.json file.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "All intermediate files are inside the workspace; nothing scientific was deleted.",
+          "status": "success",
+          "timestamp": "2026-09-05T01:47:48.673103"
+        },
+        "gpt-5.6-sol": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T07:16:41.568477"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T12:28:08.079509"
+        },
+        "kimi-k3": {
+          "answer": "29597",
+          "status": "success",
+          "timestamp": "2026-09-05T18:38:26.896781"
+        }
+      }
+    },
+    {
+      "id": "pooled-infer-donors-q1",
+      "index": 15,
+      "question": "pooled.infer.donors.q1.bam is an aligned scRNA-seq BAM from a pooled human sample. The file includes cell barcode tags. Determine the number of distinct donors contributing cells to the pool.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T01:48:37.170629"
+        },
+        "gpt-5.6-sol": {
+          "answer": "4",
+          "status": "success",
+          "timestamp": "2026-09-06T07:16:59.993473"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T12:45:43.900366"
+        },
+        "kimi-k3": {
+          "answer": "4",
+          "status": "success",
+          "timestamp": "2026-09-04T23:44:19.721373"
+        }
+      }
+    },
+    {
+      "id": "overexpress-tf-q1",
+      "index": 16,
+      "question": "We perturbed a primary cell culture with a cocktail of transcription factors (TFs). ATAC-seq is performed on the initial sample and 48 hours after perturbation. overexpress.tf.q1.ref.bed.gz and overexpress.tf.q1.perturb.bed.gz contain the filtered aligned fragment files (hg38) corresponding to the initial and perturbed samples, respectively. Exactly one of the TFs in the following list is part of the cocktail: FOXA1, ASCL1, TFAP2A, RUNX1, KLF4, PAX7, TCF7, REST, SPI1, GATA3. Identify which one.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "KLF4",
+          "status": "success",
+          "timestamp": "2026-09-05T02:16:00.641268"
+        },
+        "gpt-5.6-sol": {
+          "answer": "KLF4",
+          "status": "success",
+          "timestamp": "2026-09-05T18:49:38.389290"
+        },
+        "grok-4.6": {
+          "answer": "KLF4",
+          "status": "success",
+          "timestamp": "2026-09-05T13:54:50.903519"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T14:18:20.840399"
+        }
+      }
+    },
+    {
+      "id": "conservation-lookup-q1",
+      "index": 17,
+      "question": "Using the human SHH MANE Select transcript, take the cDNA sequence from the annotated start codon through the end of exon 1. For each of the following species: Pan troglodytes, Macaca mulatta, Pan paniscus, Indri indri, Semnopithecus johnii, Ailuropoda melanoleuca, Delphinapterus leucas, obtain the orthologous cDNA segment corresponding to the same region (prefer a one-to-one ortholog; if multiple transcripts exist, use the canonical/longest protein-coding transcript). Compute the Levenshtein edit distance to the human sequence. Return results as a comma-separated list (no spaces) in the listed species order.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "9,16,0,20,5,24,35",
+          "status": "success",
+          "timestamp": "2026-09-05T03:46:04.343675"
+        },
+        "gpt-5.6-sol": {
+          "answer": "9,16,0,29,14,24,35",
+          "status": "success",
+          "timestamp": "2026-09-05T19:02:30.083744"
+        },
+        "grok-4.6": {
+          "answer": "0,7,0,20,5,24,27",
+          "status": "success",
+          "timestamp": "2026-09-05T14:28:38.638112"
+        },
+        "kimi-k3": {
+          "answer": "9,16,0,20,5,24,35",
+          "status": "success",
+          "timestamp": "2026-09-05T00:22:54.025809"
+        }
+      }
+    },
+    {
+      "id": "splice-pred-q1",
+      "index": 18,
+      "question": "Extract the human genomic DNA sequence from hg38 at chr12:120,196,699-120,201,111. This locus is on the minus strand. Run OpenSpliceAI (v0.0.5) to predict with the OSAIMANE-10000nt models, averaging predictions across all 5 checkpoints. Call donor and acceptor splice sites with score ≥ 0.9. Reconstruct exons on the gene strand by pairing each predicted acceptor with the next predicted donor in transcript order, and count the terminal exons using the interval boundaries as transcript boundaries. Report the total number of predicted exons.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "7",
+          "status": "success",
+          "timestamp": "2026-09-05T03:49:06.932199"
+        },
+        "gpt-5.6-sol": {
+          "answer": "7",
+          "status": "success",
+          "timestamp": "2026-09-05T19:15:16.015050"
+        },
+        "grok-4.6": {
+          "answer": "7",
+          "status": "success",
+          "timestamp": "2026-09-05T14:46:15.247202"
+        },
+        "kimi-k3": {
+          "answer": "8",
+          "status": "success",
+          "timestamp": "2026-09-05T01:32:18.525266"
+        }
+      }
+    },
+    {
+      "id": "borzoi-rnaseq-q1",
+      "index": 19,
+      "question": "Use the Borzoi model (replicate 0) to predict the total RNA-seq coverage on the forward strand for the experiment ENCFF281BWX, over the genomic interval chr1:70157360-70353968 in the hg38 genome. Return the total predicted RNA-seq coverage over the specified interval, which means reversing any transformations that were applied to RNA-seq coverage before training the Borzoi model. The Borzoi paper is saved as borzoi.rnaseq.q1.pdf. Round the answer to the nearest 10.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "9380",
+          "status": "success",
+          "timestamp": "2026-09-05T03:58:44.204346"
+        },
+        "gpt-5.6-sol": {
+          "answer": "2810",
+          "status": "success",
+          "timestamp": "2026-09-05T19:24:28.440473"
+        },
+        "grok-4.6": {
+          "answer": "8870",
+          "status": "success",
+          "timestamp": "2026-09-05T14:53:04.047809"
+        },
+        "kimi-k3": {
+          "answer": "9380",
+          "status": "success",
+          "timestamp": "2026-09-06T15:57:42.426311"
+        }
+      }
+    },
+    {
+      "id": "calculate-average-gene-expression-q1",
+      "index": 20,
+      "question": "Using the single-cell dataset in AnnData format located at pbmc3k.h5ad, determine the average log-normalized expression for the gene S100B in all cells belonging to the group labeled 'B cells' in the 'louvain' metadata column. Use adata.X for already log-normalized expression. Use two decimal places in the answer.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "-0.14",
+          "status": "success",
+          "timestamp": "2026-09-05T04:05:41.112488"
+        },
+        "gpt-5.6-sol": {
+          "answer": "-0.14",
+          "status": "success",
+          "timestamp": "2026-09-05T19:57:02.988826"
+        },
+        "grok-4.6": {
+          "answer": "-0.14",
+          "status": "success",
+          "timestamp": "2026-09-05T15:31:53.379469"
+        },
+        "kimi-k3": {
+          "answer": "-0.14",
+          "status": "success",
+          "timestamp": "2026-09-05T01:54:43.089108"
+        }
+      }
+    },
+    {
+      "id": "covid-patient-q1",
+      "index": 21,
+      "question": "covid.patients.q1.h5ad contains PBMC scRNA-seq data from 33 donors, who are a mix of healthy and COVID patients. However, the patient metadata is missing. Identify which donors are healthy and which have COVID based on the gene expression data. Provide a single string containing comma-separated donor IDs for the healthy patients (numerically sorted), e.g.\"1,2,5\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "1,5,11,12,17,21,24,27,29,32",
+          "status": "success",
+          "timestamp": "2026-09-05T04:07:14.985601"
+        },
+        "gpt-5.6-sol": {
+          "answer": "1,5,11,12,17,21,24,27,29,32",
+          "status": "success",
+          "timestamp": "2026-09-05T19:58:16.658851"
+        },
+        "grok-4.6": {
+          "answer": "1,5,11,12,17,21,24,27,29,32",
+          "status": "success",
+          "timestamp": "2026-09-05T15:34:30.728742"
+        },
+        "kimi-k3": {
+          "answer": "1,2,4,5,6,7,8,9,10,11,12,15,16,17,19,20,21,22,23,24,25,27,28,29,32",
+          "status": "success",
+          "timestamp": "2026-09-05T01:56:28.937981"
+        }
+      }
+    },
+    {
+      "id": "saluki-setup-optimize-q1",
+      "index": 22,
+      "question": "Set up the Saluki model detailed in https://doi.org/10.1186/s13059-022-02811-x and use it to optimize the 3' UTR of the mRNA sequence GCCGCCACCATGGTGAGCAAGGGCGAGTAGTGTACATAATAAGGACT. Specifically, perform 3 rounds of directed evolution, trying every possible substitution in the 3' UTR and choosing the best after each round. Always use the average of predictions across all folds and use only the human output. Make sure to use GPUs if available. Report the full sequence of the optimized mRNA.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "**Safest next action:** read `vf.out` from the validation run; if predictions match the published values, the answer stands; if not, re-run the evolution with the corrected encoding before reporting.",
+          "status": "success",
+          "timestamp": "2026-09-05T04:11:55.243675"
+        },
+        "gpt-5.6-sol": {
+          "answer": "GCCGCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT",
+          "status": "success",
+          "timestamp": "2026-09-05T20:04:35.058255"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T15:49:58.838558"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T19:28:49.013531"
+        }
+      }
+    },
+    {
+      "id": "identify-related-q1",
+      "index": 23,
+      "question": "You are given identify.related.q1.tfam and identify.related.q1.tped.gz files of genotypes. I need to know if there are any 1st-degree relatives. Print a comma separated, sorted list of all individuals with a 1st-degree or closer relative in the dataset (e.g. SAMPLE_001,SAMPLE_002). If no such individuals exist, print None.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155",
+          "status": "success",
+          "timestamp": "2026-09-05T04:25:23.452878"
+        },
+        "gpt-5.6-sol": {
+          "answer": "SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155",
+          "status": "success",
+          "timestamp": "2026-09-05T20:08:34.002185"
+        },
+        "grok-4.6": {
+          "answer": "SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155",
+          "status": "success",
+          "timestamp": "2026-09-05T16:13:38.305760"
+        },
+        "kimi-k3": {
+          "answer": "SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155",
+          "status": "success",
+          "timestamp": "2026-09-05T02:22:37.115780"
+        }
+      }
+    },
+    {
+      "id": "ep-interactions-q1",
+      "index": 24,
+      "question": "You are given two complementary datasets describing eight candidate distal regulatory element–promoter interactions (EP1–EP8): (1) a Hi-C–like chromatin contact dataset measuring 3D proximity between each element–promoter pairs (ep.interactions.q1.hic.csv) and (2) a CRISPR perturbation dataset measuring the effect of element disruption on promoter expression (ep.interactions.q1.expr.csv). Which E–P pair is least consistent with being a true causal regulatory element–promoter interaction when integrating both datasets? Choose exactly one: A) EP1 B) EP2 C) EP3 D) EP4 E) EP5 F) EP6 G) EP7. Reply with a single letter (A-G).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "C",
+          "status": "success",
+          "timestamp": "2026-09-05T04:30:45.377448"
+        },
+        "gpt-5.6-sol": {
+          "answer": "C",
+          "status": "success",
+          "timestamp": "2026-09-05T20:15:54.078983"
+        },
+        "grok-4.6": {
+          "answer": "C",
+          "status": "success",
+          "timestamp": "2026-09-05T16:18:00.759191"
+        },
+        "kimi-k3": {
+          "answer": "A",
+          "status": "success",
+          "timestamp": "2026-09-05T02:32:07.849316"
+        }
+      }
+    },
+    {
+      "id": "sample-swap-rna-q1",
+      "index": 25,
+      "question": "I have a scRNA-seq pseudobulk lying around from amphioxus tissue (sample.swap.rna.q1.tsv.gz). I'm not sure, but I suspect there is a sample swap. Can you check if that is the case? If there isn't, respond \"None\". Else respond with the names of the two cell types that have been swapped in case-sensitive lexicographic order, e.g. \"endoderm,epidermis\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "epidermal_neural,tailbud_neural",
+          "status": "success",
+          "timestamp": "2026-09-05T04:37:17.222489"
+        },
+        "gpt-5.6-sol": {
+          "answer": "epidermis,tailbud_neural",
+          "status": "success",
+          "timestamp": "2026-09-05T20:17:57.266609"
+        },
+        "grok-4.6": {
+          "answer": "epidermal_neural,tailbud_neural",
+          "status": "success",
+          "timestamp": "2026-09-05T16:40:31.252853"
+        },
+        "kimi-k3": {
+          "answer": "epidermal_neural,tailbud_neural",
+          "status": "success",
+          "timestamp": "2026-09-05T02:42:52.174977"
+        }
+      }
+    },
+    {
+      "id": "gene-fusion-q2",
+      "index": 26,
+      "question": "You are given a bulk RNA sequencing FASTQ file (gene.fusion.q2.fq.gz) from human. The data contains a synthetic gene that is a fusion of multiple genes. Your task is to identify the genes whose exons make up the fusion gene. Report the answer as the names of the genes joined by a hyphen, in 5' to 3' order, for each exon, written in all uppercase letters, HGNC symbols. For example: TCF21-COL1A1-FN1",
+      "results": {
+        "GLM-5.3": {
+          "answer": "MYC-SP1-ZIC2-SP1-CATSPER4",
+          "status": "success",
+          "timestamp": "2026-09-05T04:48:49.073555"
+        },
+        "gpt-5.6-sol": {
+          "answer": "MYC-SP1-ZIC2-SP1-CATSPER4",
+          "status": "success",
+          "timestamp": "2026-09-06T08:25:05.872713"
+        },
+        "grok-4.6": {
+          "answer": "MYC-SP1-ZIC2-SP1-CATSPER4",
+          "status": "success",
+          "timestamp": "2026-09-05T16:46:20.881280"
+        },
+        "kimi-k3": {
+          "answer": "CATSPER4-SP1-ZIC2-SP1-MYC",
+          "status": "success",
+          "timestamp": "2026-09-05T03:20:58.178157"
+        }
+      }
+    },
+    {
+      "id": "retina-score-snps-q1",
+      "index": 27,
+      "question": "https://zenodo.org/records/6330053 contains TensorFlow 2 models that are used for scoring the impact of SNPs on ATAC-seq in various cells types, as illustrated in the ScoreSNPs.ipynb notebook in https://zenodo.org/records/6796067. retina.score.snps.q1.tsv contains 500 SNPs (hg19 coordinates), of which half are known to be caQTLs. I would like to score the SNPs following the code in ScoreSNPs.ipynb, using the models corresponding to Rod cell type. After scoring the SNPs, report the AUPRC against the labels given in retina.score.snps.q1.tsv when using the absolute value of Rod_fold_avg_lfc as a predictor. Report answer by rounding down to two decimal places in the format: 0.80. ",
+      "results": {
+        "GLM-5.3": {
+          "answer": "0.67",
+          "status": "success",
+          "timestamp": "2026-09-05T04:56:00.644349"
+        },
+        "gpt-5.6-sol": {
+          "answer": "ERROR: api: 200 stream error: stream disconnected before completion: stream closed before response.completed",
+          "status": "error",
+          "timestamp": "2026-09-06T08:27:44.754050"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T17:18:59.080583"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T20:43:09.877898"
+        }
+      }
+    },
+    {
+      "id": "atac-tn5-shift-q1",
+      "index": 28,
+      "question": "I got a scATAC-seq fragment file (unknown.shift.frag.bed.gz) from a colleague who aligned it to the hg38 genome. However, they applied a non-standard shift to the reads instead of the typical +4/-5. Can you help figure out what it is? Report answer in the format \"3;-3\" (corresponding to values for 5' and 3' ends).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "Exact-coordinate tests rule out 10x derivation. The signal is synthetic, so let me extract the precise motif logo geometry around both ends with base resolution:",
+          "status": "success",
+          "timestamp": "2026-09-05T05:06:18.664873"
+        },
+        "gpt-5.6-sol": {
+          "answer": "2;-1",
+          "status": "success",
+          "timestamp": "2026-09-05T21:07:30.830868"
+        },
+        "grok-4.6": {
+          "answer": "2;-1",
+          "status": "success",
+          "timestamp": "2026-09-05T17:28:00.983784"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T21:04:59.780085"
+        }
+      }
+    },
+    {
+      "id": "finding-geo-q1",
+      "index": 29,
+      "question": "finding.geo.q1.h5ad contains a scRNA-seq dataset that is derived from a Supplementary file on GEO, and processed to filter out barcodes with low counts. Find the GSE ID of the corresponding record. Return the GSE ID at the SuperSeries level, e.g. GSE242424.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "Run the exact fingerprint test (barcode + total-UMI + detected-gene-count triple) against the remaining candidates' RAW archives, in this order: **GSE233706, GSE296454, GSE309905, GSE185173, GSE292561, GSE291459, GSE318565, GSE242675, GSE263266** — then return that GSE's SuperSeries accession if it is a subseries.",
+          "status": "success",
+          "timestamp": "2026-09-05T05:38:32.653689"
+        },
+        "gpt-5.6-sol": {
+          "answer": "GSE114176",
+          "status": "success",
+          "timestamp": "2026-09-06T08:30:25.613527"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T17:50:28.620994"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T21:29:20.623353"
+        }
+      }
+    },
+    {
+      "id": "deg-simple-q1",
+      "index": 30,
+      "question": "I have bulk RNA-seq fastq files from 2 human samples (deg.simple.q1.sampleA.fq.gz, deg.simple.q1.sampleB.fq.gz). There is exactly one gene that is strongly differentially expressed between the two samples. Report the HGNC gene symbol (uppercase) for that gene.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "KLF4",
+          "status": "success",
+          "timestamp": "2026-09-05T05:44:30.574144"
+        },
+        "gpt-5.6-sol": {
+          "answer": "KLF4",
+          "status": "success",
+          "timestamp": "2026-09-05T21:48:42.482394"
+        },
+        "grok-4.6": {
+          "answer": "KLF4",
+          "status": "success",
+          "timestamp": "2026-09-05T18:29:03.827730"
+        },
+        "kimi-k3": {
+          "answer": "KLF4",
+          "status": "success",
+          "timestamp": "2026-09-05T05:46:24.975081"
+        }
+      }
+    },
+    {
+      "id": "bigwig-density-q1",
+      "index": 31,
+      "question": "From the given ENCFF822FDB.bigWig file corresponding to an ENCODE DNase-seq experiment in mouse brain (mm10), find the 1Mbp interval with the 3rd highest total signal intensity. Consider only those intervals that start at multiples of 1Mbp, and ignore intervals at chromosome ends that are smaller than 1Mbp. Consider only chromosomes 1-19. Report as 0-based coordinates in chr:start-end format (no commas).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "chr8:70000000-71000000",
+          "status": "success",
+          "timestamp": "2026-09-05T05:55:09.675070"
+        },
+        "gpt-5.6-sol": {
+          "answer": "chr8:70000000-71000000",
+          "status": "success",
+          "timestamp": "2026-09-05T21:56:13.786377"
+        },
+        "grok-4.6": {
+          "answer": "chr8:70000000-71000000",
+          "status": "success",
+          "timestamp": "2026-09-05T18:37:08.827943"
+        },
+        "kimi-k3": {
+          "answer": "chr8:70000000-71000000",
+          "status": "success",
+          "timestamp": "2026-09-05T05:53:03.001740"
+        }
+      }
+    },
+    {
+      "id": "gtf-5-utr-median-len-q1",
+      "index": 32,
+      "question": "From the given GTF MANE.GRCh38.v1.3.refseq_genomic.gtf.gz, report the median 5' UTR, CDS, and 3' UTR lengths (use numpy median function, rounded down to nearest integer). Only consider MANE Select transcripts and those on standard chromosomes. Consider stop codon as part of CDS. Return a semicolon separated string with no space, e.g. \"45;551;23\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "133;1296;1050",
+          "status": "success",
+          "timestamp": "2026-09-05T05:57:02.256716"
+        },
+        "gpt-5.6-sol": {
+          "answer": "133;1296;1050",
+          "status": "success",
+          "timestamp": "2026-09-05T21:58:12.996537"
+        },
+        "grok-4.6": {
+          "answer": "133;1296;1050",
+          "status": "success",
+          "timestamp": "2026-09-05T18:41:11.819680"
+        },
+        "kimi-k3": {
+          "answer": "133;1296;1050",
+          "status": "success",
+          "timestamp": "2026-09-05T06:03:30.521423"
+        }
+      }
+    },
+    {
+      "id": "contaminated-rna-q2",
+      "index": 33,
+      "question": "You are given a single end RNA-seq fastq file (contaminated.rna.q2.fq.gz). This file contains mostly human reads and a small fraction of contaminant reads. Identify the contaminant species present. Report the answer as the exact scientific name of the species in all lowercase letters with a single space separating genus and species, for example \"mus musculus\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T05:59:21.508947"
+        },
+        "gpt-5.6-sol": {
+          "answer": "macaca mulatta",
+          "status": "success",
+          "timestamp": "2026-09-05T22:01:11.196265"
+        },
+        "grok-4.6": {
+          "answer": "lymphocryptovirus humangamma4",
+          "status": "success",
+          "timestamp": "2026-09-05T18:49:50.457127"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T22:43:51.259133"
+        }
+      }
+    },
+    {
+      "id": "sample-swap-rna-q2",
+      "index": 34,
+      "question": "I have a scRNA-seq pseudobulk lying around from wheat (sample.swap.rna.q2.tsv.gz). I'm not sure, but I suspect there is a sample swap. Can you check if that is the case? If there isn't, respond \"None\". Else respond with the names of the two cell types that have been swapped in case-sensitive lexicographic order, e.g. \"cortex,endodermis\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T06:24:33.238586"
+        },
+        "gpt-5.6-sol": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T22:34:57.852477"
+        },
+        "grok-4.6": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T19:18:27.899618"
+        },
+        "kimi-k3": {
+          "answer": "cortex,epidermis",
+          "status": "success",
+          "timestamp": "2026-09-05T06:54:47.659359"
+        }
+      }
+    },
+    {
+      "id": "multiome-match-atac-rna-q1",
+      "index": 35,
+      "question": "You are given two gzipped TSVs. Rows are features and columns are 8 pseudo-bulk cell populations (same 8 in both files). multiome.match.atac.rna.q1.rna.tsv.gz: RNA TPM (genes × populations). multiome.match.atac.rna.q1.atac.tsv.gz: ATAC 10kb-bin counts normalized to 1e6 (bins × populations). The ATAC columns have been permuted, but RNA columns are in the correct order. For each RNA column i (0-based), output the 0-based index of the matching ATAC column. Respond with a single semicolon-separated string with no spaces, length 8, e.g. 7;6;5;4;3;2;1;0.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "5;1;4;0;6;3;7;2",
+          "status": "success",
+          "timestamp": "2026-09-05T06:52:32.505935"
+        },
+        "gpt-5.6-sol": {
+          "answer": "5;1;4;0;6;3;7;2",
+          "status": "success",
+          "timestamp": "2026-09-05T22:42:51.647216"
+        },
+        "grok-4.6": {
+          "answer": "5;1;4;0;6;3;7;2",
+          "status": "success",
+          "timestamp": "2026-09-05T19:19:31.565595"
+        },
+        "kimi-k3": {
+          "answer": "5;1;4;0;6;3;7;2",
+          "status": "success",
+          "timestamp": "2026-09-05T06:55:04.526027"
+        }
+      }
+    },
+    {
+      "id": "spatial-sim-q2",
+      "index": 36,
+      "question": "You are given a set of single cell transcriptomic data and Visium spatial transcriptomic data (spatial.sim.tar.gz). The single cell counts matrix is found at spatial_q_sc_counts.csv, and accompanying cell type metadata is found at spatial_q_sc_metadata.csv. Spatial count data is found at spatial_q_matrix.mtx.gz, gene counts are found at spatial_q_features.tsv.gz, and are found at spot barcodes spatial_q_barcodes.tsv.gz. Finally scale factors are found at spatial_q_scalefactors_json.json, high and low resolution tissue images are found at spatial_q_tissue_hires_image.png and patial_q_tissue_hires_image.png respectively, and tissue positions are found at spatial_q_tissue_positions.csv. The spot-based data is comprised entirely of cell types found in the single cell data. Can you tell me what cell type or cell types, if any, are biased towards being in closer spatial proximity to spots containing Tumor_Core? If none, please return \"None\". Please list these separated by commas in alphabetical order. Expected answer format: Endothelial,Macrophage.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "Fibroblast_Stroma,Macrophage",
+          "status": "success",
+          "timestamp": "2026-09-05T06:57:05.667154"
+        },
+        "gpt-5.6-sol": {
+          "answer": "Fibroblast_Stroma,Macrophage",
+          "status": "success",
+          "timestamp": "2026-09-05T22:46:32.655949"
+        },
+        "grok-4.6": {
+          "answer": "Fibroblast_Stroma,Macrophage",
+          "status": "success",
+          "timestamp": "2026-09-05T19:29:28.083451"
+        },
+        "kimi-k3": {
+          "answer": "Fibroblast_Stroma,Macrophage",
+          "status": "success",
+          "timestamp": "2026-09-05T07:30:06.697945"
+        }
+      }
+    },
+    {
+      "id": "reverse-encode-q1",
+      "index": 37,
+      "question": "For an ENCODE DNase-seq experiment, I started from the filtered BAM produced by the ENCODE4 v3.0.0-alpha.2 (GRCh38/hg38) pipeline. If the experiment had multiple replicates, I pooled all replicate BAMs by concatenating reads (i.e., merged at the read level) before downstream processing. I then applied an additional mapping-quality filter MAPQ ≥ 30, converted alignments to BED using bedtools bamToBed, and computed read counts in fixed 10 kb hg38 genomic bins. I then normalized the counts to sum to 1e6. The resulting binned track for one experiment is reverse.encode.q1.tsv.gz, but I lost the ENCODE experiment accession. Identify the originating ENCODE experiment accession (format ENCSR…) from which this file was derived.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T07:02:49.934204"
+        },
+        "gpt-5.6-sol": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T08:37:21.125341"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T19:50:58.829574"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T23:05:35.246116"
+        }
+      }
+    },
+    {
+      "id": "compute-hvg-jaccard-q1",
+      "index": 38,
+      "question": "Using scanpy and the two AnnData H5AD files below, compute the Jaccard index (similarity) between their HVG. First subset them to common genes using the intersection of all gene names. Use exact string values from adata.var_names to resolve genes. Use sc.pp.highly_variable_genes with seurat flavor for HVG identification and default parameters. A gene is considered HVG if var['highly_variable'] string-casts exactly to any of the following (deduplicate this list as needed in order): [\"True\", \"True\", \"1\", \"TRUE\"]. Do not apply any var-level filter beyond excluding rows with missing gene_symbols. Return NaN if thresholds are not met.  The datasets are: pbmc3k.h5ad and 10x_pbmc68k_reduced.h5ad. Round the answer to two decimal places.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "0.22",
+          "status": "success",
+          "timestamp": "2026-09-05T07:23:25.308657"
+        },
+        "gpt-5.6-sol": {
+          "answer": "0.22",
+          "status": "success",
+          "timestamp": "2026-09-05T22:50:07.083386"
+        },
+        "grok-4.6": {
+          "answer": "0.22",
+          "status": "success",
+          "timestamp": "2026-09-05T20:07:35.833873"
+        },
+        "kimi-k3": {
+          "answer": "0.22",
+          "status": "success",
+          "timestamp": "2026-09-05T08:07:02.057833"
+        }
+      }
+    },
+    {
+      "id": "deleterious-mutation-q1",
+      "index": 39,
+      "question": "In the paired FASTQs deleterious.mutation.q1.R1.fq.gz and deleterious.mutation.q1.R2.fq.gz (exome 2×150 bp, reads from human chr9 only), there is one gene that harbors a high-confidence homozygous nonsense SNV for a gene that is highly LoF-intolerant. Report the HGNC gene symbol (uppercase) for that gene.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "STXBP1",
+          "status": "success",
+          "timestamp": "2026-09-05T07:25:36.040032"
+        },
+        "gpt-5.6-sol": {
+          "answer": "STXBP1",
+          "status": "success",
+          "timestamp": "2026-09-05T22:53:01.087052"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T20:12:42.310585"
+        },
+        "kimi-k3": {
+          "answer": "STXBP1",
+          "status": "success",
+          "timestamp": "2026-09-05T08:09:19.084711"
+        }
+      }
+    },
+    {
+      "id": "genome-assembly-contiguity-q1",
+      "index": 40,
+      "question": "In the genome reference file GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.fna provided, report the N50 (integer, no commas).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "25286925",
+          "status": "success",
+          "timestamp": "2026-09-05T07:34:03.183468"
+        },
+        "gpt-5.6-sol": {
+          "answer": "25286925",
+          "status": "success",
+          "timestamp": "2026-09-05T23:04:33.011016"
+        },
+        "grok-4.6": {
+          "answer": "25286925",
+          "status": "success",
+          "timestamp": "2026-09-05T20:24:39.220891"
+        },
+        "kimi-k3": {
+          "answer": "25286925",
+          "status": "success",
+          "timestamp": "2026-09-05T08:31:24.176361"
+        }
+      }
+    },
+    {
+      "id": "1000G-retrieve-genotype-q1",
+      "index": 41,
+      "question": "At hg38 chr10:110918899 (1-indexed), find the genotypes of the following individuals from the latest 1000G project data: 'HG01248', 'NA19204', 'NA18614', 'NA21123', 'NA19171', 'HG02303', 'HG01274', 'HG03134', 'NA18639', 'HG01383'. Report the answer as comma separated string of genotypes: e.g. 0/0,0/1,1/1,...,0/1",
+      "results": {
+        "GLM-5.3": {
+          "answer": "0/1,0/1,1/1,1/1,0/1,1/1,0/0,0/1,0/1,1/1",
+          "status": "success",
+          "timestamp": "2026-09-05T07:35:35.810160"
+        },
+        "gpt-5.6-sol": {
+          "answer": "0/1,0/1,1/1,1/1,0/1,1/1,0/0,0/1,0/1,1/1",
+          "status": "success",
+          "timestamp": "2026-09-05T23:05:38.808607"
+        },
+        "grok-4.6": {
+          "answer": "0/1,0/1,1/1,1/1,0/1,1/1,0/0,0/1,0/1,1/1",
+          "status": "success",
+          "timestamp": "2026-09-05T20:27:07.356629"
+        },
+        "kimi-k3": {
+          "answer": "0/1,0/1,1/1,1/1,0/1,1/1,0/0,0/1,0/1,1/1",
+          "status": "success",
+          "timestamp": "2026-09-05T08:32:21.955225"
+        }
+      }
+    },
+    {
+      "id": "annotate-variant-regulatory-overlap-q1",
+      "index": 42,
+      "question": "Determine the regulatory element that overlap the given variant’s reference span for this specific variant and regulatory  resource, without liftover and reporting 1-based inclusive coordinates. Variant: GRCh38, contig chr19, position 44907187, ref allele G, alt allele A. Regulatory source: ENCODE cCRE Registry, release v4. Return the class of the regulatory element overlapping the variant and the CRE accession (e.g. EH38EXXXXX) as a comma-separated list. Expected output format: \"class,accession\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "pELS,EH38E1957012",
+          "status": "success",
+          "timestamp": "2026-09-05T07:40:19.004294"
+        },
+        "gpt-5.6-sol": {
+          "answer": "pELS,EH38E1957012",
+          "status": "success",
+          "timestamp": "2026-09-05T23:07:17.054921"
+        },
+        "grok-4.6": {
+          "answer": "pELS,EH38E1957012",
+          "status": "success",
+          "timestamp": "2026-09-05T20:33:35.909990"
+        },
+        "kimi-k3": {
+          "answer": "pELS,EH38E1957012",
+          "status": "success",
+          "timestamp": "2026-09-05T08:34:24.653545"
+        }
+      }
+    },
+    {
+      "id": "extract-rna-secondary-structure-q1",
+      "index": 43,
+      "question": "Using the ViennaRNA package, determine the minimum free energy secondary structure for the human 5S ribosomal RNA (RNAcentral accession URS0000668495). Output must use dot-bracket notation. After the structure also output the free energy up to two decimal places in kcal/mol units. Use comma (no spaces) to separate the structure and the free energy.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "......(((....(((((.((....((((.(((((((((((((((((.........)))))))))).))))))....).))))...)).))))).....)))......(((..((((((((....)))))))).)))....,-50.20",
+          "status": "success",
+          "timestamp": "2026-09-05T07:43:06.310375"
+        },
+        "gpt-5.6-sol": {
+          "answer": "(((((((((....((((((((...((..((((..((....))..))))..))....)))))).))(((((((.....((.((.(((....))))).))....))))))))))))))))...,-50.50",
+          "status": "success",
+          "timestamp": "2026-09-05T23:08:58.490930"
+        },
+        "grok-4.6": {
+          "answer": "......(((....(((((.((....((((.(((((((((((((((((.........)))))))))).))))))....).))))...)).))))).....)))......(((..((((((((....)))))))).)))....,-50.20",
+          "status": "success",
+          "timestamp": "2026-09-05T21:09:29.108332"
+        },
+        "kimi-k3": {
+          "answer": "......(((....(((((.((....((((.(((((((((((((((((.........)))))))))).))))))....).))))...)).))))).....)))......(((..((((((((....)))))))).)))....,-50.20",
+          "status": "success",
+          "timestamp": "2026-09-05T09:08:27.810385"
+        }
+      }
+    },
+    {
+      "id": "protein-shape-q1",
+      "index": 44,
+      "question": "Consider the PDB protein in the file protein.shape.q1.pdb. Which of the following uppercase letters does it resemble most closely: B, D, F, H, J, L, N, P, R, T, V, X, Z? Consider all possible projections and pick the best fit.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "J",
+          "status": "success",
+          "timestamp": "2026-09-05T07:44:01.115949"
+        },
+        "gpt-5.6-sol": {
+          "answer": "T",
+          "status": "success",
+          "timestamp": "2026-09-05T23:17:14.708485"
+        },
+        "grok-4.6": {
+          "answer": "T",
+          "status": "success",
+          "timestamp": "2026-09-05T21:27:28.080274"
+        },
+        "kimi-k3": {
+          "answer": "T",
+          "status": "success",
+          "timestamp": "2026-09-05T09:31:49.870956"
+        }
+      }
+    },
+    {
+      "id": "deg-simple-q2",
+      "index": 45,
+      "question": "I have bulk RNA-seq fastq files from 2 human samples (deg.simple.q2.sampleA.fq.gz, deg.simple.q2.sampleB.fq.gz). There is exactly one gene that has differentially expressed isoforms in the 2 samples. Report the HGNC gene symbol (uppercase) for that gene.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "DEFB110",
+          "status": "success",
+          "timestamp": "2026-09-05T07:59:50.158341"
+        },
+        "gpt-5.6-sol": {
+          "answer": "DEFB110",
+          "status": "success",
+          "timestamp": "2026-09-05T23:19:32.342570"
+        },
+        "grok-4.6": {
+          "answer": "DEFB110",
+          "status": "success",
+          "timestamp": "2026-09-05T21:39:16.772533"
+        },
+        "kimi-k3": {
+          "answer": "DEFB110",
+          "status": "success",
+          "timestamp": "2026-09-05T09:33:30.961825"
+        }
+      }
+    },
+    {
+      "id": "match-genotypes-q1",
+      "index": 46,
+      "question": "match.genotypes.q1.tar.gz contains plink genotype files in hg38 for 4 individuals of European ancestry (match.genotypes.1.1.*) and a shuffled metadata table (match.genotypes.1.2.csv) for the same 4 individuals. Please provide the most likely mapping from the IIDs in the plink files to the sample IDs in the metadata file. Format your answer as follows: “SAMPLE001,MIX1;SAMPLE002,MIX2;SAMPLE003,MIX3;SAMPLE004,MIX4”. IIDs should be in lexicographic order. You are also given genotypes for an additional set of European ancestry individuals (match.genotypes.1.3.*), which could be helpful. The individuals contained in match.genotypes.1.1.* are non-overlapping with match.genotypes.1.3.*",
+      "results": {
+        "GLM-5.3": {
+          "answer": "SAMPLE001,MIX2;SAMPLE002,MIX4;SAMPLE003,MIX3;SAMPLE004,MIX1",
+          "status": "success",
+          "timestamp": "2026-09-05T08:20:38.425076"
+        },
+        "gpt-5.6-sol": {
+          "answer": "SAMPLE001,MIX2;SAMPLE002,MIX4;SAMPLE003,MIX3;SAMPLE004,MIX1",
+          "status": "success",
+          "timestamp": "2026-09-05T23:31:36.112221"
+        },
+        "grok-4.6": {
+          "answer": "SAMPLE001,MIX2;SAMPLE002,MIX4;SAMPLE003,MIX3;SAMPLE004,MIX1",
+          "status": "success",
+          "timestamp": "2026-09-05T21:51:30.159923"
+        },
+        "kimi-k3": {
+          "answer": "SAMPLE001,MIX3;SAMPLE002,MIX1;SAMPLE003,MIX2;SAMPLE004,MIX4",
+          "status": "success",
+          "timestamp": "2026-09-05T09:33:57.201339"
+        }
+      }
+    },
+    {
+      "id": "spatial-sim-q1",
+      "index": 47,
+      "question": "You are given a set of single cell transcriptomic data and Visium spatial transcriptomic data (spatial.sim.tar.gz). The single cell counts matrix is found at spatial_q_sc_counts.csv, and accompanying cell type metadata is found at spatial_q_sc_metadata.csv. Spatial count data is found at spatial_q_matrix.mtx.gz, gene counts are found at spatial_q_features.tsv.gz, and are found at spot barcodes spatial_q_barcodes.tsv.gz. Finally scale factors are found at spatial_q_scalefactors_json.json, high and low resolution tissue images are found at spatial_q_tissue_hires_image.png and patial_q_tissue_hires_image.png respectively, and tissue positions are found at spatial_q_tissue_positions.csv. The spot-based data is comprised entirely of cell types found in the single cell data. Can you tell me what cell type or cell types are included in spot ID Spot_710-1? Please list these separated by commas in alphabetical order. Expected answer format: Endothelial,Macrophage.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "B_Cell,Endothelial,Macrophage",
+          "status": "success",
+          "timestamp": "2026-09-05T08:40:26.708612"
+        },
+        "gpt-5.6-sol": {
+          "answer": "B_Cell,Endothelial,Macrophage",
+          "status": "success",
+          "timestamp": "2026-09-05T23:42:16.082641"
+        },
+        "grok-4.6": {
+          "answer": "B_Cell,Endothelial,Macrophage",
+          "status": "success",
+          "timestamp": "2026-09-05T21:53:21.815946"
+        },
+        "kimi-k3": {
+          "answer": "B_Cell,Endothelial,Macrophage",
+          "status": "success",
+          "timestamp": "2026-09-05T09:41:10.324004"
+        }
+      }
+    },
+    {
+      "id": "compute-nonoverlapping-exonic-length-q1",
+      "index": 48,
+      "question": "Compute the total non-overlapping exonic length in base pairs for the mouse gene Lepr using the GENCODE mouse release M31 GTF located at https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M31/gencode.vM31.annotation.gtf.gz. Output a single non-negative integer.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "7049",
+          "status": "success",
+          "timestamp": "2026-09-05T08:47:10.735072"
+        },
+        "gpt-5.6-sol": {
+          "answer": "7049",
+          "status": "success",
+          "timestamp": "2026-09-05T23:42:32.487060"
+        },
+        "grok-4.6": {
+          "answer": "7049",
+          "status": "success",
+          "timestamp": "2026-09-05T21:58:07.073709"
+        },
+        "kimi-k3": {
+          "answer": "7049",
+          "status": "success",
+          "timestamp": "2026-09-05T09:51:59.119470"
+        }
+      }
+    },
+    {
+      "id": "atac-doublet-q1",
+      "index": 49,
+      "question": "atac.doublet.q1.bed.gz contains a fragment file from a scATAC-seq sample (hg38). Barcodes with low read counts have been filtered out. Look for doublets. Return the coordinates of any one doublet, if any. Respond only with the label of the barcode in the format: \"AAATGGAACGTTAAAG-1\", or \"None\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T08:49:02.058811"
+        },
+        "gpt-5.6-sol": {
+          "answer": "AACATGGAGCGCCGGG-1",
+          "status": "success",
+          "timestamp": "2026-09-05T23:45:10.494206"
+        },
+        "grok-4.6": {
+          "answer": "AACATGGAGCGCCGGG-1",
+          "status": "success",
+          "timestamp": "2026-09-05T22:02:14.529179"
+        },
+        "kimi-k3": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T23:29:52.151953"
+        }
+      }
+    },
+    {
+      "id": "enriched-motif-identification-q1",
+      "index": 50,
+      "question": "Consider the DNA sequence provided as dna_with_secret_motif.fasta. Of these motifs, which is the most prevalent? FOXA1, GATA3, MAX, STAT1, OCT4, P53, NANOG, HNF4A, TBP, FOS, MYC, JUN, FOXO1, CTCF, TCF7, SOX2, E2F1, CREB1, GATA1, KLF3.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "CTCF",
+          "status": "success",
+          "timestamp": "2026-09-05T08:58:26.588470"
+        },
+        "gpt-5.6-sol": {
+          "answer": "CTCF",
+          "status": "success",
+          "timestamp": "2026-09-05T23:45:14.150391"
+        },
+        "grok-4.6": {
+          "answer": "CTCF",
+          "status": "success",
+          "timestamp": "2026-09-05T22:02:37.496906"
+        },
+        "kimi-k3": {
+          "answer": "MYC",
+          "status": "success",
+          "timestamp": "2026-09-05T10:16:07.307418"
+        }
+      }
+    },
+    {
+      "id": "find-deletion-q1",
+      "index": 51,
+      "question": "You are given shallow paired-end whole genome sequencing FASTQ files (find.deletion.r1.fq.gz, find.deletion.r2.fq.gz) simulated from a chromosome of the human genome hg38 which contains a large deletion. Your task is to identify the approximate coordinates of this deletion relative to the reference genome. Report the chromosome, the start coordinate, and the end coordinate of the deletion, with both coordinates rounded to the nearest 100,000 bases. Format your answer as chr:start-end. For example: chr1:10000000-10300000.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T09:03:21.445161"
+        },
+        "gpt-5.6-sol": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T09:17:17.878638"
+        },
+        "grok-4.6": {
+          "answer": "chr22:20000000-21000000",
+          "status": "success",
+          "timestamp": "2026-09-05T22:13:11.893855"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T00:33:31.448605"
+        }
+      }
+    },
+    {
+      "id": "three-way-barnyard-q1",
+      "index": 52,
+      "question": "Given paired-end 10x scRNA-seq FASTQs (three.way.barnyard.q1.R1.fq.gz, three.way.barnyard.q1.R2.fq.gz) from a 3-species barnyard (human, mouse, pig)—R1 = 28-bp cell barcode+UMI, R2 = 91-bp cDNA—assume all barcodes are valid single cells (no empty droplets or doublets; no further barcode filtering required) and report the mixture as percentages rounded to the nearest 10%, semicolon-separated, summing to 100, for human, mouse, and pig, respectively. Example output: \"50;20;30\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "10;30;60",
+          "status": "success",
+          "timestamp": "2026-09-05T09:33:15.906339"
+        },
+        "gpt-5.6-sol": {
+          "answer": "10;30;60",
+          "status": "success",
+          "timestamp": "2026-09-05T23:47:25.214670"
+        },
+        "grok-4.6": {
+          "answer": "10;30;60",
+          "status": "success",
+          "timestamp": "2026-09-05T22:16:44.748661"
+        },
+        "kimi-k3": {
+          "answer": "10;30;60",
+          "status": "success",
+          "timestamp": "2026-09-05T10:20:34.010342"
+        }
+      }
+    },
+    {
+      "id": "subtype-inflammation-q1",
+      "index": 53,
+      "question": "subtype.inflammation.q1.1.mtx.gz and subtype.inflammation.q1.2.mtx.gz contain raw scRNA counts matrices from retinal samples from two eyes of an individual (one per file, each column is a unique barcode that passes QC). subtype.inflammation.q1.genes.txt.gz is the list of common genes. One of the cell types is inflammed in one eye compared to the other. What is this cell type? Return only the name of the inflammed cell type from this list: astrocyte, microglial cell, RPE cell, cone cell, rod cell, horizontal cell, bipolar cell, RGC, T cells, macrophage, Schwann cell, Pericyte, B cell, fibroblast, muller glia cell, endothelial cell.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "muller glia cell",
+          "status": "success",
+          "timestamp": "2026-09-05T09:37:53.546882"
+        },
+        "gpt-5.6-sol": {
+          "answer": "muller glia cell",
+          "status": "success",
+          "timestamp": "2026-09-05T23:51:51.138655"
+        },
+        "grok-4.6": {
+          "answer": "muller glia cell",
+          "status": "success",
+          "timestamp": "2026-09-05T22:22:32.555337"
+        },
+        "kimi-k3": {
+          "answer": "muller glia cell",
+          "status": "success",
+          "timestamp": "2026-09-05T10:26:34.663614"
+        }
+      }
+    },
+    {
+      "id": "read-proportions-q1",
+      "index": 54,
+      "question": "read.proportions.q1.fa contains a synthetic genome with four chromosomes. read.proportions.q1.fq.gz contains 40,000 single-end 36 bp reads drawn from this genome. A read is generated by first picking a chromosome with probability pi =(pi_1, ..., pi_4), then sampling a position uniformly along that chromosome, with some small error rate. Estimate pi and report four integers (percentages) in FASTA contig order (chr1–chr4), each rounded to the nearest 5; if needed, adjust the last value so the total is 100. Expected output format: 15,25,25,35.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "50,20,20,10",
+          "status": "success",
+          "timestamp": "2026-09-05T09:49:04.196998"
+        },
+        "gpt-5.6-sol": {
+          "answer": "50,20,20,10",
+          "status": "success",
+          "timestamp": "2026-09-05T23:55:27.707769"
+        },
+        "grok-4.6": {
+          "answer": "50,20,20,10",
+          "status": "success",
+          "timestamp": "2026-09-05T22:25:51.373556"
+        },
+        "kimi-k3": {
+          "answer": "85,10,5,0",
+          "status": "success",
+          "timestamp": "2026-09-05T10:39:08.134568"
+        }
+      }
+    },
+    {
+      "id": "sample-swap-atac-q2",
+      "index": 55,
+      "question": "I have a single-cell ATAC-seq cluster counts pseudobulks lying around from human retinal-associated tissue (sample.swap.atac.q2.tsv.gz). I'm not sure, but I suspect there is a sample swap. Can you check if that is the case? If there isn't, respond \"None\". Else respond with the names of the two cell types that have been swapped in case-sensitive lexicographic order, e.g. \"AIIamacrine,Rod\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T10:09:00.887850"
+        },
+        "gpt-5.6-sol": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T23:58:06.622213"
+        },
+        "grok-4.6": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T22:35:12.214028"
+        },
+        "kimi-k3": {
+          "answer": "None",
+          "status": "success",
+          "timestamp": "2026-09-05T10:40:34.197559"
+        }
+      }
+    },
+    {
+      "id": "exogenous-mix-reads-q1",
+      "index": 56,
+      "question": "I have FASTQ data from a perturbation experiment involving KLF4 exogenous overexpression using a Sendai virus. I want to estimate the fraction of exogenous-origin reads in exogenous.mix.reads.q1.mix.fq, given exogenous.mix.reads.q1.exo.fq (early timepoint, assumed purely exogenous) and exogenous.mix.reads.q1.endo.fq (later timepoint, predominantly endogenous). All files contain reads mapping to KLF4. I don't have details on the Sendai construct. If possible, estimate the percent of exogenous reads in exogenous.mix.reads.q1.mix.fq (by read count) to the nearest 10 and return only the integer (e.g. 50); if not possible, return NA.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "50",
+          "status": "success",
+          "timestamp": "2026-09-05T10:09:03.119002"
+        },
+        "gpt-5.6-sol": {
+          "answer": "80",
+          "status": "success",
+          "timestamp": "2026-09-06T00:02:04.434524"
+        },
+        "grok-4.6": {
+          "answer": "30",
+          "status": "success",
+          "timestamp": "2026-09-05T22:41:43.472341"
+        },
+        "kimi-k3": {
+          "answer": "30",
+          "status": "success",
+          "timestamp": "2026-09-05T10:47:28.363118"
+        }
+      }
+    },
+    {
+      "id": "perturb-seq-align-q1",
+      "index": 57,
+      "question": "perturb.seq.align.q1.ref.h5ad contains a scRNA-seq matrix from a small scale Perturb-seq experiment in a cell type. perturb.seq.align.q1.query.h5ad contains a scRNA-seq matrix from a Perturb-seq experiment using the same guides in a different cell type. However, the targets of the guides are missing. Can you find the guides corresponding to the following target genes: PABPC1, NUDT21, LEO1. Return the answer as a comma separate list in the format: \"guide1,guide2,guide3\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "guide18,guide13,guide10",
+          "status": "success",
+          "timestamp": "2026-09-05T10:42:38.039709"
+        },
+        "gpt-5.6-sol": {
+          "answer": "guide18,guide13,guide14",
+          "status": "success",
+          "timestamp": "2026-09-06T00:10:20.268011"
+        },
+        "grok-4.6": {
+          "answer": "guide18,guide13,guide14",
+          "status": "success",
+          "timestamp": "2026-09-05T22:43:22.768797"
+        },
+        "kimi-k3": {
+          "answer": "I'll implement a standard pipeline: normalize both datasets on common genes, compute per-guide pseudobulk log-expression, regress out NT-control mean per dataset, then correlate each query guide's differential signature with each reference guide's signature.",
+          "status": "success",
+          "timestamp": "2026-09-05T10:58:18.676430"
+        }
+      }
+    },
+    {
+      "id": "gwas-ancestry-q1",
+      "index": 58,
+      "question": "Identify the ancestry group which was used to compute these summary statistics in the file gwas.ancestry.q1.tsv.gz. Your answer should be one of the following population codes: AFR (African), ASJ (Ashkenazi Jew), EAS (East Asian), EUR (European),  HIS (Hispanic), MID (Middle Eastern), OCE (Oceania), SAS (South Asian). Respond with the 3 letter code only.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "- Safest next action: finish/fix downloads (EAS=2/2a, EUR=f/f7, plus verify AA/HIS/SAS), then join each file to our data on RSID and compare −log10P (correlation + exact-match rate, plus which SNPs are NA/missing per ancestry). The NA pattern plus exact P-value match will identify the ancestry conclusively; answer is then the corresponding 3-letter code (current lean: a non-EAS, non-EUR ancestry among AFR/SAS/HIS, unconfirmed).",
+          "status": "success",
+          "timestamp": "2026-09-05T10:47:59.840170"
+        },
+        "gpt-5.6-sol": {
+          "answer": "AFR",
+          "status": "success",
+          "timestamp": "2026-09-06T00:20:31.311993"
+        },
+        "grok-4.6": {
+          "answer": "AFR",
+          "status": "success",
+          "timestamp": "2026-09-05T23:02:55.133524"
+        },
+        "kimi-k3": {
+          "answer": "EAS",
+          "status": "success",
+          "timestamp": "2026-09-06T00:44:25.991826"
+        }
+      }
+    },
+    {
+      "id": "gene-info-grab-q1",
+      "index": 59,
+      "question": "Consider the gene Hand1. Answer each question with the exact format specified. 1. What is its Ensembl gene ID? (format: ENSMUSGXXXXXXXXXXX, no version suffix) 2. How many amino acids does the canonical protein isoform encode? (integer) 3. Does this gene have more than 5 or fewer than 5 introns? (answer: \"more\" or \"fewer\") 4. What is the Ensembl gene ID of the nearest protein-coding gene upstream of Hand1? (format: ENSMUSGXXXXXXXXXXX, no version suffix) Respond with semi-colon separate values, no spaces, e.g. \"ENSMUSGXXXXXXXXXXX;23;more;ENSMUSGXXXXXXXXXXX\"",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ENSMUSG00000037335;216;fewer;ENSMUSG00000037331",
+          "status": "success",
+          "timestamp": "2026-09-05T11:03:52.049765"
+        },
+        "gpt-5.6-sol": {
+          "answer": "ENSMUSG00000037335;216;fewer;ENSMUSG00000037331",
+          "status": "success",
+          "timestamp": "2026-09-06T00:23:39.674851"
+        },
+        "grok-4.6": {
+          "answer": "ENSMUSG00000037335;216;fewer;ENSMUSG00000037331",
+          "status": "success",
+          "timestamp": "2026-09-05T23:07:33.352540"
+        },
+        "kimi-k3": {
+          "answer": "ENSMUSG00000037335;216;fewer;ENSMUSG00000037331",
+          "status": "success",
+          "timestamp": "2026-09-06T01:02:04.157343"
+        }
+      }
+    },
+    {
+      "id": "genome-coords-q1",
+      "index": 60,
+      "question": "You are given a dataset (single_cell_dynamics_question.csv) of time-resolved single-cell measurements from 600 cells, each tracked over 250 consecutive time points. Each row corresponds to one cell at one time point and includes: enhancer coordinates: enh_x, enh_y, enh_z (nm), promoter coordinates: prom_x, prom_y, prom_z (nm), transcription - whether nascent transcription was detected at that time point (0/1). Define the enhancer-promoter distance as the 3D Euclidean distance. Define a proximity event (“contact”) deterministically as the distance <= 260nm. Based only on the quantities you computed above, select the single most defensible conclusion. Choose exactly one. A. Enhancer–promoter proximity and transcription are independent processes with no functional relationship. B. Transcriptional activity promotes enhancer–promoter proximity. C. Enhancer–promoter proximity promotes transcriptional activity. D. Contact and transcription share a feedback loop. E. An alternate explanation not covered here. Respond with a single letter (A-E).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "D",
+          "status": "success",
+          "timestamp": "2026-09-05T11:05:37.086017"
+        },
+        "gpt-5.6-sol": {
+          "answer": "D",
+          "status": "success",
+          "timestamp": "2026-09-06T00:24:47.546001"
+        },
+        "grok-4.6": {
+          "answer": "D",
+          "status": "success",
+          "timestamp": "2026-09-05T23:15:57.504814"
+        },
+        "kimi-k3": {
+          "answer": "D",
+          "status": "success",
+          "timestamp": "2026-09-06T01:04:46.360503"
+        }
+      }
+    },
+    {
+      "id": "mystery-peak-set-q1",
+      "index": 61,
+      "question": "The file mystery.peak.set.q1.bed.gz contains genomic intervals for six distinct peak sets (S1–S6), all mapped to the hg38 reference genome. Each peak set represents accessible chromatin regions identified under different experimental conditions. One of these peak sets corresponds to a chromatin accessibility pattern that is strongly depleted in large public collections of unperturbed human samples, including both primary tissues and established cell lines. Identify which peak set (S1–S6) shows this depletion and report its name.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T11:08:23.668894"
+        },
+        "gpt-5.6-sol": {
+          "answer": "S5",
+          "status": "success",
+          "timestamp": "2026-09-06T00:27:37.157924"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T23:24:12.815079"
+        },
+        "kimi-k3": {
+          "answer": "S5",
+          "status": "success",
+          "timestamp": "2026-09-06T01:06:11.005529"
+        }
+      }
+    },
+    {
+      "id": "phase-chain-q1",
+      "index": 62,
+      "question": "Files phase.chain.q1.R1.fq.gz and phase.chain.q1.R2.fq.gz contain exactly 1000 read pairs (2x150) sampled 50:50 from 2 synthetic haplotypes covering a 1.5kb region of hg38. Discover all biallelic SNPs and 1-bp indels in the interval, and phase by read-backed evidence only. Return the haplotypes in genomic order in the form A-G-T-I|G-A-C-C for the 2 haploytpes, using I for insertion and D for deletion. Use alphabetical ordering to decide which haplotype comes first.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "C-D-G-D-A-G-T|T-I-C-I-T-A-G",
+          "status": "success",
+          "timestamp": "2026-09-05T12:16:21.962869"
+        },
+        "gpt-5.6-sol": {
+          "answer": "A-C-T-T-C-A-C-G|C-T-A-I-G-D-I-A",
+          "status": "success",
+          "timestamp": "2026-09-06T00:47:37.116542"
+        },
+        "grok-4.6": {
+          "answer": "A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A",
+          "status": "success",
+          "timestamp": "2026-09-05T23:45:39.093535"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T01:07:21.096465"
+        }
+      }
+    },
+    {
+      "id": "enformer-basic-q1",
+      "index": 63,
+      "question": "What is the exact count of the number of parameters in the Enformer model (https://doi.org/10.1038/s41592-021-01252-x). Specifically, report the number of trainable parameters including both the human and mouse heads. Format the number without commas.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "251221292",
+          "status": "success",
+          "timestamp": "2026-09-05T12:39:57.622616"
+        },
+        "gpt-5.6-sol": {
+          "answer": "251221292",
+          "status": "success",
+          "timestamp": "2026-09-06T00:50:53.950563"
+        },
+        "grok-4.6": {
+          "answer": "251221292",
+          "status": "success",
+          "timestamp": "2026-09-06T00:29:00.343168"
+        },
+        "kimi-k3": {
+          "answer": "251221292",
+          "status": "success",
+          "timestamp": "2026-09-06T01:09:08.220830"
+        }
+      }
+    },
+    {
+      "id": "bedtools-ops-q1",
+      "index": 64,
+      "question": "In the given ENCODE narrowpeak bed file ENCFF333TAT.bed.gz, convert each interval into a 500bp interval centered at the peak summit. Merge all intervals, and then exclude any that overlaps with the provided blacklist file ENCFF356LFX.bed.gz. Return the total number of bases in the final file, no commas.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "111423829",
+          "status": "success",
+          "timestamp": "2026-09-05T12:46:12.569574"
+        },
+        "gpt-5.6-sol": {
+          "answer": "111423829",
+          "status": "success",
+          "timestamp": "2026-09-06T00:58:52.851918"
+        },
+        "grok-4.6": {
+          "answer": "111423829",
+          "status": "success",
+          "timestamp": "2026-09-06T00:37:14.705409"
+        },
+        "kimi-k3": {
+          "answer": "111424282",
+          "status": "success",
+          "timestamp": "2026-09-06T01:34:01.204608"
+        }
+      }
+    },
+    {
+      "id": "orf-annot-q1",
+      "index": 65,
+      "question": "You are given a fasta file containing a human mRNA sequence. Find the main CDS of the sequence, return the start position of the CDS (in a 0-based coordinate system, starting from the first base of the given sequence) and the length of the translated protein in the format 4;2.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "282;351",
+          "status": "success",
+          "timestamp": "2026-09-05T12:47:14.050332"
+        },
+        "gpt-5.6-sol": {
+          "answer": "282;351",
+          "status": "success",
+          "timestamp": "2026-09-06T09:22:51.018184"
+        },
+        "grok-4.6": {
+          "answer": "282;351",
+          "status": "success",
+          "timestamp": "2026-09-06T00:42:00.627147"
+        },
+        "kimi-k3": {
+          "answer": "282;351",
+          "status": "success",
+          "timestamp": "2026-09-06T01:37:01.117753"
+        }
+      }
+    },
+    {
+      "id": "reverse-search-gwas-q2",
+      "index": 66,
+      "question": "Identify the PubMed ID of the study from which the summary stats in reverse.search.gwas.q2.gz are derived. Print only the PMID, e.g. 31510655.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T12:48:47.484500"
+        },
+        "gpt-5.6-sol": {
+          "answer": "25865494",
+          "status": "success",
+          "timestamp": "2026-09-06T01:17:03.472616"
+        },
+        "grok-4.6": {
+          "answer": "36224396",
+          "status": "success",
+          "timestamp": "2026-09-06T00:46:47.313885"
+        },
+        "kimi-k3": {
+          "answer": "34128465",
+          "status": "success",
+          "timestamp": "2026-09-06T01:40:24.737274"
+        }
+      }
+    },
+    {
+      "id": "disease-samples-q1",
+      "index": 67,
+      "question": "The file disease.samples.q1.tsv contains bulk RNA-seq TPM data for 9 individuals. Metadata is missing, but the samples are known to be a mix of healthy and diseased subjects. Identify the diseased samples and return their IDs as a sorted, comma-separated string (e.g., Sample_2,Sample_8,Sample_9).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "Sample_1,Sample_4,Sample_6,Sample_8,Sample_9",
+          "status": "success",
+          "timestamp": "2026-09-05T13:08:54.056687"
+        },
+        "gpt-5.6-sol": {
+          "answer": "Sample_1,Sample_4,Sample_6,Sample_8,Sample_9",
+          "status": "success",
+          "timestamp": "2026-09-06T01:27:42.878087"
+        },
+        "grok-4.6": {
+          "answer": "Sample_1,Sample_4,Sample_6,Sample_8,Sample_9",
+          "status": "success",
+          "timestamp": "2026-09-06T01:02:17.480911"
+        },
+        "kimi-k3": {
+          "answer": "Sample_1,Sample_4,Sample_6,Sample_8,Sample_9",
+          "status": "success",
+          "timestamp": "2026-09-06T01:46:26.860945"
+        }
+      }
+    },
+    {
+      "id": "contaminated-rna-q1",
+      "index": 68,
+      "question": "You are given a single end RNA-seq fastq file (contaminated.rna.q1.fq.gz). This file contains mostly human reads and a small fraction of contaminant reads. Identify the contaminant species present. Report the answer as the exact scientific name of the species in all lowercase letters with a single space separating genus and species, for example \"mus musculus\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T13:10:59.458557"
+        },
+        "gpt-5.6-sol": {
+          "answer": "mus musculus",
+          "status": "success",
+          "timestamp": "2026-09-06T01:33:15.909670"
+        },
+        "grok-4.6": {
+          "answer": "hydra vulgaris",
+          "status": "success",
+          "timestamp": "2026-09-06T01:10:39.671076"
+        },
+        "kimi-k3": {
+          "answer": "human gammaherpesvirus 4",
+          "status": "success",
+          "timestamp": "2026-09-06T01:49:55.565382"
+        }
+      }
+    },
+    {
+      "id": "variant-coordinate-lookup-q1",
+      "index": 69,
+      "question": "Retrieve the single base genomic position for the following variant identifiers: rs200533370, rs241311, NM_006492.3:c.595-2A>T, CA548798891, VCV000587372.6, OMIM 616787.0001 on the GRCh38 reference assembly. Report in semi-colon separated chr#:position format (1-based, inclusive), no spaces (e.g. chr1:2;chr2:34).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261",
+          "status": "success",
+          "timestamp": "2026-09-05T13:41:08.365618"
+        },
+        "gpt-5.6-sol": {
+          "answer": "chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261",
+          "status": "success",
+          "timestamp": "2026-09-06T01:36:02.629682"
+        },
+        "grok-4.6": {
+          "answer": "chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261",
+          "status": "success",
+          "timestamp": "2026-09-06T01:24:46.868473"
+        },
+        "kimi-k3": {
+          "answer": "chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261",
+          "status": "success",
+          "timestamp": "2026-09-06T02:31:41.913582"
+        }
+      }
+    },
+    {
+      "id": "histone-chip-q1",
+      "index": 70,
+      "question": "I have a histone ChIP-seq ENCODE-style filtered tagAlign file (histone.chip.q1.signal.tagalign.gz) along with its control (histone.chip.q1.control.tagalign.gz), both hg38. I lost the metadata. Can you figure out the histone mark? Output exactly one label from this set: H3K4me3, H3K27ac, H3K4me1, H3K36me3, H3K27me3, H3K9me3.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "H3K9me3",
+          "status": "success",
+          "timestamp": "2026-09-05T13:45:37.885675"
+        },
+        "gpt-5.6-sol": {
+          "answer": "H3K9me3",
+          "status": "success",
+          "timestamp": "2026-09-06T01:40:38.038742"
+        },
+        "grok-4.6": {
+          "answer": "H3K9me3",
+          "status": "success",
+          "timestamp": "2026-09-06T01:28:23.224705"
+        },
+        "kimi-k3": {
+          "answer": "H3K27me3",
+          "status": "success",
+          "timestamp": "2026-09-06T02:34:12.035319"
+        }
+      }
+    },
+    {
+      "id": "cell-proportions-q1",
+      "index": 71,
+      "question": "I have a counts matrix of single cell transcriptomic data, cell.proportions.q1.mtx.gz. The data contains measurements from 5350 cells, each with 1000 measured genes. That data was generated by measuring data from a co-culture of a few unique cell types. Can you tell me the proportions of those cells in descending order to the nearest 5 percent? Drop any cells with questionable QC. Expected output: 35;35;20;10 if there are 4 cell types.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "50;35;15",
+          "status": "success",
+          "timestamp": "2026-09-05T14:11:12.229699"
+        },
+        "gpt-5.6-sol": {
+          "answer": "50;35;15",
+          "status": "success",
+          "timestamp": "2026-09-06T01:46:55.701402"
+        },
+        "grok-4.6": {
+          "answer": "50;35;15",
+          "status": "success",
+          "timestamp": "2026-09-06T02:05:35.358890"
+        },
+        "kimi-k3": {
+          "answer": "50;35;15",
+          "status": "success",
+          "timestamp": "2026-09-06T02:35:02.852262"
+        }
+      }
+    },
+    {
+      "id": "three-way-barnyard-q2",
+      "index": 72,
+      "question": "Given paired-end 10x scRNA-seq FASTQs (three.way.barnyard.q2.R1.fq.gz, three.way.barnyard.q2.R2.fq.gz) from a 3-species barnyard (human, mouse, pig)—R1=28-bp cell barcode+UMI, R2≈91-bp cDNA. The barcodes are pre-thresholded for minimum read depth. Report the percentages among confidently assigned single-cell barcodes for human, mouse, pig (rounded to the nearest 10%, comma-separated, summing to 100) and also assign a tissue of origin for human, mouse, pig, respectively, chosen from: liver, heart, testis, kidney, bone_marrow, spleen, cortex, retina, lung, skin. Expected output format: 40;40;20;kidney;heart;heart.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "50,30,50;bone_marrow;lung;testis",
+          "status": "success",
+          "timestamp": "2026-09-05T14:14:42.967703"
+        },
+        "gpt-5.6-sol": {
+          "answer": "10;30;60;bone_marrow;lung;testis",
+          "status": "success",
+          "timestamp": "2026-09-06T01:47:23.595874"
+        },
+        "grok-4.6": {
+          "answer": "10;30;60;bone_marrow;lung;testis",
+          "status": "success",
+          "timestamp": "2026-09-06T02:24:56.934374"
+        },
+        "kimi-k3": {
+          "answer": "20;30;50;bone_marrow;lung;testis",
+          "status": "success",
+          "timestamp": "2026-09-06T02:43:40.252511"
+        }
+      }
+    },
+    {
+      "id": "chip-pioneer-q1",
+      "index": 73,
+      "question": "chip.pioneer.q1.tar contains fragment bed files obtained by aligning paired-end reads from multiple ChIP-seq experiments and their input controls using the Chromap aligner (v0.2.6, --preset chip, hg38). 6 TFs (TF1-TF6) were each separately overexpressed in BJ fibroblasts for 48 hours at comparable protein levels, and ChIP-seq was then performed. Obtain the BJ fibroblasts DNase-seq data corresponding to ENCODE accession ENCSR000EME. Using these, determine which TF showcases the most pioneering ability- which can be assumed to be reflected in the ChIP-seq signal at 48 hours. Respond with one of TF1, TF2, TF3, TF4, TF5, TF6.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T14:49:19.334613"
+        },
+        "gpt-5.6-sol": {
+          "answer": "TF5",
+          "status": "success",
+          "timestamp": "2026-09-06T01:51:23.537169"
+        },
+        "grok-4.6": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T02:36:33.977160"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T03:04:18.675659"
+        }
+      }
+    },
+    {
+      "id": "deleterious-mutation-q2",
+      "index": 74,
+      "question": "In deleterious.mutation.q2.R1.fq.gz (exome 1×150 bp, reads from human 50Mb chunk of chr9 only), there is one gene that harbors a high-confidence nonsense SNV consistent with somatic mosaicism. The gene is highly LoF-intolerant. Report the HGNC gene symbol (uppercase) for the affected gene, and the approximate alternate allele frequency, rounded to the nearest 10%. Expected output format: POU5F1,10",
+      "results": {
+        "GLM-5.3": {
+          "answer": "STXBP1,20",
+          "status": "success",
+          "timestamp": "2026-09-05T15:04:34.409642"
+        },
+        "gpt-5.6-sol": {
+          "answer": "STXBP1,20",
+          "status": "success",
+          "timestamp": "2026-09-06T01:54:41.315218"
+        },
+        "grok-4.6": {
+          "answer": "STXBP1,20",
+          "status": "success",
+          "timestamp": "2026-09-06T02:55:05.370600"
+        },
+        "kimi-k3": {
+          "answer": "STXBP1,20",
+          "status": "success",
+          "timestamp": "2026-09-06T03:08:23.955354"
+        }
+      }
+    },
+    {
+      "id": "bam-ops-q1",
+      "index": 75,
+      "question": "For the given BAM file mt.sorted.bam, how many reads pass quality threshold of 30 and are properly paired?",
+      "results": {
+        "GLM-5.3": {
+          "answer": "44",
+          "status": "success",
+          "timestamp": "2026-09-05T15:11:28.357821"
+        },
+        "gpt-5.6-sol": {
+          "answer": "44",
+          "status": "success",
+          "timestamp": "2026-09-06T02:01:42.743935"
+        },
+        "grok-4.6": {
+          "answer": "44",
+          "status": "success",
+          "timestamp": "2026-09-06T02:59:58.805218"
+        },
+        "kimi-k3": {
+          "answer": "44",
+          "status": "success",
+          "timestamp": "2026-09-06T03:25:40.780078"
+        }
+      }
+    },
+    {
+      "id": "perturb-seq-effect-q1",
+      "index": 76,
+      "question": "You are given the cellranger output of a CRISPR perturb-seq experiment in perturb.seq.effect.q1.tar.gz where cell features are at filtered_feature_bc_matrix/features.tsv.gz, counts are at filtered_feature_bc_matrix/matrix.mtx.gz, barcodes are at filtered_feature_bc_matrix/barcodes.tsv.gz, guide assignment per cell is at perturb_protospacer_calls_per_cell.csv, and guide reference at feature_reference.csv. I am interested in finding guides which robustly knockdown the interferon gamma pathway. We need to decide which target gene from this screen to explore in a follow up screen - which gene target should be selected? Respond with a single gene target name (i.e. CCL6).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "STAT1",
+          "status": "success",
+          "timestamp": "2026-09-05T15:12:27.782287"
+        },
+        "gpt-5.6-sol": {
+          "answer": "ISG15",
+          "status": "success",
+          "timestamp": "2026-09-06T02:02:52.823422"
+        },
+        "grok-4.6": {
+          "answer": "ISG15",
+          "status": "success",
+          "timestamp": "2026-09-06T03:02:45.978769"
+        },
+        "kimi-k3": {
+          "answer": "STAT1",
+          "status": "success",
+          "timestamp": "2026-09-06T03:26:55.173765"
+        }
+      }
+    },
+    {
+      "id": "exogenous-mix-reads-q2",
+      "index": 77,
+      "question": "I have FASTQ data from a perturbation experiment involving KLF4 exogenous overexpression using a Sendai virus. I want to estimate the fraction of exogenous-origin reads in exogenous.mix.reads.q2.mix.fq, given exogenous.mix.reads.q2.exo.fq (early timepoint, assumed purely exogenous) and exogenous.mix.reads.q2.endo.fq (later timepoint, predominantly endogenous). All files contain reads mapping to KLF4. I don't have details on the Sendai construct.  If possible, estimate the percent of exogenous reads in exogenous.mix.reads.q2.mix.fq (by read count) to the nearest 10 and return only the integer (e.g. 50); if not possible, return NA.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "90",
+          "status": "success",
+          "timestamp": "2026-09-05T15:15:22.322626"
+        },
+        "gpt-5.6-sol": {
+          "answer": "90",
+          "status": "success",
+          "timestamp": "2026-09-06T02:05:40.231309"
+        },
+        "grok-4.6": {
+          "answer": "NA",
+          "status": "success",
+          "timestamp": "2026-09-06T03:12:30.089924"
+        },
+        "kimi-k3": {
+          "answer": "90",
+          "status": "success",
+          "timestamp": "2026-09-06T03:37:08.463499"
+        }
+      }
+    },
+    {
+      "id": "align-one-sequence-to-reference-q1",
+      "index": 78,
+      "question": "Where does CACACACAGGAGAT align to in the given GCF_000001215.4_Release_6_plus_ISO1_MT_genomic.fna? Report as 0-based coordinates in contig:start-end format (no commas).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "NT_033779.5:4280595-4280608",
+          "status": "success",
+          "timestamp": "2026-09-05T15:20:25.157654"
+        },
+        "gpt-5.6-sol": {
+          "answer": "NT_033779.5:4280595-4280609",
+          "status": "success",
+          "timestamp": "2026-09-06T02:07:10.720799"
+        },
+        "grok-4.6": {
+          "answer": "NT_033779.5:4280595-4280609",
+          "status": "success",
+          "timestamp": "2026-09-06T03:44:07.524747"
+        },
+        "kimi-k3": {
+          "answer": "NT_033779.5:4280595-4280609",
+          "status": "success",
+          "timestamp": "2026-09-06T03:40:31.047062"
+        }
+      }
+    },
+    {
+      "id": "promoter-sequence-retrieval-q1",
+      "index": 79,
+      "question": "Using the Ensembl GRCz11 genome assembly and Ensembl gene annotation, what is the DNA sequence of the promoter region of the zebrafish gene shha? Define the promoter as the region spanning positions −500 to +100 relative to the transcription start site (TSS) of the canonical transcript, where the TSS is position 0, negative positions are upstream, and positive positions are downstream, yielding a 601 bp sequence. Return the sequence in 5′ to 3′ orientation on the sense strand (reverse complement the genomic sequence if the gene is on the − strand).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC",
+          "status": "success",
+          "timestamp": "2026-09-05T15:22:45.560574"
+        },
+        "gpt-5.6-sol": {
+          "answer": "TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC",
+          "status": "success",
+          "timestamp": "2026-09-06T02:08:27.629870"
+        },
+        "grok-4.6": {
+          "answer": "TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC",
+          "status": "success",
+          "timestamp": "2026-09-06T03:46:05.035932"
+        },
+        "kimi-k3": {
+          "answer": "TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC",
+          "status": "success",
+          "timestamp": "2026-09-06T03:41:42.533136"
+        }
+      }
+    },
+    {
+      "id": "bedtools-chromhmm-q1",
+      "index": 80,
+      "question": "We wish to find the chromatin states overlapping the peaks in the given ENCODE narrowpeak bed file ENCFF333TAT.bed.gz. We have a ChromHMM annotation bed file E055_15_coreMarks_dense.bed.gz. What percentage of all bases in the peaks overlap with the 14_ReprPCWk annotation? Ignore bases in the peak file that don't have any corresponding annotation in the annotation file. Round to the nearest integer. Output format: \"42\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "36543965 / 227344497 × 100 = 16.07% → **16**",
+          "status": "success",
+          "timestamp": "2026-09-05T15:25:34.649070"
+        },
+        "gpt-5.6-sol": {
+          "answer": "16",
+          "status": "success",
+          "timestamp": "2026-09-06T02:10:34.738113"
+        },
+        "grok-4.6": {
+          "answer": "16",
+          "status": "success",
+          "timestamp": "2026-09-06T03:49:26.283843"
+        },
+        "kimi-k3": {
+          "answer": "16",
+          "status": "success",
+          "timestamp": "2026-09-06T03:43:00.820176"
+        }
+      }
+    },
+    {
+      "id": "lung-cancer-sc-q1",
+      "index": 81,
+      "question": "You are given a single cell transcriptomic counts data generated from primary human tumor samples from patients with lung cancer (lung.cancer.sc.h5ad). This file has been cleaned for doublets and low quality cells already. Each sample is from a patient with lung adenocarcinoma (LUAD) or lung squamous cell carcinoma (LUSC). Out of samples Patient_005, Patient_006, Patient_007, Patient_018, and Patient_040, identify the LUSC sample with the highest proportion of dendritic cells out of all cells in that sample? Secondly, what percentage, to the nearest 20 percent, of all non-immune cells across all samples are malignant basal cells from LUSC patients? Expected answer format: Patient_006;20.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "Patient_018;40",
+          "status": "success",
+          "timestamp": "2026-09-05T15:26:10.823845"
+        },
+        "gpt-5.6-sol": {
+          "answer": "Patient_005;40",
+          "status": "success",
+          "timestamp": "2026-09-06T02:12:52.536335"
+        },
+        "grok-4.6": {
+          "answer": "Patient_018;40",
+          "status": "success",
+          "timestamp": "2026-09-06T03:53:46.539195"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T03:45:41.470416"
+        }
+      }
+    },
+    {
+      "id": "tissue-fibroblast-q1",
+      "index": 82,
+      "question": "I have a counts matrix of transcriptomic reads from a murine multi-tissue fibroblast atlas, tissue.fibroblast.q1.rds. I want to know what tissue the fibroblast corresponding to barcode Cell_11249_MCI is from, and what tissue the fibroblast corresponding to the barcode Cell_10369_WXV is. Please provide an answer in a string format with each answer separated by a comma, and select each answer from \"Lymph node\", \"Pancreas\", \"Muscle\", \"Tendon\", \"Mesentery\", \"Omentum\" , 'Adipose\", \"Artery\", \"Bone\", \"Heart\", \"Intestine\", \"Skin\", \"Lung\", \"Liver\", or \"Spleen\". Expected output format example: Pancreas,Omentum. ",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T15:27:10.395546"
+        },
+        "gpt-5.6-sol": {
+          "answer": "Lung,Bone",
+          "status": "success",
+          "timestamp": "2026-09-06T02:13:05.925143"
+        },
+        "grok-4.6": {
+          "answer": "Lung,Bone",
+          "status": "success",
+          "timestamp": "2026-09-06T04:13:02.744990"
+        },
+        "kimi-k3": {
+          "answer": "Lung,Adipose",
+          "status": "success",
+          "timestamp": "2026-09-06T04:11:39.723810"
+        }
+      }
+    },
+    {
+      "id": "characterize-response-q1",
+      "index": 83,
+      "question": "characterize.response.q1.txt contains an ordered list of differentially regulated genes in one direction (decreasing abs log-fold change, all sharing the same sign) in a specific immune cell type in response to a specific condition. Which condition, cell type pair from the following options most specifically describes this gene set. Conditions: a. stimulation by lipopolysaccharide (LPS), b. exhaustion, c. stimulation by cytokine LIF, d. stimulation by cytokine IL-39, e. COVID-19, f. sepsis, g. Med12 knockout, h. systemic lupus erythematosus, i. treatment with BMS-34554, j. treatment with aldesleukin, k. aging, l. rheumatoid arthritis. Cell types: i. monocytes, ii. CD8 T cells, iii. CD4 T cells, iv. B cells, v. dendritic cells, vi. NK cells, vii. Neutrophils. Respond in the format d;ii.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "c;v",
+          "status": "success",
+          "timestamp": "2026-09-05T16:03:43.135366"
+        },
+        "gpt-5.6-sol": {
+          "answer": "a;i",
+          "status": "success",
+          "timestamp": "2026-09-06T02:15:46.029608"
+        },
+        "grok-4.6": {
+          "answer": "c;v",
+          "status": "success",
+          "timestamp": "2026-09-06T04:24:29.529308"
+        },
+        "kimi-k3": {
+          "answer": "c;v",
+          "status": "success",
+          "timestamp": "2026-09-06T05:05:08.172726"
+        }
+      }
+    },
+    {
+      "id": "geo-lookup-read-matrix-market-q1",
+      "index": 84,
+      "question": "From the supplementary data of the GEO accession GSE242423, for the D2 scRNA-seq matrix, retrieve the counts for SOX2 for barcode AAACCCAAGTCTTCGA-1.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "20",
+          "status": "success",
+          "timestamp": "2026-09-05T16:14:11.999569"
+        },
+        "gpt-5.6-sol": {
+          "answer": "20",
+          "status": "success",
+          "timestamp": "2026-09-06T02:18:08.224188"
+        },
+        "grok-4.6": {
+          "answer": "20",
+          "status": "success",
+          "timestamp": "2026-09-06T04:37:30.039083"
+        },
+        "kimi-k3": {
+          "answer": "20",
+          "status": "success",
+          "timestamp": "2026-09-06T05:07:59.845999"
+        }
+      }
+    },
+    {
+      "id": "annotate-variant-gene-impact-q1",
+      "index": 85,
+      "question": "What is the clinical significance reported in the ClinVar database for the SPI1 variant represented by the HGVS notation NM_003120.3(SPI1):c.143-2A>C? Respond with only the correct cateogry. Answer in all lowercase.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "pathogenic",
+          "status": "success",
+          "timestamp": "2026-09-05T16:19:10.610915"
+        },
+        "gpt-5.6-sol": {
+          "answer": "pathogenic",
+          "status": "success",
+          "timestamp": "2026-09-06T02:21:52.524168"
+        },
+        "grok-4.6": {
+          "answer": "pathogenic",
+          "status": "success",
+          "timestamp": "2026-09-06T04:41:37.613761"
+        },
+        "kimi-k3": {
+          "answer": "pathogenic",
+          "status": "success",
+          "timestamp": "2026-09-06T05:21:03.809786"
+        }
+      }
+    },
+    {
+      "id": "vcf-infer-build-q1",
+      "index": 86,
+      "question": "You are given vcf.infer.build.q1.vcf.gz, a bgzipped VCF containing biallelic SNPs on chromosome 20 for one sample. The VCF has no rsIDs and does not specify a reference build in the header. Determine which reference genome build the VCF coordinates and REF alleles correspond to. Respond with exactly one of: hg18, hg19, hg38, T2T-CHM13.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T16:20:06.320167"
+        },
+        "gpt-5.6-sol": {
+          "answer": "hg19",
+          "status": "success",
+          "timestamp": "2026-09-06T02:23:30.448987"
+        },
+        "grok-4.6": {
+          "answer": "hg19",
+          "status": "success",
+          "timestamp": "2026-09-06T04:42:47.295420"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T05:21:58.445518"
+        }
+      }
+    },
+    {
+      "id": "gene-pair-ordering-fraction-q1",
+      "index": 87,
+      "question": "From the dataset at 10x_pbmc68k_reduced.h5ad, consider only CD19+ B cells with percent_mito less than 0.04. Among these, compute the number of cells where expression of gene SRM exceeds that of gene MRPS21 by more than 1.0 (n_srm_higher), the number of cells where expression of gene MRPS21 exceeds that of gene SRM by more than 1.0 (n_mrps21_higher), and the number of cells where the difference in expression of the two genes is between 1 and -1 (inclusive) (n_within_range). Round all fractions to two decimal places. Return these numbers as a semicolon-separated string in the format n_srm_higher,n_mrps21_higher,n_within_range. An example of a correctly formatted string is: \"50;30;20\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "37;20;37",
+          "status": "success",
+          "timestamp": "2026-09-05T16:49:54.680427"
+        },
+        "gpt-5.6-sol": {
+          "answer": "37;20;37",
+          "status": "success",
+          "timestamp": "2026-09-06T02:50:26.881392"
+        },
+        "grok-4.6": {
+          "answer": "29;23;42",
+          "status": "success",
+          "timestamp": "2026-09-06T04:46:00.293383"
+        },
+        "kimi-k3": {
+          "answer": "37;20;37",
+          "status": "success",
+          "timestamp": "2026-09-06T05:22:11.437614"
+        }
+      }
+    },
+    {
+      "id": "1000G-retrieve-genotype-q2",
+      "index": 88,
+      "question": "I would like to make a file with genotypes at specific loci for all individuals from the 1000G data with 3202 individuals (20201028_3202_raw_GT_with_annot). The positions should be common SNPs- snp151Common from UCSC, hg38. Select SNPs in which the observed allele column consists of exactly two distinct bases, where both alleles are strictly one of A, C, G, or T (i.e. not multi-allelic or indel). Further filter them to be within chr1 and within the 1000 genome-wide strongest peaks of the ENCODE peak file with accession ENCFF717TCQ (based on the qValue column). Create an uncompressed tsv with columns CHROM, POS, REF, ALT, and then the 3202 identifiers in lexicographic order (include header). In this tsv, the REF and ALT should come from the 1000G VCF. Keep those where both REF and ALT in 1000G are both exactly one of A,C,G,T. Convert any phased calls to unphased. Then, in the genotype cells, include only one of \"0/0\", \"0/1\", \"1/1\" or \"./.\", reserving \"./.\" for any that were not exactly one of the first 3. The SNPs should be sorted by coordinate. Report the total number of lines in this file along with the md5sum of this file, in the format \"201;md5sum\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T16:51:30.074830"
+        },
+        "gpt-5.6-sol": {
+          "answer": "296;864b06501a76b44b3037072e25c99725",
+          "status": "success",
+          "timestamp": "2026-09-06T02:53:18.575844"
+        },
+        "grok-4.6": {
+          "answer": "296;864b06501a76b44b3037072e25c99725",
+          "status": "success",
+          "timestamp": "2026-09-06T04:46:32.773907"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T05:24:05.940961"
+        }
+      }
+    },
+    {
+      "id": "odd-one-out-q1",
+      "index": 89,
+      "question": "odd.one.out.q1.tar.gz contains 10 ENCODE-style tagAlign files (hg38). Each file is a different experiment performed in a unique human cell line. 9 experiments were generated using the same assay, however 1 was generated using a different assay. What is index (1-10) of this outlier?",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T17:27:42.070427"
+        },
+        "gpt-5.6-sol": {
+          "answer": "4",
+          "status": "success",
+          "timestamp": "2026-09-06T02:55:05.510236"
+        },
+        "grok-4.6": {
+          "answer": "4",
+          "status": "success",
+          "timestamp": "2026-09-06T04:51:06.476818"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T05:46:13.561497"
+        }
+      }
+    },
+    {
+      "id": "gene-expression-query-q1",
+      "index": 90,
+      "question": "Retrieve the median expression level for APOE from the 'Brain_Cortex' samples in the GTEx v8 reference dataset. The value should be in Transcripts Per Million as an integer.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "604",
+          "status": "success",
+          "timestamp": "2026-09-05T18:20:36.365639"
+        },
+        "gpt-5.6-sol": {
+          "answer": "604",
+          "status": "success",
+          "timestamp": "2026-09-06T03:20:21.598690"
+        },
+        "grok-4.6": {
+          "answer": "604",
+          "status": "success",
+          "timestamp": "2026-09-06T05:05:47.201355"
+        },
+        "kimi-k3": {
+          "answer": "604",
+          "status": "success",
+          "timestamp": "2026-09-06T07:22:29.924887"
+        }
+      }
+    },
+    {
+      "id": "afgr-1000g-intersect-atac-q1",
+      "index": 91,
+      "question": "From the 1000G Phase 3 (3202 individuals), find all individuals that also have ATAC-seq filtered BAMs in the African Functional Genomics Resource (AFGR). Using only publicly available data, collect the md5sums of the filtered BAMs for these individuals (GRCh38 aligned), write the md5sums (one per line) to a text file sorted alphabetically. Return the count of samples and the file’s md5sum as a single comma-separated line, e.g., 42,md5hash.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T18:27:08.885147"
+        },
+        "gpt-5.6-sol": {
+          "answer": "83,1127bd47e06e7c19e8f0d5b5458a244a",
+          "status": "success",
+          "timestamp": "2026-09-06T03:23:48.393447"
+        },
+        "grok-4.6": {
+          "answer": "83,1127bd47e06e7c19e8f0d5b5458a244a",
+          "status": "success",
+          "timestamp": "2026-09-06T05:08:35.344665"
+        },
+        "kimi-k3": {
+          "answer": "83,1127bd47e06e7c19e8f0d5b5458a244a",
+          "status": "success",
+          "timestamp": "2026-09-06T07:24:36.841262"
+        }
+      }
+    },
+    {
+      "id": "borzoi-basic-q1",
+      "index": 92,
+      "question": "What is the exact count of the number of parameters in any one of the replicates of the Borzoi model (https://doi.org/10.1038/s41588-024-02053-6). Specifically, report the number of trainable parameters including both the human and mouse heads. Format the number without commas.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "190902667",
+          "status": "success",
+          "timestamp": "2026-09-05T18:52:04.677900"
+        },
+        "gpt-5.6-sol": {
+          "answer": "190902667",
+          "status": "success",
+          "timestamp": "2026-09-06T03:34:44.892702"
+        },
+        "grok-4.6": {
+          "answer": "190902667",
+          "status": "success",
+          "timestamp": "2026-09-06T05:22:11.019943"
+        },
+        "kimi-k3": {
+          "answer": "190902667",
+          "status": "success",
+          "timestamp": "2026-09-06T07:29:56.674027"
+        }
+      }
+    },
+    {
+      "id": "annotate-variant-gene-impact-q2",
+      "index": 93,
+      "question": "Using the Ensembl VEP API, determine the consequence for the following variant rs2136714166. Respond with a single word.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "upstream_gene_variant",
+          "status": "success",
+          "timestamp": "2026-09-05T19:28:12.529761"
+        },
+        "gpt-5.6-sol": {
+          "answer": "upstream_gene_variant",
+          "status": "success",
+          "timestamp": "2026-09-06T03:47:21.698126"
+        },
+        "grok-4.6": {
+          "answer": "upstream_gene_variant",
+          "status": "success",
+          "timestamp": "2026-09-06T05:33:21.739797"
+        },
+        "kimi-k3": {
+          "answer": "upstream_gene_variant",
+          "status": "success",
+          "timestamp": "2026-09-06T07:44:30.305284"
+        }
+      }
+    },
+    {
+      "id": "gene-fusion-q1",
+      "index": 94,
+      "question": "You are given paired-end RNA sequencing FASTQ files (gene.fusion.q1.R1.fq.gz, gene.fusion.q1.R2.fq.gz) from human. The data contains a synthetic gene fusion event. Your task is to identify the fusion genes. Report the answer as the names of the two genes joined by a hyphen, with the 5′ partner first and the 3′ partner second, written in all uppercase letters, HGNC symbols. For example: TCF21-COL1A1",
+      "results": {
+        "GLM-5.3": {
+          "answer": "GAPDH-SOX2",
+          "status": "success",
+          "timestamp": "2026-09-05T19:29:17.373883"
+        },
+        "gpt-5.6-sol": {
+          "answer": "GAPDH-SOX2",
+          "status": "success",
+          "timestamp": "2026-09-06T09:24:30.505736"
+        },
+        "grok-4.6": {
+          "answer": "GAPDH-SOX2",
+          "status": "success",
+          "timestamp": "2026-09-06T05:34:34.533160"
+        },
+        "kimi-k3": {
+          "answer": "GAPDH-SOX2",
+          "status": "success",
+          "timestamp": "2026-09-06T07:45:25.431457"
+        }
+      }
+    },
+    {
+      "id": "compute-gccontent-promoter-q1",
+      "index": 95,
+      "question": "Compute the GC content of the promoter window for the human transcript ENST00000269305 on assembly GRCh38. Use Ensembl release 115. Define the promoter interval as [TSS - upstream_bp, TSS + downstream_bp - 1] on the transcript’s strand, with upstream_bp=500 and downstream_bp=100. Report the results as a semicolon separated string in the format: chromosome,start,end,strand,promoter_length,gc_count,gc_fraction where chromosome, start, end and strand are the coordinates of the resolved promoter region, promoter_length is the length of the promoter, gc_count is the number of G or C bases in the promoter, and gc_fraction is the fraction of G/C bases in the promoter, rounded to two decimal places. All genome coordinates should be 1-based and closed. An example of a correctly formatted string is: 3;101;200;+;12;100;0.12",
+      "results": {
+        "GLM-5.3": {
+          "answer": "17;7686990;7687589;-;600;331;0.55",
+          "status": "success",
+          "timestamp": "2026-09-05T19:47:15.549758"
+        },
+        "gpt-5.6-sol": {
+          "answer": "17;7687391;7687990;-;600;292;0.49",
+          "status": "success",
+          "timestamp": "2026-09-06T03:58:14.234836"
+        },
+        "grok-4.6": {
+          "answer": "17;7687391;7687990;-;600;292;0.49",
+          "status": "success",
+          "timestamp": "2026-09-06T05:55:56.728898"
+        },
+        "kimi-k3": {
+          "answer": "17;7687391;7687990;-;600;292;0.49",
+          "status": "success",
+          "timestamp": "2026-09-06T07:46:46.543026"
+        }
+      }
+    },
+    {
+      "id": "vcf-infer-ancestry-q1",
+      "index": 96,
+      "question": "You are given vcf.infer.ancestry.q1.vcf.gz, a bgzipped VCF containing variants on chromosome 1 for four unrelated individuals: Sample1, Sample2, Sample3, Sample4. Infer each individual’s ancestry as one of: AFR (African), ASJ (Ashkenazi Jew), EUR (European), EAS (East Asian), MID (Middle Eastern), SAS (South Asian), OCE (Oceania). Output 4 labels in Sample1→Sample4 order, comma-separated with no spaces (e.g., AFR,EUR,SAS,OCE).",
+      "results": {
+        "GLM-5.3": {
+          "answer": "AFR,AFR,SAS,EUR",
+          "status": "success",
+          "timestamp": "2026-09-05T19:50:42.073815"
+        },
+        "gpt-5.6-sol": {
+          "answer": "AFR,AFR,SAS,EUR",
+          "status": "success",
+          "timestamp": "2026-09-06T09:30:59.930861"
+        },
+        "grok-4.6": {
+          "answer": "AFR,AFR,SAS,EUR",
+          "status": "success",
+          "timestamp": "2026-09-06T06:05:42.977742"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T07:53:30.870073"
+        }
+      }
+    },
+    {
+      "id": "find-amplification-q1",
+      "index": 97,
+      "question": "You are given shallow paired-end whole-genome sequencing FASTQ files (find.amplification.R1.fq.gz, find.amplification.R2.fq.gz) simulated from a chromosome of the human genome (hg38) that contains a regional copy-number gain. Identify the approximate coordinates of the amplified region relative to the reference genome and the amplification factor, defined as the mean read-depth in the amplified region divided by the mean read-depth in flanking non-amplified regions. Report the chromosome, the start coordinate, and the end coordinate rounded to the nearest 100,000 bases, followed by a single comma and the amplification factor rounded to nearest multiple of 0.5. Format your answer as chr:start-end factor. For example: chr21:23000000-26000000,2.0",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T20:14:03.711612"
+        },
+        "gpt-5.6-sol": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T10:37:53.575409"
+        },
+        "grok-4.6": {
+          "answer": "chr22:36000000-36400000,1.5",
+          "status": "success",
+          "timestamp": "2026-09-06T06:12:21.610044"
+        },
+        "kimi-k3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-06T07:58:15.830279"
+        }
+      }
+    },
+    {
+      "id": "sample-swap-atac-q1",
+      "index": 98,
+      "question": "I have bulk ATAC-seq counts lying around from axolotl organs (sample.swap.atac.q1.tsv.gz). Since the genome is large, I broke down standard AmexG_v6.0-DD chromosomes into smaller chunks (sample.swap.atac.q1.chrom.sizes). I'm not sure, but I suspect there is a sample swap. Can you check if that is the case? If there isn't, respond \"None\". Else respond with the names of the two cell types that have been swapped in case-sensitive lexicographic order, e.g. \"Brain,GallBladder\".",
+      "results": {
+        "GLM-5.3": {
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-05T20:27:40.070577"
+        },
+        "gpt-5.6-sol": {
+          "answer": "Cloaca,Stomach",
+          "status": "success",
+          "timestamp": "2026-09-06T10:41:49.341066"
+        },
+        "grok-4.6": {
+          "answer": "Cloaca,Stomach",
+          "status": "success",
+          "timestamp": "2026-09-06T06:17:52.983661"
+        },
+        "kimi-k3": {
+          "answer": "Heart,Lung",
+          "status": "success",
+          "timestamp": "2026-09-06T08:35:32.272886"
+        }
+      }
+    },
+    {
+      "id": "variant-status-q1",
+      "index": 99,
+      "question": "A collaborator sent me variant.status.q1.bam corresponding to a single-end RNA-seq experiment from an individual mapped to hg38. What is the likely variant status at position chrX:154,398,500 (1-based) for this individual? Respond in the format x/y, where x and y are one of A,C,G,T and x<y lexicographically, or x=y if homozygous.",
+      "results": {
+        "GLM-5.3": {
+          "answer": "C/T",
+          "status": "success",
+          "timestamp": "2026-09-05T21:12:03.395329"
+        },
+        "gpt-5.6-sol": {
+          "answer": "C/T",
+          "status": "success",
+          "timestamp": "2026-09-06T10:51:58.321789"
+        },
+        "grok-4.6": {
+          "answer": "C/C",
+          "status": "success",
+          "timestamp": "2026-09-06T06:26:05.677988"
+        },
+        "kimi-k3": {
+          "answer": "C/T",
+          "status": "success",
+          "timestamp": "2026-09-06T08:46:27.244422"
+        }
+      }
+    }
+  ]
+}

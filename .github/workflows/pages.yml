@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - omicos-biomnibench/reports/**
+      - compbiobench/reports/**
       - docs/**
       - .github/workflows/pages.yml
   workflow_dispatch:
@@ -26,8 +27,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Build leaderboard
-        run: python omicos-biomnibench/reports/build_index.py
+      - name: Build benchmark pages
+        run: |
+          python compbiobench/reports/build_index.py
+          python compbiobench/reports/test_build_index.py
+          python omicos-biomnibench/reports/build_index.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

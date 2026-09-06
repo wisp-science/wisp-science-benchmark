@@ -16,6 +16,29 @@ flowchart LR
 
 环境变量模板见 [`.env.example`](.env.example)。
 
+## 已整理的运行结果
+
+[在线答案表](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/) 来自
+`archive_clean.zip`，包含 GLM-5.3、gpt-5.6-sol、grok-4.6、kimi-k3 各 100 题。
+行是原始题目名称，列是模型，单元格是原始答案，支持下载 CSV。只把 51 条
+`ERROR: timeout` 显示为 `NA`；模型本身输出的 `NA` 和 1 条 API 中断错误保留原样。
+未进行正确性评分，也不按答案排序模型。
+
+`reports/results.json` 保存题干、原始答案、运行状态和来源元数据，足够独立重建网页。
+压缩包和大体积执行日志不提交。此批数据保留原始 100 题，不套用后续 runner 的题目筛选规则。
+
+在仓库根目录运行：
+
+```bash
+# 首次导入或替换本批结果；每个模型只选择一个 run，题目集须完整且一致
+python compbiobench/reports/build_index.py --archive archive_clean.zip
+# 后续构建无需压缩包
+python compbiobench/reports/build_index.py
+python compbiobench/reports/test_build_index.py
+```
+
+输出为 `docs/compbiobench/index.html` 和 `docs/compbiobench/answers.csv`。
+
 ## 布局
 
 | 路径 | 角色 |

@@ -24,11 +24,9 @@ plus 95 for gpt-6-astra, imported from the 2026-09-07 `archive_clean.zip` update
 GPT-6 Astra's default run configuration skipped 5 questions requiring external
 reference resources; the original reasons are retained in the metadata. Rows are
 question names, columns are models, and cells are original answers. CSV download
-is available. Four GPT-6 Astra loop-aborted answers were updated from the user's
-2026-09-07 answer table: `covid-patient-q1`, `atac-doublet-q1`, `lung-cancer-sc-q1`,
-and `gene-pair-ordering-fraction-q1`. These updates identify their user-provided
-source, leave the new execution timestamp unknown, and retain each old record in
-`previous_result`. The remaining 40 timeouts and 5 skipped cells display `NA`.
+is available. All answers and execution timestamps come from the latest archive;
+all 95 GPT-6 Astra records have returned output. The remaining 29 timeouts and
+5 skipped cells display `NA`.
 Model-authored `NA` answers and one API error remain unchanged. Original errors
 are retained in `reports/results.json`.
 No correctness grading or performance ranking is applied.

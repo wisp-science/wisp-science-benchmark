@@ -2,8 +2,8 @@
 ensembl-grab-q1,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373
 bam-infer-read-length-q1,2x101,2x101,2x101,2x101,2x101
 differential-composition-q1,horizontal cell,horizontal cell,horizontal cell,horizontal cell,horizontal cell
-genomic-state-q1,NA,B,B,B,B
-cryptic-exon-q1,NA,GNG10,GNG10,GNG10,GNG10
+genomic-state-q1,"**Safest next action:** query ENCODE chromatin-state segmentations (search `type=Annotation searchTerm=ChromHMM`, brain frontal lobe / liver / H1) and overlap chr11:124,738,681-124,738,772 to confirm the state+biosample before finalizing the single-letter answer.",B,B,B,B
+cryptic-exon-q1,GNG10,GNG10,GNG10,GNG10,GNG10
 read-paper-download-file-parse-q1,6907,6907,6907,6907,6907
 huggingface-entropy-q1,GTCTCTACTAAAAATACAAAATTAGCC,GTCTCTACTAAAAATACAAAATTAGCC,GTCTCTACTAAAAATACAAAATTAGCC,GTCTCTACTAAAAATACAAAATTAGCC,GTCTCTACTAAAAATACAAAATTAGCC
 ml-model-track-overlap-q1,NA,1300,3600,3600,1300
@@ -14,8 +14,8 @@ identify-donor-q1,HG03861,HG03861,HG03861,HG03861,HG03861
 contaminated-rna-q3,mesomycoplasma,pan,NA,pan,mesomycoplasma
 hic-differential-loop-q1,7720000;7800000,7720000;7800000,7720000;7800000,7720000;7800000,7640000;7760000
 encode-atac-pipeline-q1,All intermediate files are inside the workspace; nothing scientific was deleted.,NA,NA,NA,29597
-pooled-infer-donors-q1,NA,4,4,4,4
-overexpress-tf-q1,KLF4,KLF4,KLF4,KLF4,NA
+pooled-infer-donors-q1,4,4,4,4,4
+overexpress-tf-q1,KLF4,KLF4,KLF4,KLF4,TCF7
 conservation-lookup-q1,"9,16,0,20,5,24,35","9,16,0,29,14,24,35","0,7,0,20,5,24,27","0,7,0,20,5,24,27","9,16,0,20,5,24,35"
 splice-pred-q1,7,7,7,7,8
 borzoi-rnaseq-q1,9380,2810,9380,8870,9380
@@ -26,8 +26,8 @@ identify-related-q1,"SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155","SAMPLE_081,SA
 ep-interactions-q1,C,C,C,C,A
 sample-swap-rna-q1,"epidermal_neural,tailbud_neural","epidermis,tailbud_neural","epidermal_neural,tailbud_neural","epidermal_neural,tailbud_neural","epidermal_neural,tailbud_neural"
 gene-fusion-q2,MYC-SP1-ZIC2-SP1-CATSPER4,MYC-SP1-ZIC2-SP1-CATSPER4,MYC-SP1-ZIC2-SP1-CATSPER4,MYC-SP1-ZIC2-SP1-CATSPER4,CATSPER4-SP1-ZIC2-SP1-MYC
-retina-score-snps-q1,0.67,ERROR: api: 200 stream error: stream disconnected before completion: stream closed before response.completed,0.67,NA,NA
-atac-tn5-shift-q1,"Exact-coordinate tests rule out 10x derivation. The signal is synthetic, so let me extract the precise motif logo geometry around both ends with base resolution:",2;-1,2;-1,2;-1,NA
+retina-score-snps-q1,0.67,0.67,0.67,NA,NA
+atac-tn5-shift-q1,"Exact-coordinate tests rule out 10x derivation. The signal is synthetic, so let me extract the precise motif logo geometry around both ends with base resolution:",2;-1,2;-1,2;-1,2;-1
 finding-geo-q1,"Run the exact fingerprint test (barcode + total-UMI + detected-gene-count triple) against the remaining candidates' RAW archives, in this order: **GSE233706, GSE296454, GSE309905, GSE185173, GSE292561, GSE291459, GSE318565, GSE242675, GSE263266** — then return that GSE's SuperSeries accession if it is a subseries.",GSE114176,GSE114176,NA,Strong neuroblast signature — likely developing/embryonic brain. Let me refine.
 deg-simple-q1,KLF4,KLF4,KLF4,KLF4,KLF4
 bigwig-density-q1,chr8:70000000-71000000,chr8:70000000-71000000,chr8:70000000-71000000,chr8:70000000-71000000,chr8:70000000-71000000
@@ -36,7 +36,7 @@ contaminated-rna-q2,NA,macaca mulatta,NA,lymphocryptovirus humangamma4,NA
 sample-swap-rna-q2,None,None,None,None,"cortex,epidermis"
 multiome-match-atac-rna-q1,5;1;4;0;6;3;7;2,5;1;4;0;6;3;7;2,5;1;4;0;6;3;7;2,5;1;4;0;6;3;7;2,5;1;4;0;6;3;7;2
 spatial-sim-q2,"Fibroblast_Stroma,Macrophage","Fibroblast_Stroma,Macrophage","Fibroblast_Stroma,Macrophage","Fibroblast_Stroma,Macrophage","Fibroblast_Stroma,Macrophage"
-reverse-encode-q1,NA,NA,ENCSR597URK,NA,NA
+reverse-encode-q1,NA,ERROR: api: 200 stream error: stream disconnected before completion: stream closed before response.completed,ENCSR597URK,NA,NA
 compute-hvg-jaccard-q1,0.22,0.22,0.22,0.22,0.22
 deleterious-mutation-q1,STXBP1,STXBP1,STXBP1,STXBP1,STXBP1
 genome-assembly-contiguity-q1,25286925,25286925,25286925,25286925,25286925
@@ -50,7 +50,7 @@ spatial-sim-q1,"B_Cell,Endothelial,Macrophage","B_Cell,Endothelial,Macrophage","
 compute-nonoverlapping-exonic-length-q1,7049,7049,7049,7049,7049
 atac-doublet-q1,None,AACATGGAGCGCCGGG-1,None,AACATGGAGCGCCGGG-1,None
 enriched-motif-identification-q1,CTCF,CTCF,CTCF,CTCF,MYC
-find-deletion-q1,NA,NA,NA,chr22:20000000-21000000,NA
+find-deletion-q1,NA,chr22:20000000-21000000,NA,chr22:20000000-21000000,NA
 three-way-barnyard-q1,10;30;60,10;30;60,10;30;60,10;30;60,10;30;60
 subtype-inflammation-q1,muller glia cell,muller glia cell,muller glia cell,muller glia cell,muller glia cell
 read-proportions-q1,"50,20,20,10","50,20,20,10","50,20,20,10","50,20,20,10","85,10,5,0"
@@ -60,7 +60,7 @@ perturb-seq-align-q1,"guide18,guide13,guide10","guide18,guide13,guide14","guide1
 gwas-ancestry-q1,"- Safest next action: finish/fix downloads (EAS=2/2a, EUR=f/f7, plus verify AA/HIS/SAS), then join each file to our data on RSID and compare −log10P (correlation + exact-match rate, plus which SNPs are NA/missing per ancestry). The NA pattern plus exact P-value match will identify the ancestry conclusively; answer is then the corresponding 3-letter code (current lean: a non-EAS, non-EUR ancestry among AFR/SAS/HIS, unconfirmed).",AFR,HIS,AFR,EAS
 gene-info-grab-q1,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331
 genome-coords-q1,D,D,E,D,D
-mystery-peak-set-q1,NA,S5,S5,NA,S5
+mystery-peak-set-q1,NA,S5,S5,S5,S5
 phase-chain-q1,C-D-G-D-A-G-T|T-I-C-I-T-A-G,A-C-T-T-C-A-C-G|C-T-A-I-G-D-I-A,A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A,A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A,A-C-T-D-C-A-G-C-G|C-T-A-G-G-G-C-G-A
 enformer-basic-q1,251221292,251221292,251221292,251221292,251221292
 bedtools-ops-q1,111423829,111423829,111423829,111423829,111424282
@@ -72,7 +72,7 @@ variant-coordinate-lookup-q1,chrX:47574285;chr1:228858538;chr1:110061565;chr3:18
 histone-chip-q1,H3K9me3,H3K9me3,H3K9me3,H3K9me3,H3K27me3
 cell-proportions-q1,50;35;15,50;35;15,50;35;15,50;35;15,50;35;15
 three-way-barnyard-q2,"50,30,50;bone_marrow;lung;testis",10;30;60;bone_marrow;lung;testis,10;30;60;bone_marrow;lung;testis,10;30;60;bone_marrow;lung;testis,20;30;50;bone_marrow;lung;testis
-chip-pioneer-q1,NA,TF5,TF4,NA,NA
+chip-pioneer-q1,NA,TF5,TF4,TF4,TF4
 deleterious-mutation-q2,"STXBP1,20","STXBP1,20","STXBP1,20","STXBP1,20","STXBP1,20"
 bam-ops-q1,44,44,44,44,44
 perturb-seq-effect-q1,STAT1,ISG15,ISG15,ISG15,STAT1
@@ -96,6 +96,6 @@ annotate-variant-gene-impact-q2,upstream_gene_variant,upstream_gene_variant,upst
 gene-fusion-q1,GAPDH-SOX2,GAPDH-SOX2,GAPDH-SOX2,GAPDH-SOX2,GAPDH-SOX2
 compute-gccontent-promoter-q1,17;7686990;7687589;-;600;331;0.55,17;7687391;7687990;-;600;292;0.49,17;7687391;7687990;-;600;292;0.49,17;7687391;7687990;-;600;292;0.49,17;7687391;7687990;-;600;292;0.49
 vcf-infer-ancestry-q1,"AFR,AFR,SAS,EUR","AFR,AFR,SAS,EUR","AFR,AFR,SAS,EUR","AFR,AFR,SAS,EUR","AFR,AFR,SAS,EUR"
-find-amplification-q1,NA,NA,"chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5"
+find-amplification-q1,NA,"chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5"
 sample-swap-atac-q1,NA,"Cloaca,Stomach","Cloaca,Stomach","Cloaca,Stomach","Heart,Lung"
 variant-status-q1,C/T,C/T,C/C,C/C,C/T

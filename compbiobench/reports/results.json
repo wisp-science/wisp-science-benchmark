@@ -1,34 +1,236 @@
 {
-  "source": "archive_clean.zip；gpt-6-astra 补充答案（用户提供，2026-09-07）",
+  "source": "archive_clean.zip",
   "models": [
     {
       "id": "GLM-5.3",
       "run": "wisp_GLM-5.3_20260904_214426",
-      "timestamp": "20260904_214426",
+      "timestamp": "20260907_144832",
       "timeout_minutes": 120,
       "reasoning_effort": null,
       "total_questions": 100,
-      "benchmark_profile": null,
-      "benchmark_profile_version": null,
-      "selected_question_ids": null,
+      "benchmark_profile": "full",
+      "benchmark_profile_version": 1,
+      "selected_question_ids": [
+        "ensembl-grab-q1",
+        "bam-infer-read-length-q1",
+        "differential-composition-q1",
+        "genomic-state-q1",
+        "cryptic-exon-q1",
+        "read-paper-download-file-parse-q1",
+        "huggingface-entropy-q1",
+        "ml-model-track-overlap-q1",
+        "compute-gc-content-interval-q1",
+        "reverse-search-gwas-q1",
+        "pathogenic-variant-lookup-q1",
+        "identify-donor-q1",
+        "contaminated-rna-q3",
+        "hic-differential-loop-q1",
+        "encode-atac-pipeline-q1",
+        "pooled-infer-donors-q1",
+        "overexpress-tf-q1",
+        "conservation-lookup-q1",
+        "splice-pred-q1",
+        "borzoi-rnaseq-q1",
+        "calculate-average-gene-expression-q1",
+        "covid-patient-q1",
+        "saluki-setup-optimize-q1",
+        "identify-related-q1",
+        "ep-interactions-q1",
+        "sample-swap-rna-q1",
+        "gene-fusion-q2",
+        "retina-score-snps-q1",
+        "atac-tn5-shift-q1",
+        "finding-geo-q1",
+        "deg-simple-q1",
+        "bigwig-density-q1",
+        "gtf-5-utr-median-len-q1",
+        "contaminated-rna-q2",
+        "sample-swap-rna-q2",
+        "multiome-match-atac-rna-q1",
+        "spatial-sim-q2",
+        "reverse-encode-q1",
+        "compute-hvg-jaccard-q1",
+        "deleterious-mutation-q1",
+        "genome-assembly-contiguity-q1",
+        "1000G-retrieve-genotype-q1",
+        "annotate-variant-regulatory-overlap-q1",
+        "extract-rna-secondary-structure-q1",
+        "protein-shape-q1",
+        "deg-simple-q2",
+        "match-genotypes-q1",
+        "spatial-sim-q1",
+        "compute-nonoverlapping-exonic-length-q1",
+        "atac-doublet-q1",
+        "enriched-motif-identification-q1",
+        "find-deletion-q1",
+        "three-way-barnyard-q1",
+        "subtype-inflammation-q1",
+        "read-proportions-q1",
+        "sample-swap-atac-q2",
+        "exogenous-mix-reads-q1",
+        "perturb-seq-align-q1",
+        "gwas-ancestry-q1",
+        "gene-info-grab-q1",
+        "genome-coords-q1",
+        "mystery-peak-set-q1",
+        "phase-chain-q1",
+        "enformer-basic-q1",
+        "bedtools-ops-q1",
+        "orf-annot-q1",
+        "reverse-search-gwas-q2",
+        "disease-samples-q1",
+        "contaminated-rna-q1",
+        "variant-coordinate-lookup-q1",
+        "histone-chip-q1",
+        "cell-proportions-q1",
+        "three-way-barnyard-q2",
+        "chip-pioneer-q1",
+        "deleterious-mutation-q2",
+        "bam-ops-q1",
+        "perturb-seq-effect-q1",
+        "exogenous-mix-reads-q2",
+        "align-one-sequence-to-reference-q1",
+        "promoter-sequence-retrieval-q1",
+        "bedtools-chromhmm-q1",
+        "lung-cancer-sc-q1",
+        "tissue-fibroblast-q1",
+        "characterize-response-q1",
+        "geo-lookup-read-matrix-market-q1",
+        "annotate-variant-gene-impact-q1",
+        "vcf-infer-build-q1",
+        "gene-pair-ordering-fraction-q1",
+        "1000G-retrieve-genotype-q2",
+        "odd-one-out-q1",
+        "gene-expression-query-q1",
+        "afgr-1000g-intersect-atac-q1",
+        "borzoi-basic-q1",
+        "annotate-variant-gene-impact-q2",
+        "gene-fusion-q1",
+        "compute-gccontent-promoter-q1",
+        "vcf-infer-ancestry-q1",
+        "find-amplification-q1",
+        "sample-swap-atac-q1",
+        "variant-status-q1"
+      ],
       "skipped_questions": {}
     },
     {
       "id": "gpt-5.6-sol",
       "run": "wisp_gpt-5.6-sol_20260905_161343",
-      "timestamp": "20260906_071632",
+      "timestamp": "20260907_133612",
       "timeout_minutes": 120,
       "reasoning_effort": null,
       "total_questions": 100,
-      "benchmark_profile": null,
-      "benchmark_profile_version": null,
-      "selected_question_ids": null,
+      "benchmark_profile": "full",
+      "benchmark_profile_version": 1,
+      "selected_question_ids": [
+        "ensembl-grab-q1",
+        "bam-infer-read-length-q1",
+        "differential-composition-q1",
+        "genomic-state-q1",
+        "cryptic-exon-q1",
+        "read-paper-download-file-parse-q1",
+        "huggingface-entropy-q1",
+        "ml-model-track-overlap-q1",
+        "compute-gc-content-interval-q1",
+        "reverse-search-gwas-q1",
+        "pathogenic-variant-lookup-q1",
+        "identify-donor-q1",
+        "contaminated-rna-q3",
+        "hic-differential-loop-q1",
+        "encode-atac-pipeline-q1",
+        "pooled-infer-donors-q1",
+        "overexpress-tf-q1",
+        "conservation-lookup-q1",
+        "splice-pred-q1",
+        "borzoi-rnaseq-q1",
+        "calculate-average-gene-expression-q1",
+        "covid-patient-q1",
+        "saluki-setup-optimize-q1",
+        "identify-related-q1",
+        "ep-interactions-q1",
+        "sample-swap-rna-q1",
+        "gene-fusion-q2",
+        "retina-score-snps-q1",
+        "atac-tn5-shift-q1",
+        "finding-geo-q1",
+        "deg-simple-q1",
+        "bigwig-density-q1",
+        "gtf-5-utr-median-len-q1",
+        "contaminated-rna-q2",
+        "sample-swap-rna-q2",
+        "multiome-match-atac-rna-q1",
+        "spatial-sim-q2",
+        "reverse-encode-q1",
+        "compute-hvg-jaccard-q1",
+        "deleterious-mutation-q1",
+        "genome-assembly-contiguity-q1",
+        "1000G-retrieve-genotype-q1",
+        "annotate-variant-regulatory-overlap-q1",
+        "extract-rna-secondary-structure-q1",
+        "protein-shape-q1",
+        "deg-simple-q2",
+        "match-genotypes-q1",
+        "spatial-sim-q1",
+        "compute-nonoverlapping-exonic-length-q1",
+        "atac-doublet-q1",
+        "enriched-motif-identification-q1",
+        "find-deletion-q1",
+        "three-way-barnyard-q1",
+        "subtype-inflammation-q1",
+        "read-proportions-q1",
+        "sample-swap-atac-q2",
+        "exogenous-mix-reads-q1",
+        "perturb-seq-align-q1",
+        "gwas-ancestry-q1",
+        "gene-info-grab-q1",
+        "genome-coords-q1",
+        "mystery-peak-set-q1",
+        "phase-chain-q1",
+        "enformer-basic-q1",
+        "bedtools-ops-q1",
+        "orf-annot-q1",
+        "reverse-search-gwas-q2",
+        "disease-samples-q1",
+        "contaminated-rna-q1",
+        "variant-coordinate-lookup-q1",
+        "histone-chip-q1",
+        "cell-proportions-q1",
+        "three-way-barnyard-q2",
+        "chip-pioneer-q1",
+        "deleterious-mutation-q2",
+        "bam-ops-q1",
+        "perturb-seq-effect-q1",
+        "exogenous-mix-reads-q2",
+        "align-one-sequence-to-reference-q1",
+        "promoter-sequence-retrieval-q1",
+        "bedtools-chromhmm-q1",
+        "lung-cancer-sc-q1",
+        "tissue-fibroblast-q1",
+        "characterize-response-q1",
+        "geo-lookup-read-matrix-market-q1",
+        "annotate-variant-gene-impact-q1",
+        "vcf-infer-build-q1",
+        "gene-pair-ordering-fraction-q1",
+        "1000G-retrieve-genotype-q2",
+        "odd-one-out-q1",
+        "gene-expression-query-q1",
+        "afgr-1000g-intersect-atac-q1",
+        "borzoi-basic-q1",
+        "annotate-variant-gene-impact-q2",
+        "gene-fusion-q1",
+        "compute-gccontent-promoter-q1",
+        "vcf-infer-ancestry-q1",
+        "find-amplification-q1",
+        "sample-swap-atac-q1",
+        "variant-status-q1"
+      ],
       "skipped_questions": {}
     },
     {
       "id": "gpt-6-astra",
       "run": "wisp_gpt-6-astra_default_20260906_210207",
-      "timestamp": "20260906_210214",
+      "timestamp": "20260907_152850",
       "timeout_minutes": 120,
       "reasoning_effort": null,
       "total_questions": 95,
@@ -142,7 +344,7 @@
     {
       "id": "grok-4.6",
       "run": "wisp_grok-4.6_20260905_092351",
-      "timestamp": "20260906_202946",
+      "timestamp": "20260907_133451",
       "timeout_minutes": 120,
       "reasoning_effort": null,
       "total_questions": 100,
@@ -255,7 +457,7 @@
     {
       "id": "kimi-k3",
       "run": "wisp_kimi-k3_20260904_185546",
-      "timestamp": "20260906_141816",
+      "timestamp": "20260907_145301",
       "timeout_minutes": 120,
       "reasoning_effort": null,
       "total_questions": 100,
@@ -469,9 +671,9 @@
       "question": "Consider chr11:124,738,681-124,738,772 (hg38). What is the likely purpose of this region? Choose only one. A. Active enhancer, Liver B. Active enhancer, Brain frontal lobe C. Active enhancer, ESC D. Active transcription, ubiquitous E. TSS poised or flanking, ubiquitous F. Polycomb repression, ubiquitous. Respond with a single letter.",
       "results": {
         "GLM-5.3": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-04T21:45:31.827318"
+          "answer": "**Safest next action:** query ENCODE chromatin-state segmentations (search `type=Annotation searchTerm=ChromHMM`, brain frontal lobe / liver / H1) and overlap chr11:124,738,681-124,738,772 to confirm the state+biosample before finalizing the single-letter answer.",
+          "status": "success",
+          "timestamp": "2026-09-07T14:48:47.329313"
         },
         "gpt-5.6-sol": {
           "answer": "B",
@@ -501,9 +703,9 @@
       "question": "I have a bulk human RNA-seq fastq file cryptic.exon.q1.fq.gz. There is exactly one highly expressed coding gene that has a cryptic exon in it formed by two novel junctions. Report the HGNC gene symbol (uppercase) for that gene.",
       "results": {
         "GLM-5.3": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-04T21:51:24.704481"
+          "answer": "GNG10",
+          "status": "success",
+          "timestamp": "2026-09-07T14:49:06.203035"
         },
         "gpt-5.6-sol": {
           "answer": "GNG10",
@@ -599,7 +801,7 @@
         "GLM-5.3": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-04T23:19:07.572350"
+          "timestamp": "2026-09-07T14:48:47.326923"
         },
         "gpt-5.6-sol": {
           "answer": "1300",
@@ -663,7 +865,7 @@
         "GLM-5.3": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-04T23:47:19.114225"
+          "timestamp": "2026-09-07T15:41:01.921829"
         },
         "gpt-5.6-sol": {
           "answer": "37164013",
@@ -678,12 +880,12 @@
         "grok-4.6": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T20:29:51.338196"
+          "timestamp": "2026-09-07T13:34:55.433224"
         },
         "kimi-k3": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T14:18:18.466519"
+          "timestamp": "2026-09-07T14:53:02.429495"
         }
       }
     },
@@ -829,12 +1031,12 @@
         "gpt-5.6-sol": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T07:16:41.568477"
+          "timestamp": "2026-09-07T13:36:43.587215"
         },
         "grok-4.6": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T20:29:50.023524"
+          "timestamp": "2026-09-07T13:34:58.215799"
         },
         "kimi-k3": {
           "answer": "29597",
@@ -855,9 +1057,9 @@
       "question": "pooled.infer.donors.q1.bam is an aligned scRNA-seq BAM from a pooled human sample. The file includes cell barcode tags. Determine the number of distinct donors contributing cells to the pool.",
       "results": {
         "GLM-5.3": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-05T01:48:37.170629"
+          "answer": "4",
+          "status": "success",
+          "timestamp": "2026-09-07T16:33:36.937064"
         },
         "gpt-5.6-sol": {
           "answer": "4",
@@ -907,9 +1109,9 @@
           "timestamp": "2026-09-05T13:54:50.903519"
         },
         "kimi-k3": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-06T14:18:20.840399"
+          "answer": "TCF7",
+          "status": "success",
+          "timestamp": "2026-09-07T14:53:03.361195"
         }
       }
     },
@@ -1059,14 +1261,7 @@
         "gpt-6-astra": {
           "answer": "1,5,11,12,17,21,24,27,29,32",
           "status": "success",
-          "timestamp": null,
-          "source": "User-provided gpt-6-astra answer table",
-          "updated_on": "2026-09-07",
-          "previous_result": {
-            "answer": "ERROR: 检测到智能体连续重复相同的工具调用/结果循环且没有进展，已中断以避免空转烧 token——可能是模型退化，也可能需要缩小任务范围或换一种问法。(aborted: agent repeated an identical tool call/result cycle with no progress)",
-            "status": "error",
-            "timestamp": "2026-09-06T23:27:32.306214"
-          }
+          "timestamp": "2026-09-07T15:28:50.650338"
         },
         "grok-4.6": {
           "answer": "1,5,11,12,17,21,24,27,29,32",
@@ -1251,9 +1446,9 @@
           "timestamp": "2026-09-05T04:56:00.644349"
         },
         "gpt-5.6-sol": {
-          "answer": "ERROR: api: 200 stream error: stream disconnected before completion: stream closed before response.completed",
-          "status": "error",
-          "timestamp": "2026-09-06T08:27:44.754050"
+          "answer": "0.67",
+          "status": "success",
+          "timestamp": "2026-09-07T13:36:44.145307"
         },
         "gpt-6-astra": {
           "answer": "0.67",
@@ -1263,12 +1458,12 @@
         "grok-4.6": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T22:30:25.841910"
+          "timestamp": "2026-09-07T13:34:54.250796"
         },
         "kimi-k3": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T16:18:55.202049"
+          "timestamp": "2026-09-07T14:53:01.526114"
         }
       }
     },
@@ -1298,9 +1493,9 @@
           "timestamp": "2026-09-05T17:28:00.983784"
         },
         "kimi-k3": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-06T16:24:27.778988"
+          "answer": "2;-1",
+          "status": "success",
+          "timestamp": "2026-09-07T14:53:01.654312"
         }
       }
     },
@@ -1327,7 +1522,7 @@
         "grok-4.6": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T22:54:29.368578"
+          "timestamp": "2026-09-07T15:35:26.452091"
         },
         "kimi-k3": {
           "answer": "Strong neuroblast signature — likely developing/embryonic brain. Let me refine.",
@@ -1440,7 +1635,7 @@
         "GLM-5.3": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-05T05:59:21.508947"
+          "timestamp": "2026-09-07T16:49:22.581374"
         },
         "gpt-5.6-sol": {
           "answer": "macaca mulatta",
@@ -1455,7 +1650,7 @@
         "kimi-k3": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T18:19:16.115900"
+          "timestamp": "2026-09-07T14:53:01.992533"
         },
         "gpt-6-astra": {
           "answer": "NA",
@@ -1572,9 +1767,9 @@
           "timestamp": "2026-09-05T07:02:49.934204"
         },
         "gpt-5.6-sol": {
-          "answer": "ERROR: timeout",
+          "answer": "ERROR: api: 200 stream error: stream disconnected before completion: stream closed before response.completed",
           "status": "error",
-          "timestamp": "2026-09-06T08:37:21.125341"
+          "timestamp": "2026-09-07T13:36:23.019086"
         },
         "gpt-6-astra": {
           "answer": "ENCSR597URK",
@@ -1584,12 +1779,12 @@
         "grok-4.6": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T23:24:38.826792"
+          "timestamp": "2026-09-07T15:35:31.989730"
         },
         "kimi-k3": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T18:19:30.295916"
+          "timestamp": "2026-09-07T15:10:43.739613"
         }
       }
     },
@@ -1963,14 +2158,7 @@
         "gpt-6-astra": {
           "answer": "None",
           "status": "success",
-          "timestamp": null,
-          "source": "User-provided gpt-6-astra answer table",
-          "updated_on": "2026-09-07",
-          "previous_result": {
-            "answer": "ERROR: 检测到智能体连续重复相同的工具调用/结果循环且没有进展，已中断以避免空转烧 token——可能是模型退化，也可能需要缩小任务范围或换一种问法。(aborted: agent repeated an identical tool call/result cycle with no progress)",
-            "status": "error",
-            "timestamp": "2026-09-07T01:40:07.027707"
-          }
+          "timestamp": "2026-09-07T13:37:48.188142"
         },
         "grok-4.6": {
           "answer": "AACATGGAGCGCCGGG-1",
@@ -2027,9 +2215,9 @@
           "timestamp": "2026-09-05T09:03:21.445161"
         },
         "gpt-5.6-sol": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-06T09:17:17.878638"
+          "answer": "chr22:20000000-21000000",
+          "status": "success",
+          "timestamp": "2026-09-07T13:57:19.184900"
         },
         "grok-4.6": {
           "answer": "chr22:20000000-21000000",
@@ -2039,7 +2227,7 @@
         "kimi-k3": {
           "answer": "ERROR: timeout",
           "status": "error",
-          "timestamp": "2026-09-06T18:25:02.458240"
+          "timestamp": "2026-09-07T16:04:07.985825"
         },
         "gpt-6-astra": {
           "answer": "NA",
@@ -2358,9 +2546,9 @@
           "timestamp": "2026-09-07T02:01:51.425357"
         },
         "grok-4.6": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-07T00:42:14.526194"
+          "answer": "S5",
+          "status": "success",
+          "timestamp": "2026-09-07T15:35:34.246890"
         },
         "kimi-k3": {
           "answer": "S5",
@@ -2743,14 +2931,14 @@
           "timestamp": "2026-09-07T02:49:25.087993"
         },
         "grok-4.6": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-07T00:55:56.646323"
+          "answer": "TF4",
+          "status": "success",
+          "timestamp": "2026-09-07T16:03:00.642162"
         },
         "kimi-k3": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-06T20:20:38.739099"
+          "answer": "TF4",
+          "status": "success",
+          "timestamp": "2026-09-07T16:53:54.922009"
         }
       }
     },
@@ -2996,14 +3184,7 @@
         "gpt-6-astra": {
           "answer": "Patient_018;40",
           "status": "success",
-          "timestamp": null,
-          "source": "User-provided gpt-6-astra answer table",
-          "updated_on": "2026-09-07",
-          "previous_result": {
-            "answer": "ERROR: 检测到智能体连续重复相同的工具调用/结果循环且没有进展，已中断以避免空转烧 token——可能是模型退化，也可能需要缩小任务范围或换一种问法。(aborted: agent repeated an identical tool call/result cycle with no progress)",
-            "status": "error",
-            "timestamp": "2026-09-07T03:07:48.473962"
-          }
+          "timestamp": "2026-09-07T13:37:47.390809"
         },
         "grok-4.6": {
           "answer": "Patient_018;40",
@@ -3195,14 +3376,7 @@
         "gpt-6-astra": {
           "answer": "37;20;37",
           "status": "success",
-          "timestamp": null,
-          "source": "User-provided gpt-6-astra answer table",
-          "updated_on": "2026-09-07",
-          "previous_result": {
-            "answer": "ERROR: 检测到智能体连续重复相同的工具调用/结果循环且没有进展，已中断以避免空转烧 token——可能是模型退化，也可能需要缩小任务范围或换一种问法。(aborted: agent repeated an identical tool call/result cycle with no progress)",
-            "status": "error",
-            "timestamp": "2026-09-07T03:19:02.238000"
-          }
+          "timestamp": "2026-09-07T15:28:50.027310"
         },
         "grok-4.6": {
           "answer": "29;23;42",
@@ -3515,9 +3689,9 @@
           "timestamp": "2026-09-05T20:14:03.711612"
         },
         "gpt-5.6-sol": {
-          "answer": "ERROR: timeout",
-          "status": "error",
-          "timestamp": "2026-09-06T10:37:53.575409"
+          "answer": "chr22:36000000-36400000,1.5",
+          "status": "success",
+          "timestamp": "2026-09-07T14:59:49.158089"
         },
         "gpt-6-astra": {
           "answer": "chr22:36000000-36400000,1.5",

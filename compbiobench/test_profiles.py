@@ -103,10 +103,12 @@ def main():
 
         # Both multi-model and run-all entry points must forward the profile.
         args.profile, args.model, args.resume = "full", "test1,test2", None
+        args.rerun = [local_ids[0]]
         with patch.object(rb, "_run_single_model") as run:
             rb.cmd_run(args)
             assert len(run.call_args_list) == 2
             assert all(call.args[0].profile == "full" for call in run.call_args_list)
+            assert all(call.args[0].rerun == [local_ids[0]] for call in run.call_args_list)
         args.output, args.profile, args.resume = str(root / "all.csv"), None, legacy.name
         with patch.object(rb, "check_llm_installed", return_value=(True, "test", "test")), \
              patch.object(rb, "cmd_run") as run, patch.object(rb, "cmd_merge") as merge:
@@ -114,6 +116,8 @@ def main():
             assert run.call_args_list
             assert all(call.args[0].profile == "full" for call in run.call_args_list)
             assert merge.call_args.args[0].profile == "full"
+            assert all(call.args[0].rerun == [local_ids[0]] for call in run.call_args_list)
+        args.rerun = []
 
         # Merge must filter both the task rows and the source run columns.
         for profile, metadata_path in runs.items():
@@ -202,7 +206,62 @@ def main():
         answer_column, = [column for column in frame if column.startswith("answer_")]
         assert frame.question_id.tolist() == all_ids
         assert frame[answer_column].tolist() == all_ids
-    print("ok: selection, metadata, listing, default-to-full resume, retries, preserved successes, and merges")
+
+        # Force only a selected success; unrelated failed/missing questions must stay untouched.
+        target = local_ids[1]
+        failed_path = save_result(local_ids[0], "error")
+        missing_path = promotion_run / "questions" / local_ids[-1] / "result.json"
+        missing_path.unlink()
+        untouched = {p: p.read_bytes() for p in promotion_run.glob("questions/*/result.json")
+                     if p.parent.name != target}
+        promotion_args.rerun = [target]
+        scheduled.clear()
+        with patch.object(rb, "check_llm_installed", return_value=(True, "test", "test")), \
+             patch.object(provider, "check_model_available", return_value=(True, "test")), \
+             patch.object(rb, "use_mamba", return_value=False), \
+             patch.object(rb, "ensure_base_conda_env", return_value=True), \
+             patch.object(rb, "run_question", side_effect=execute_question):
+            rb.cmd_run(promotion_args)
+            assert scheduled == [target]
+            assert all(p.read_bytes() == content for p, content in untouched.items())
+            assert not missing_path.exists()
+            assert json.loads(failed_path.read_text())["status"] == "error"
+            meta = json.loads(metadata_path.read_text())
+            assert meta["selected_question_ids"] == all_ids
+            assert meta["total_questions"] == len(all_ids)
+            assert meta["questions_to_run"] == 1 and meta["rerun_question_ids"] == [target]
+
+            promotion_args.rerun = [target, local_ids[0], target]
+            scheduled.clear()
+            rb.cmd_run(promotion_args)
+            assert scheduled == local_ids[:2], "Duplicate IDs must execute only once"
+            assert not missing_path.exists()
+
+        with patch.object(rb, "check_llm_installed", side_effect=AssertionError("must stay offline")):
+            preview = argparse.Namespace(**{**vars(promotion_args), "list_questions": True, "rerun": [target]})
+            before = metadata_path.read_bytes()
+            output = io.StringIO()
+            with redirect_stdout(output):
+                rb.cmd_run(preview)
+            assert output.getvalue().count("[SELECT]") == 1 and f"[SELECT] {target}" in output.getvalue()
+            assert metadata_path.read_bytes() == before
+            invalid = [
+                ({"resume": None}, "requires --resume"),
+                ({"rerun": ["typo-question-id"]}, "Unknown --rerun"),
+                ({"exclude": [target]}, "excluded by profile or --exclude"),
+                ({"results_dir": args.results_dir, "resume": runs["default"].parent.name,
+                  "profile": "default", "rerun": [all_ids[0]]}, "excluded by profile or --exclude"),
+            ]
+            for overrides, message in invalid:
+                bad_args = argparse.Namespace(**{**vars(preview), **overrides})
+                try:
+                    rb.cmd_run(bad_args)
+                except ValueError as exc:
+                    assert message in str(exc)
+                else:
+                    raise AssertionError(f"Invalid rerun accepted: {overrides}")
+            assert metadata_path.read_bytes() == before
+    print("ok: profiles, upgrades, targeted reruns, preserved results and population, validation, and merges")
 
 
 if __name__ == "__main__":

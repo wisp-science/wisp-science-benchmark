@@ -167,6 +167,19 @@ python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
 即使没有待跑题，也会保存 profile 更新。不能把 full 原地缩回 default，应新建运行。
 默认名单版本变化时，继续以 default 续跑仍需新建运行，但可显式扩展为 full。
 
+只重跑指定题目（即使此前已成功），使用 `--resume` 配合 `--rerun`：
+
+```bash
+python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
+  --resume wisp_<model>_<timestamp> --rerun gene-pair-ordering-fraction-q1
+```
+
+可用空格指定多题，如 `--rerun covid-patient-q1 lung-cancer-sc-q1`。
+本次只执行这些题目，并覆盖它们原位置的结果和日志；其他成功、失败或缺失题目不变。
+元数据中的完整选题范围保持不变，另用 `rerun_question_ids` 记录本次重跑目标。
+题目 ID 必须存在且属于当前 profile、未被 `--exclude` 排除；重跑 full-only 题可加 `--profile full`。
+可加 `--list-questions` 离线预览目标；需要清理目标题目的旧工作目录时，加 `--resume-clean-workspace`。
+
 分别合并两档，避免混用题目分母和结果：
 
 ```bash

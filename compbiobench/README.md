@@ -178,6 +178,21 @@ use that metadata. Narrowing full back to default requires a new run. A changed
 default membership version still blocks default-to-default resume, but explicit
 expansion to full is allowed.
 
+To force only specific questions to run again, including previously successful ones:
+
+```bash
+python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
+  --resume wisp_<model>_<timestamp> --rerun gene-pair-ordering-fraction-q1
+```
+
+Separate multiple IDs with spaces, e.g. `--rerun covid-patient-q1 lung-cancer-sc-q1`.
+Only these questions execute and replace their existing results and logs; all other
+successful, failed, or missing questions are left alone. Metadata retains the full
+selected population and records this invocation's targets in `rerun_question_ids`.
+IDs must exist and be selected by the profile and `--exclude`; add `--profile full`
+for full-only questions. Add `--list-questions` for an offline preview, or
+`--resume-clean-workspace` to clear only the target questions' old workspaces.
+
 Merge profiles separately to keep result populations separate:
 
 ```bash

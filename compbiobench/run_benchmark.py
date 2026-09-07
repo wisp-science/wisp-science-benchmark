@@ -1929,6 +1929,7 @@ def cmd_run(args) -> None:
                 llm=llm, model=model, input=args.input, parallel=args.parallel,
                 timeout=args.timeout, results_dir=args.results_dir,
                 resume=resume, keep_envs=keep_envs,
+                rerun=getattr(args, 'rerun', []),
                 resume_clean_workspace=resume_clean_workspace,
                 model_reasoning_effort=model_reasoning_effort,
                 reverse=getattr(args, 'reverse', False),
@@ -1952,6 +1953,10 @@ def _run_single_model(args) -> None:
     resume = getattr(args, 'resume', None)
     resume_clean_workspace = getattr(args, 'resume_clean_workspace', False)
     model_reasoning_effort = getattr(args, 'model_reasoning_effort', None)
+
+    rerun_ids = set(getattr(args, 'rerun', []) or [])
+    if rerun_ids and not resume:
+        raise ValueError("--rerun requires --resume with an existing run directory")
 
     profile = getattr(args, 'profile', None)
     if resume:
@@ -1981,13 +1986,24 @@ def _run_single_model(args) -> None:
     if not valid:
         raise ValueError(f"Invalid CSV: {err}")
     input_question_count = len(df)
+    unknown = rerun_ids - set(df['question_id'])
+    if unknown:
+        raise ValueError(f"Unknown --rerun question ID(s): {', '.join(sorted(unknown))}")
     df, profile_skipped = select_questions(df, profile, getattr(args, 'exclude', []))
+    excluded = rerun_ids - set(df['question_id'])
+    if excluded:
+        raise ValueError(f"--rerun question(s) excluded by profile or --exclude: {', '.join(sorted(excluded))}. "
+                         "Use --profile full or remove the conflicting --exclude.")
+    # Keep df as the complete profile population for run metadata and later resumes.
+    run_df = df.loc[df['question_id'].isin(rerun_ids)] if rerun_ids else df
     label = "Benchmark-full" if profile == "full" else "Benchmark"
     print(f"{label}: {len(df)}/{input_question_count} questions selected; {len(profile_skipped)} skipped")
     for qid, reason in profile_skipped.items():
         print(f"  [SKIP] {qid}: {reason}")
+    if rerun_ids:
+        print(f"Rerun: only {len(run_df)} explicitly selected question(s), including previous successes")
     if getattr(args, 'list_questions', False):
-        for qid in df['question_id']:
+        for qid in run_df['question_id']:
             print(f"  [SELECT] {qid}")
         return
     if df.empty:
@@ -2042,12 +2058,15 @@ def _run_single_model(args) -> None:
     os.makedirs(os.path.join(run_dir, "questions"), exist_ok=True)
     logger = setup_logging(run_dir, llm, model)
 
-    if resume:
+    if rerun_ids:
+        questions: list[tuple[int, pd.Series]] = [(cast(int, i), r) for i, r in run_df.iterrows()]
+        logger.info(f"Rerun: forcing only {len(questions)} explicitly selected question(s)")
+    elif resume:
         skip_qids = get_questions_to_skip(run_dir)
-        questions: list[tuple[int, pd.Series]] = [(cast(int, i), r) for i, r in df.iterrows() if r['question_id'] not in skip_qids]
+        questions = [(cast(int, i), r) for i, r in df.iterrows() if r['question_id'] not in skip_qids]
         logger.info(f"Resume: skipping {len(skip_qids)} completed")
     else:
-        questions: list[tuple[int, pd.Series]] = [(cast(int, i), r) for i, r in df.iterrows()]
+        questions = [(cast(int, i), r) for i, r in df.iterrows()]
 
     if getattr(args, 'reverse', False):
         questions.reverse()
@@ -2072,6 +2091,7 @@ def _run_single_model(args) -> None:
             "benchmark_profile_version": BENCHMARK_PROFILE_VERSION,
             "input_questions": input_question_count,
             "selected_question_ids": df['question_id'].tolist(),
+            "rerun_question_ids": [r['question_id'] for _, r in questions] if rerun_ids else [],
             "skipped_questions": profile_skipped,
             "total_questions": len(df), "questions_to_run": len(questions),
         }, f, indent=2)
@@ -2122,6 +2142,8 @@ def _run_single_model(args) -> None:
 
 def cmd_run_all(args) -> None:
     """Run benchmark with all LLMs and merge."""
+    if getattr(args, 'rerun', []) and not getattr(args, 'resume', None):
+        raise ValueError("--rerun requires --resume with an existing run directory")
     if getattr(args, 'resume', None) and getattr(args, 'profile', None) is None:
         with open(os.path.join(args.results_dir, args.resume, "run_metadata.json"), encoding='utf-8') as f:
             args.profile = json.load(f).get("benchmark_profile", "full")
@@ -2150,6 +2172,7 @@ def cmd_run_all(args) -> None:
             llm=llm, model=model, input=args.input, parallel=args.parallel,
             timeout=args.timeout, results_dir=args.results_dir,
             resume=getattr(args, 'resume', None),
+            rerun=getattr(args, 'rerun', []),
             keep_envs=getattr(args, 'keep_envs', False),
             resume_clean_workspace=getattr(args, 'resume_clean_workspace', False),
             model_reasoning_effort=getattr(args, 'model_reasoning_effort', None),
@@ -2476,6 +2499,8 @@ def main():
     p.add_argument("--results-dir", default="benchmark_runs")
     p.add_argument("--resume", type=str, default=None, metavar="RUN_NAME",
                    help="Resume a specific run by folder name (e.g., claude_opus-4-6_20260329_120000)")
+    p.add_argument("--rerun", nargs="+", default=[], metavar="QUESTION_ID",
+                   help="With --resume, run only these question IDs, even if previously successful")
     p.add_argument("--resume-clean-workspace", action="store_true",
                    help="With --resume, remove each rerun question workspace before execution")
     p.add_argument("--keep-envs", action="store_true", help="Keep cloned conda envs after completion (for debugging)")
@@ -2507,6 +2532,8 @@ def main():
     p.add_argument("--results-dir", default="benchmark_runs")
     p.add_argument("--resume", type=str, default=None, metavar="RUN_NAME",
                    help="Resume a specific run by folder name (e.g., claude_opus-4-6_20260329_120000)")
+    p.add_argument("--rerun", nargs="+", default=[], metavar="QUESTION_ID",
+                   help="With --resume, run only these question IDs, even if previously successful")
     p.add_argument("--resume-clean-workspace", action="store_true",
                    help="With --resume, remove each rerun question workspace before execution")
     p.add_argument("--keep-envs", action="store_true", help="Keep cloned conda envs after completion")

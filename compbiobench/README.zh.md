@@ -22,9 +22,12 @@ flowchart LR
 2026-09-07 更新的 `archive_clean.zip`，包含 GLM-5.3、gpt-5.6-sol、grok-4.6、kimi-k3
 各 100 题，以及 gpt-6-astra 的 95 题，共 495 条运行记录。gpt-6-astra 的 default
 配置因外部参考数据依赖预先跳过了 5 题，原始跳过原因保存在结果元数据中。
-行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。40 条 timeout、4 条
-重复工具调用中断和 5 格未运行显示为 `NA`，三种状态分别统计；模型本身输出的
-`NA` 和 1 条 API 中断错误保留原样。原始错误信息仍保存在 `reports/results.json` 中。
+gpt-6-astra 的 4 条循环中断记录已根据用户于 2026-09-07 提供的答案表更新：
+`covid-patient-q1`、`atac-doublet-q1`、`lung-cancer-sc-q1`、`gene-pair-ordering-fraction-q1`。
+更新记录标注用户提供的来源；新运行时间未知，旧记录保存在 `previous_result` 中。
+行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。当前 40 条 timeout
+和 5 格未运行显示为 `NA`；模型本身输出的 `NA` 和 1 条 API 中断错误保留原样。
+原始错误信息仍保存在 `reports/results.json` 中。
 未进行正确性评分，也不按答案排序模型。
 
 `reports/results.json` 保存题干、原始答案、运行状态和来源元数据，足够独立重建网页。

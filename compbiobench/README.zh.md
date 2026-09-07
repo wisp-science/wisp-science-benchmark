@@ -155,7 +155,17 @@ Wisp 用克隆环境的 `bin/` 拼进 `PATH` 启动（不用 `conda run`，后�
 python run_benchmark.py run --llm wisp -m "$WISP_MODEL" --resume wisp_<model>_<timestamp>
 ```
 
-续跑使用实际目录名，自动继承原 profile；旧版没有 profile 的运行按 full 处理。不能把 full 原地续跑成 default，应新建运行。默认名单版本变化时也需要新建运行。
+续跑使用实际目录名，不指定 `--profile` 时继承元数据中的 profile；旧版没有 profile 的运行按 full 处理。
+已有 default 运行可加 `--profile full` 原地扩展：保留成功结果，重跑错误或缺失结果，并补跑原先跳过的题目（仍遵守本次显式指定的 `--exclude`）。
+
+```bash
+python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
+  --resume wisp_<model>_default_<timestamp> --profile full
+```
+
+目录名不变，`run_metadata.json` 会更新为 full，记录完整的选题范围；后续续跑和合并以元数据为准。
+即使没有待跑题，也会保存 profile 更新。不能把 full 原地缩回 default，应新建运行。
+默认名单版本变化时，继续以 default 续跑仍需新建运行，但可显式扩展为 full。
 
 分别合并两档，避免混用题目分母和结果：
 

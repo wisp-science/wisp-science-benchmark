@@ -53,7 +53,7 @@ def main():
             assert set(meta["skipped_questions"]) == set(all_ids) - set(expected)
             runs[profile] = metadata_path
 
-        # Listing is offline; resume inherits its profile and rejects a switch.
+        # Listing is offline; resume inherits its profile and rejects narrowing.
         with patch.object(rb, "check_llm_installed", side_effect=AssertionError("must stay offline")):
             args.list_questions = True
             args.profile = None
@@ -79,6 +79,13 @@ def main():
                     assert "membership changed" in str(exc)
                 else:
                     raise AssertionError("changed membership accepted on resume")
+                args.profile = "full"
+                output = io.StringIO()
+                original_meta = runs["default"].read_bytes()
+                with redirect_stdout(output):
+                    rb.cmd_run(args)
+                assert output.getvalue().count("[SELECT]") == len(all_ids)
+                assert runs["default"].read_bytes() == original_meta, "Listing must not modify metadata"
 
             # A pre-profile run must still resume as full.
             legacy = root / "runs" / "wisp_test_legacy"
@@ -125,8 +132,77 @@ def main():
             assert frame.question_id.tolist() == expected
             answer_columns = [c for c in frame if c.startswith("answer_")]
             assert len(answer_columns) == run_count
-            assert set(frame[answer_columns].stack()) == {profile}
-    print("ok: selection, execution metadata, offline listing, resume, and separate merges")
+            assert set(frame[answer_columns].stack().dropna()) == {profile}
+
+        # Promote in place: preserve successes, retry errors, and fill missing/full-only tasks.
+        promotion_root = root / "promotion"
+        promotion_run = promotion_root / "wisp_test_default_original"
+        promotion_run.mkdir(parents=True)
+        metadata_path = promotion_run / "run_metadata.json"
+        old_meta = json.loads(runs["default"].read_text())
+        metadata_path.write_text(json.dumps(old_meta))
+        preserved = {}
+
+        def save_result(qid, status="success"):
+            path = promotion_run / "questions" / qid / "result.json"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps({
+                "question_id": qid, "status": status,
+                "output": {"answer": qid if status == "success" else "ERROR: timeout"},
+                "execution": {"elapsed_time": 1}, "cost": {"total_usd": 0},
+                "usage": {"input_tokens": 1, "output_tokens": 1},
+            }))
+            return path
+
+        for qid in local_ids[:-1]:
+            path = save_result(qid, "error" if qid == local_ids[0] else "success")
+            if qid != local_ids[0]:
+                preserved[path] = path.read_bytes()
+        promotion_args = argparse.Namespace(**{
+            **vars(args), "model": "test", "resume": promotion_run.name,
+            "results_dir": str(promotion_root), "profile": "full", "list_questions": False,
+        })
+        scheduled = []
+
+        def execute_question(i, row, *unused):
+            scheduled.append(row.question_id)
+            save_result(row.question_id)
+
+        with patch.object(rb, "check_llm_installed", return_value=(True, "test", "test")), \
+             patch.object(provider, "check_model_available", return_value=(True, "test")), \
+             patch.object(rb, "use_mamba", return_value=False), \
+             patch.object(rb, "ensure_base_conda_env", return_value=True), \
+             patch.object(rb, "run_question", side_effect=execute_question):
+            rb.cmd_run(promotion_args)
+            assert scheduled == list(rb.FULL_ONLY_QUESTIONS) + [local_ids[0], local_ids[-1]]
+            meta = json.loads(metadata_path.read_text())
+            assert meta["benchmark_profile"] == "full"
+            assert meta["selected_question_ids"] == all_ids
+            assert meta["total_questions"] == len(all_ids) and meta["skipped_questions"] == {}
+            assert meta["questions_to_run"] == len(scheduled)
+            assert all(path.read_bytes() == content for path, content in preserved.items())
+
+            # Even if all results already exist, an explicit upgrade must persist full metadata.
+            metadata_path.write_text(json.dumps(old_meta))
+            scheduled.clear()
+            rb.cmd_run(promotion_args)
+            assert scheduled == []
+            assert json.loads(metadata_path.read_text())["benchmark_profile"] == "full"
+            assert json.loads(metadata_path.read_text())["questions_to_run"] == 0
+            promotion_args.profile = None
+            rb.cmd_run(promotion_args)
+            assert scheduled == []
+            assert json.loads(metadata_path.read_text())["benchmark_profile"] == "full"
+
+        # A folder still named default must merge according to its promoted metadata.
+        merged = root / "promoted-full.csv"
+        rb.cmd_merge(argparse.Namespace(input=str(csv_path), runs_dir=str(promotion_root),
+                                        output=str(merged), profile="full"))
+        frame = pd.read_csv(merged)
+        answer_column, = [column for column in frame if column.startswith("answer_")]
+        assert frame.question_id.tolist() == all_ids
+        assert frame[answer_column].tolist() == all_ids
+    print("ok: selection, metadata, listing, default-to-full resume, retries, preserved successes, and merges")
 
 
 if __name__ == "__main__":

@@ -1966,9 +1966,10 @@ def _run_single_model(args) -> None:
             previous = json.load(f)
         # Runs created before profiles used the complete input CSV.
         previous_profile = previous.get("benchmark_profile", "full")
-        if profile is not None and profile != previous_profile:
+        profile = profile or previous_profile
+        # Expanding to full reuses successes and schedules the previously excluded questions.
+        if profile != previous_profile and (previous_profile, profile) != ("default", "full"):
             raise ValueError(f"Cannot resume {previous_profile} as {profile}; start a new run")
-        profile = previous_profile
         if profile == "default" and previous.get("benchmark_profile_version") != BENCHMARK_PROFILE_VERSION:
             raise ValueError("Default profile membership changed; start a new run")
     else:
@@ -2051,10 +2052,6 @@ def _run_single_model(args) -> None:
     if getattr(args, 'reverse', False):
         questions.reverse()
 
-    if not questions:
-        logger.info("All questions completed.")
-        return
-
     logger.info("=" * 80)
     logger.info(f"{label} | Resource profile version: {BENCHMARK_PROFILE_VERSION} | Skipped: {len(profile_skipped)}")
     logger.info(f"LLM: {llm} | Model: {model} | Base env: {BASE_ENV_NAME}")
@@ -2078,6 +2075,11 @@ def _run_single_model(args) -> None:
             "skipped_questions": profile_skipped,
             "total_questions": len(df), "questions_to_run": len(questions),
         }, f, indent=2)
+
+    # Persist an explicit profile upgrade even when all results are already present.
+    if not questions:
+        logger.info("All questions completed.")
+        return
 
     date_run = datetime.now().strftime("%Y-%m-%d")
     progress = {'lock': threading.Lock(), 'completed': 0, 'total': len(questions), 'successful': 0, 'errors': 0}
@@ -2484,7 +2486,7 @@ def main():
     p.add_argument("--reverse", action="store_true", help="Run questions in reverse order")
     p.add_argument("--exclude", nargs="+", default=[], help="Question IDs to exclude (e.g., --exclude q1 q2 q3)")
     p.add_argument("--profile", choices=["default", "full"], default=None,
-                   help="default: skip listed large external references; full: all input questions. Resume inherits the original profile.")
+                   help="default: skip listed large external references; full: all input questions. Resume inherits the profile; --profile full can expand a default run.")
     p.add_argument("--list-questions", action="store_true",
                    help="List selected/skipped questions without starting a model or preparing environments")
 
@@ -2515,7 +2517,7 @@ def main():
     p.add_argument("--reverse", action="store_true", help="Run questions in reverse order")
     p.add_argument("--exclude", nargs="+", default=[], help="Question IDs to exclude (e.g., --exclude q1 q2 q3)")
     p.add_argument("--profile", choices=["default", "full"], default=None,
-                   help="default: skip listed large external references; full: all input questions. Resume inherits the original profile.")
+                   help="default: skip listed large external references; full: all input questions. Resume inherits the profile; --profile full can expand a default run.")
 
     args = parser.parse_args()
     cmds = {"prepare": cmd_prepare, "run": cmd_run, "merge": cmd_merge, "run-all": cmd_run_all}

@@ -161,7 +161,22 @@ Resume:
 python run_benchmark.py run --llm wisp -m "$WISP_MODEL" --resume wisp_<model>_<timestamp>
 ```
 
-Use the actual directory name when resuming. Resume inherits the original profile; legacy runs without a profile are treated as full. Switching profiles or resuming a default run after its membership version changes requires a new run.
+Use the actual directory name when resuming. Omitting `--profile` inherits the
+profile in metadata; legacy runs without a profile are treated as full. An existing
+default run can expand in place with `--profile full`: successful results are kept,
+errors and missing results are retried, and previously skipped questions are added
+(subject to any explicit `--exclude` in the new command).
+
+```bash
+python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
+  --resume wisp_<model>_default_<timestamp> --profile full
+```
+
+The directory name stays unchanged. `run_metadata.json` is updated to full with the
+selected question set, even if no questions need execution; later resumes and merges
+use that metadata. Narrowing full back to default requires a new run. A changed
+default membership version still blocks default-to-default resume, but explicit
+expansion to full is allowed.
 
 Merge profiles separately to keep result populations separate:
 

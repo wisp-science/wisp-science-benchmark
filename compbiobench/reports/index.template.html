@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CompBioBench · Wisp Science Benchmarks</title>
-  <meta name="description" content="Wisp Science 在 CompBioBench 上的 @@QUESTIONS@@ 题作答结果，按题目和模型并排展示原始答案。timeout 显示 NA，暂不评判正确性。">
+  <meta name="description" content="Wisp Science 在 CompBioBench 上的 @@QUESTIONS@@ 题作答结果，按题目和模型并排展示原始答案。超时、重复工具调用中断和未运行显示 NA，暂不评判正确性。">
   <link rel="stylesheet" href="../site.css">
 </head>
 <body>
@@ -24,6 +24,8 @@
           <div class="stat"><strong>@@QUESTIONS@@</strong><span>题目</span></div>
           <div class="stat"><strong>@@MODELS@@</strong><span>模型</span></div>
           <div class="stat"><strong>@@TIMEOUTS@@</strong><span>超时记录 → NA</span></div>
+          <div class="stat"><strong>@@LOOP_ABORTS@@</strong><span>重复调用中断 → NA</span></div>
+          <div class="stat"><strong>@@SKIPPED@@</strong><span>未运行 → NA</span></div>
         </div>
       </header>
       <section id="results" aria-labelledby="answers-title">
@@ -36,9 +38,9 @@
           </div>
           <a class="button" href="answers.csv" download>下载答案 CSV ↓</a>
         </div>
-        <p class="note" id="table-note" style="margin:0 0 16px">点击题目名称展开题干。表格可上下、左右滚动，题目列与模型表头固定。timeout 暂记 NA；模型自身输出的 NA 和其他运行错误保留原样。</p>
+        <p class="note" id="table-note" style="margin:0 0 16px">点击题目名称展开题干。表格可上下、左右滚动，题目列与模型表头固定。超时、重复工具调用中断和运行配置预先跳过的题目显示为 NA，鼠标悬停可查看原因；模型自身输出的 NA 和其他运行错误保留原样。</p>
         <div class="table-wrap" role="region" aria-label="CompBioBench 答案表，可滚动" tabindex="0">
-          <table class="answers" id="answer-table" aria-labelledby="answers-title" aria-describedby="table-note">
+          <table class="answers" id="answer-table" style="--model-count: @@MODELS@@" aria-labelledby="answers-title" aria-describedby="table-note">
             <thead><tr><th scope="col">题目名称<small>点击展开题干</small></th>@@HEADERS@@</tr></thead>
             <tbody>@@ROWS@@</tbody>
           </table>
@@ -47,7 +49,7 @@
       </section>
     </main>
     <footer>
-      <p>来源：@@SOURCE@@ · 运行日期：@@DATES@@。答案保留运行记录的原始文本，仅将 timeout 显示为 NA。</p>
+      <p>来源：@@SOURCE@@ · 运行日期：@@DATES@@。超时、重复工具调用中断与预先跳过的题目显示为 NA，其他输出保留原样；各模型实际运行题数见表头。</p>
       <a href="../index.html">所有 Benchmarks</a>
       <a href="https://github.com/wisp-science/wisp-science-benchmark/blob/main/compbiobench/README.zh.md">评测与数据说明</a>
       <a href="https://github.com/Genentech/compbiobench-runner">CompBioBench</a>

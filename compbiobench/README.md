@@ -20,20 +20,25 @@ Copy [`.env.example`](.env.example).
 
 The [answer table](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/)
 contains 100 questions each for GLM-5.3, gpt-5.6-sol, grok-4.6, and kimi-k3,
-imported from `archive_clean.zip`. Rows are question names, columns are models,
-and cells are original answers. CSV download is available. The 51 `ERROR: timeout`
-records display `NA`; a model-authored `NA` and one API interruption error remain
-unchanged. No correctness grading or performance ranking is applied.
+plus 95 for gpt-6-astra, imported from the 2026-09-07 `archive_clean.zip` update.
+GPT-6 Astra's default run configuration skipped 5 questions requiring external
+reference resources; the original reasons are retained in the metadata. Rows are
+question names, columns are models, and cells are original answers. CSV download
+is available. The 40 timeouts, 4 repeated-tool-loop aborts, and 5 skipped cells
+display `NA` and are counted separately. Model-authored `NA` answers and one API
+error remain unchanged. Original errors are retained in `reports/results.json`.
+No correctness grading or performance ranking is applied.
 
 `reports/results.json` retains question text, original answers, statuses, and run
 metadata so builds do not need the ZIP. The archive and large execution logs are
-excluded from git. All 100 original questions are retained without applying the
-runner's subsequent question-selection profiles.
+excluded from git. The table retains all 100 questions and uses each run's metadata
+to distinguish executed questions from declared skips. Unexplained missing results
+cause the import to fail.
 
 From the repository root:
 
 ```bash
-# Import or replace this batch: one run per model, complete matching question sets
+# Import or replace this batch: one run per model, omissions must be declared skips
 python compbiobench/reports/build_index.py --archive archive_clean.zip
 # Rebuild without the archive
 python compbiobench/reports/build_index.py

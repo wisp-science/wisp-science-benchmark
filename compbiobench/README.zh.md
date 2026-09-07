@@ -19,18 +19,21 @@ flowchart LR
 ## 已整理的运行结果
 
 [在线答案表](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/) 来自
-`archive_clean.zip`，包含 GLM-5.3、gpt-5.6-sol、grok-4.6、kimi-k3 各 100 题。
-行是原始题目名称，列是模型，单元格是原始答案，支持下载 CSV。只把 51 条
-`ERROR: timeout` 显示为 `NA`；模型本身输出的 `NA` 和 1 条 API 中断错误保留原样。
+2026-09-07 更新的 `archive_clean.zip`，包含 GLM-5.3、gpt-5.6-sol、grok-4.6、kimi-k3
+各 100 题，以及 gpt-6-astra 的 95 题，共 495 条运行记录。gpt-6-astra 的 default
+配置因外部参考数据依赖预先跳过了 5 题，原始跳过原因保存在结果元数据中。
+行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。40 条 timeout、4 条
+重复工具调用中断和 5 格未运行显示为 `NA`，三种状态分别统计；模型本身输出的
+`NA` 和 1 条 API 中断错误保留原样。原始错误信息仍保存在 `reports/results.json` 中。
 未进行正确性评分，也不按答案排序模型。
 
 `reports/results.json` 保存题干、原始答案、运行状态和来源元数据，足够独立重建网页。
-压缩包和大体积执行日志不提交。此批数据保留原始 100 题，不套用后续 runner 的题目筛选规则。
+压缩包和大体积执行日志不提交。答案表保留完整的 100 题，按每个 run 的元数据区分已运行与预先跳过；未被元数据说明的缺失结果会令导入失败。
 
 在仓库根目录运行：
 
 ```bash
-# 首次导入或替换本批结果；每个模型只选择一个 run，题目集须完整且一致
+# 首次导入或替换本批结果；每个模型只选择一个 run，缺失题目须由跳过元数据说明
 python compbiobench/reports/build_index.py --archive archive_clean.zip
 # 后续构建无需压缩包
 python compbiobench/reports/build_index.py

@@ -38,6 +38,7 @@
           </div>
           <a class="button" href="answers.csv" download>下载答案 CSV ↓</a>
         </div>
+        <p class="note" style="margin:0 0 8px">每行独立配色：相同答案同色，不同答案异色，NA 为灰色。颜色只表示答案一致性，不表示正确性。</p>
         <p class="note" id="table-note" style="margin:0 0 16px">点击题目名称展开题干。表格可上下、左右滚动，题目列与模型表头固定。超时、重复工具调用中断和运行配置预先跳过的题目显示为 NA，鼠标悬停可查看原因；模型自身输出的 NA 和其他运行错误保留原样。</p>
         <div class="table-wrap" role="region" aria-label="CompBioBench 答案表，可滚动" tabindex="0">
           <table class="answers" id="answer-table" style="--model-count: @@MODELS@@" aria-labelledby="answers-title" aria-describedby="table-note">

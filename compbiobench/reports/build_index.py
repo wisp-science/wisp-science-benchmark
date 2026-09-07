@@ -119,14 +119,17 @@ def render(data):
         headers.append(f'<th scope="col">{escape(model["id"])}<small>{note}</small></th>')
     for question in data["questions"]:
         cells = []
+        groups = {}
         for model in data["models"]:
             result = question["results"][model["id"]]
+            answer = display_answer(result)
+            group = 0 if answer == "NA" else groups.setdefault(answer, len(groups) + 1)
             attr = ' class="timeout" title="timeout：超时，暂记 NA"' if is_timeout(result) else ""
             if is_loop_abort(result):
                 attr = ' class="loop-abort" title="重复工具调用中断，暂记 NA"'
             if result["status"] == "skipped":
                 attr = f' class="skipped" title="未运行：{escape(result["reason"], quote=True)}"'
-            cells.append(f'<td{attr}>{escape(display_answer(result))}</td>')
+            cells.append(f'<td{attr} data-answer-group="{group}">{escape(answer)}</td>')
         rows.append(
             f'<tr><th scope="row"><details><summary>{escape(question["id"])}</summary>'
             f'<p>{escape(question["question"])}</p></details></th>{"".join(cells)}</tr>'

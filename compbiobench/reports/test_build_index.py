@@ -14,11 +14,13 @@ class AnswerTable(HTMLParser):
     def __init__(self):
         super().__init__()
         self.cells = []
+        self.groups = []
         self.cell = None
 
     def handle_starttag(self, tag, attrs):
         if tag == "td":
             self.cell = ""
+            self.groups.append(dict(attrs).get("data-answer-group"))
 
     def handle_data(self, text):
         if self.cell is not None:
@@ -56,6 +58,7 @@ def check():
         html = render(data)
         parsed.feed(html)
         assert parsed.cells == ["</td><script>&\n  NA  ", "NA"] * 2
+        assert parsed.groups == ["1", "0", "1", "0"]
         assert "Question &lt;&amp;&gt;" in html
         assert "@@" not in html
         assert display_answer({"answer": "ERROR: api disconnected"}) == "ERROR: api disconnected"
@@ -128,10 +131,19 @@ def check():
     parsed = AnswerTable()
     parsed.feed(render(data))
     assert parsed.cells == [answer for row in expected for answer in row[1:]]
+    for index, row in enumerate(expected):
+        answers = row[1:]
+        groups = parsed.groups[index * len(models):(index + 1) * len(models)]
+        assert all((group == "0") == (answer == "NA") for answer, group in zip(answers, groups))
+        non_na = [group for answer, group in zip(answers, groups) if answer != "NA"]
+        assert not non_na or non_na[0] == "1", "Color groups must restart for every row"
+        for i, answer in enumerate(answers):
+            for j, other in enumerate(answers):
+                assert (answer == other) == (groups[i] == groups[j])
     with (OUT / "answers.csv").open(encoding="utf-8-sig", newline="") as file:
         assert list(csv.reader(file)) == [["question_id"] + models] + expected
     print(f"PASS: ZIP import, declared skips, missing-result validation, timeout handling, "
-          f"loop aborts, escaping, and all {len(parsed.cells)} HTML/CSV answers")
+          f"loop aborts, escaping, per-row color groups, and all {len(parsed.cells)} HTML/CSV answers")
 
 
 if __name__ == "__main__":

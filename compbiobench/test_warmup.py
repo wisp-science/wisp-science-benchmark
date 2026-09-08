@@ -57,6 +57,9 @@ def test_micromamba_driver_selection():
         assert conda_cli.clone_command("compbio-benchmark", "clone1") == [
             "/opt/micromamba", "create", "-n", "clone1", "--clone", "compbio-benchmark", "-y",
         ]
+        install = conda_cli.install_command("compbio-benchmark", ["bowtie2", "macs2"])
+        assert install[:3] == ["/opt/micromamba", "install", "-n"]
+        assert "--solver" not in install
 
 
 def test_conda_preferred_over_micromamba():
@@ -77,6 +80,17 @@ def test_conda_preferred_over_micromamba():
         wrapped = conda_cli.wrap_env_run("e", ["x"])
         assert wrapped[:4] == ["/opt/conda/bin/conda", "run", "-n", "e"]
         assert "--live-stream" in wrapped
+
+    def conda_only(name):
+        return {"conda": "/opt/conda/bin/conda"}.get(name)
+
+    with patch.dict(os.environ, {"COMPBIO_CONDA_CMD": ""}), \
+         patch.object(conda_cli.shutil, "which", conda_only):
+        os.environ.pop("COMPBIO_CONDA_CMD", None)
+        cmd = conda_cli.install_command("compbio-benchmark", ["bowtie2"])
+        assert cmd[:2] == ["/opt/conda/bin/conda", "install"]
+        assert "--solver" in cmd and "libmamba" in cmd
+        assert conda_cli.install_env().get("CONDA_SOLVER") == "libmamba"
 
 
 def test_parse_env_paths_and_copy():

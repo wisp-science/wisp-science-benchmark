@@ -67,6 +67,27 @@ def describe_driver() -> str:
     return f"Using {solver} for env creation, {manage} for clone/list/remove"
 
 
+def install_env() -> dict[str, str]:
+    """Environment for conda install. Force libmamba when using conda."""
+    env = os.environ.copy()
+    if _tool_name(solver_cli()) == "conda":
+        env.setdefault("CONDA_SOLVER", "libmamba")
+    return env
+
+
+def install_command(env_name: str, packages: list[str], *, libmamba: bool = True) -> list[str]:
+    """Install packages into a named env. conda uses libmamba unless libmamba=False."""
+    cli = solver_cli()
+    cmd = [
+        cli, "install", "-n", env_name, "-y",
+        "-c", "conda-forge", "-c", "bioconda",
+    ]
+    if libmamba and _tool_name(cli) == "conda":
+        cmd += ["--solver", "libmamba"]
+    cmd.extend(packages)
+    return cmd
+
+
 def env_create_commands(env_file: str) -> list[list[str]]:
     cli = solver_cli()
     name = _tool_name(cli)

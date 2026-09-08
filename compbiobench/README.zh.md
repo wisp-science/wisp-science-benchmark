@@ -92,6 +92,8 @@ conda env create -f environment.yml   # 名字：compbio-benchmark
 python run_benchmark.py warmup
 # python run_benchmark.py warmup --status
 # python run_benchmark.py warmup --only models,conda   # 只重试缺的步骤
+# conda 经典 solver 会在 Solving environment 卡住十几分钟；warmup 会加 --solver libmamba
+# 可先：conda install -n base conda-libmamba-solver -y && conda config --set solver libmamba
 # COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
 export PATH="$HOME/.cargo/bin:$PATH"

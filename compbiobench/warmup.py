@@ -415,29 +415,47 @@ def ensure_base_env(logger: Callable[[str], None] | None = None) -> None:
     raise RuntimeError(f"failed to create {BASE_ENV_NAME}")
 
 
+def _run_conda_install(packages: list[str], log: Callable[[str], None], *, libmamba: bool = True) -> int:
+    import conda_cli
+    cmd = conda_cli.install_command(BASE_ENV_NAME, packages, libmamba=libmamba)
+    log(f"  {' '.join(cmd)}")
+    try:
+        result = subprocess.run(
+            cmd, text=True, timeout=CONDA_PACKAGE_TIMEOUT, env=conda_cli.install_env(),
+        )
+    except subprocess.TimeoutExpired:
+        log(f"  timed out after {CONDA_PACKAGE_TIMEOUT}s")
+        return 124
+    return result.returncode
+
+
 def install_conda_extras(logger: Callable[[str], None] | None = None) -> None:
     log = logger or (lambda message: print(message, flush=True))
-    ensure_base_env(log)
-    log(f"installing extras into {BASE_ENV_NAME} one package at a time")
-    for package, binary in CONDA_EXTRA_PACKAGES:
-        if conda_has_binary(BASE_ENV_NAME, binary):
-            log(f"  {package} already present ({binary})")
-            continue
-        pkg_cmd = conda_cmd() + [
-            "install", "-n", BASE_ENV_NAME, "-y",
-            "-c", "conda-forge", "-c", "bioconda", package,
-        ]
-        log(f"  installing {package}")
-        try:
-            pkg = subprocess.run(pkg_cmd, text=True, timeout=CONDA_PACKAGE_TIMEOUT)
-        except subprocess.TimeoutExpired:
-            log(f"  skipped {package}: timed out after {CONDA_PACKAGE_TIMEOUT}s")
-            continue
-        if pkg.returncode == 0:
-            log(f"  installed {package}")
-        else:
-            log(f"  skipped {package}: exit {pkg.returncode}")
     import conda_cli
+    ensure_base_env(log)
+    missing = [
+        package for package, binary in CONDA_EXTRA_PACKAGES
+        if not conda_has_binary(BASE_ENV_NAME, binary)
+    ]
+    if not missing:
+        log("conda extras already present")
+    else:
+        log(f"installing extras with {Path(conda_cli.solver_cli()).name}: {', '.join(missing)}")
+        status = _run_conda_install(missing, log)
+        if status != 0:
+            log("batch install failed; installing conda-libmamba-solver then retrying")
+            _run_conda_install(["conda-libmamba-solver"], log, libmamba=False)
+            status = _run_conda_install(missing, log)
+        if status != 0:
+            log("batch install still failing; trying one package at a time")
+            for package in missing:
+                if conda_has_binary(BASE_ENV_NAME, dict(CONDA_EXTRA_PACKAGES)[package]):
+                    continue
+                pkg_status = _run_conda_install([package], log)
+                if pkg_status != 0:
+                    log(f"  skipped {package}: exit {pkg_status}")
+                else:
+                    log(f"  installed {package}")
     missing_pip = [pkg for pkg in CONDA_EXTRA_PIP if not conda_has_module(BASE_ENV_NAME, pkg.replace("-", "_"))]
     if not missing_pip:
         log("  pip extras already present")

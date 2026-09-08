@@ -107,10 +107,15 @@ HF_MODELS = (
     "kuleshov-group/caduceus-ph_seqlen-131k_d_model-256_n_layer-16",
     "johahi/borzoi-replicate-0",
 )
+# v0.0.5 checkpoints from GitHub (same SHA256 as JHU FTP; 2,878,124 bytes each).
+# Source: splice-pred-q1 gpt-5.6-sol trace. JHU FTP is a fallback and often 502s.
+OPENSPLICEAI_PT_SIZE = 2_878_124
 OPENSPLICEAI_MODELS = tuple(
     (
         f"model_10000nt_rs{seed}.pt",
         (
+            "https://raw.githubusercontent.com/Kuanhao-Chao/OpenSpliceAI/v0.0.5/"
+            f"models/openspliceai-mane/10000nt/model_10000nt_rs{seed}.pt",
             f"https://ftp.ccb.jhu.edu/pub/data/OpenSpliceAI/OSAI-MANE/10000nt/"
             f"model_10000nt_rs{seed}.pt",
             f"http://ftp.ccb.jhu.edu/pub/data/OpenSpliceAI/OSAI-MANE/10000nt/"
@@ -685,11 +690,13 @@ def cache_models(
     for name, urls in OPENSPLICEAI_MODELS:
         dest = splice_dir / name
         log(f"openspliceai {name}")
-        if is_complete_file(dest) and not force:
+        if dest.is_file() and dest.stat().st_size == OPENSPLICEAI_PT_SIZE and not force:
             log("  cached")
             continue
+        if dest.exists() and dest.stat().st_size != OPENSPLICEAI_PT_SIZE:
+            dest.unlink()
         if splice_host_down:
-            log("  skipped: OpenSpliceAI FTP previously returned an error")
+            log("  skipped: OpenSpliceAI hosts previously returned an error")
             continue
         last_error = None
         for url in (urls if isinstance(urls, (tuple, list)) else (urls,)):
@@ -702,7 +709,7 @@ def cache_models(
         if last_error is not None:
             log(f"  WARNING: {last_error}")
             splice_host_down = True
-            log("  skipping remaining OpenSpliceAI checkpoints; splice-pred-q1 is not in the rerun list")
+            log("  skipping remaining OpenSpliceAI checkpoints")
 
 
 def cache_kraken(
@@ -886,7 +893,9 @@ def print_status(cache_dir: Path) -> None:
         print(f"hf {repo}: {'yes' if hf_repo_cached(cache_dir, repo) else 'no'}")
     splice = cache_dir / "models" / "openspliceai" / "OSAIMANE-10000nt"
     for name, _urls in OPENSPLICEAI_MODELS:
-        print(f"openspliceai {name}: {'yes' if is_complete_file(splice / name) else 'no'}")
+        path = splice / name
+        ok = path.is_file() and path.stat().st_size == OPENSPLICEAI_PT_SIZE
+        print(f"openspliceai {name}: {'yes' if ok else 'no'}")
     print(f"conda {BASE_ENV_NAME}: {'yes' if conda_env_exists(BASE_ENV_NAME) else 'no'}")
     if conda_env_exists(BASE_ENV_NAME):
         for package, binary in CONDA_EXTRA_PACKAGES:

@@ -214,7 +214,8 @@ def test_openspliceai_skips_after_host_error():
              patch.object(warmup, "huggingface_bin", return_value=None), \
              patch.object(warmup, "HF_MODELS", ()):
             warmup.cache_models(Path(tmp), logger=logs.append)
-        assert len(calls) == 2
+        assert len(calls) == 3
+        assert calls[0].startswith("https://raw.githubusercontent.com/Kuanhao-Chao/OpenSpliceAI/v0.0.5/")
         assert any("skipping remaining OpenSpliceAI" in line for line in logs)
 
 

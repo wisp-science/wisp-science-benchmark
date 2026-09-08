@@ -110,8 +110,12 @@ HF_MODELS = (
 OPENSPLICEAI_MODELS = tuple(
     (
         f"model_10000nt_rs{seed}.pt",
-        "http://ftp.ccb.jhu.edu/pub/data/OpenSpliceAI/OSAI-MANE/10000nt/"
-        f"model_10000nt_rs{seed}.pt",
+        (
+            f"https://ftp.ccb.jhu.edu/pub/data/OpenSpliceAI/OSAI-MANE/10000nt/"
+            f"model_10000nt_rs{seed}.pt",
+            f"http://ftp.ccb.jhu.edu/pub/data/OpenSpliceAI/OSAI-MANE/10000nt/"
+            f"model_10000nt_rs{seed}.pt",
+        ),
     )
     for seed in (10, 11, 12, 13, 14)
 )
@@ -639,11 +643,17 @@ def huggingface_bin() -> str | None:
 
 def hf_repo_cached(cache_dir: Path, repo: str) -> bool:
     slug = "models--" + repo.replace("/", "--")
-    hub = Path(os.environ.get("HF_HOME") or cache_dir / "models" / "huggingface")
-    snapshots = hub / "hub" / slug / "snapshots"
-    if not snapshots.is_dir():
-        return False
-    return any(path.is_dir() and any(path.iterdir()) for path in snapshots.iterdir())
+    hubs = [cache_dir / "models" / "huggingface"]
+    env_home = os.environ.get("HF_HOME")
+    if env_home:
+        hubs.append(Path(env_home))
+    for hub in hubs:
+        snapshots = hub / "hub" / slug / "snapshots"
+        if snapshots.is_dir() and any(
+            path.is_dir() and any(path.iterdir()) for path in snapshots.iterdir()
+        ):
+            return True
+    return False
 
 
 def cache_models(
@@ -671,13 +681,28 @@ def cache_models(
             log("  hf not found; set HF_HOME and download later")
     splice_dir = cache_dir / "models" / "openspliceai" / "OSAIMANE-10000nt"
     splice_dir.mkdir(parents=True, exist_ok=True)
-    for name, url in OPENSPLICEAI_MODELS:
+    splice_host_down = False
+    for name, urls in OPENSPLICEAI_MODELS:
         dest = splice_dir / name
         log(f"openspliceai {name}")
-        try:
-            log(f"  {download_url(url, dest, force=force)}")
-        except Exception as exc:
-            log(f"  WARNING: {exc}")
+        if is_complete_file(dest) and not force:
+            log("  cached")
+            continue
+        if splice_host_down:
+            log("  skipped: OpenSpliceAI FTP previously returned an error")
+            continue
+        last_error = None
+        for url in (urls if isinstance(urls, (tuple, list)) else (urls,)):
+            try:
+                log(f"  {download_url(url, dest, force=force)}")
+                last_error = None
+                break
+            except Exception as exc:
+                last_error = exc
+        if last_error is not None:
+            log(f"  WARNING: {last_error}")
+            splice_host_down = True
+            log("  skipping remaining OpenSpliceAI checkpoints; splice-pred-q1 is not in the rerun list")
 
 
 def cache_kraken(
@@ -860,7 +885,7 @@ def print_status(cache_dir: Path) -> None:
     for repo in HF_MODELS:
         print(f"hf {repo}: {'yes' if hf_repo_cached(cache_dir, repo) else 'no'}")
     splice = cache_dir / "models" / "openspliceai" / "OSAIMANE-10000nt"
-    for name, _url in OPENSPLICEAI_MODELS:
+    for name, _urls in OPENSPLICEAI_MODELS:
         print(f"openspliceai {name}: {'yes' if is_complete_file(splice / name) else 'no'}")
     print(f"conda {BASE_ENV_NAME}: {'yes' if conda_env_exists(BASE_ENV_NAME) else 'no'}")
     if conda_env_exists(BASE_ENV_NAME):

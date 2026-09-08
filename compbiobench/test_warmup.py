@@ -201,6 +201,23 @@ def test_singularity_falls_back_to_docker():
             assert build.call_args.args[1] == docker
 
 
+def test_openspliceai_skips_after_host_error():
+    with TemporaryDirectory() as tmp:
+        calls = []
+
+        def boom(url, dest, force=False):
+            calls.append(url)
+            raise RuntimeError("download failed (22): 502")
+
+        logs: list[str] = []
+        with patch.object(warmup, "download_url", boom), \
+             patch.object(warmup, "huggingface_bin", return_value=None), \
+             patch.object(warmup, "HF_MODELS", ()):
+            warmup.cache_models(Path(tmp), logger=logs.append)
+        assert len(calls) == 2
+        assert any("skipping remaining OpenSpliceAI" in line for line in logs)
+
+
 def test_huggingface_prefers_hf_and_skips_cache():
     def fake_which(name):
         return {"hf": "/usr/bin/hf", "huggingface-cli": "/usr/bin/huggingface-cli"}.get(name)
@@ -254,6 +271,7 @@ def main():
     test_mount_cache_and_prompt()
     test_download_skips_existing_and_index()
     test_singularity_falls_back_to_docker()
+    test_openspliceai_skips_after_host_error()
     test_huggingface_prefers_hf_and_skips_cache()
     test_dry_run_and_runtime_cache()
     print("ok: warmup cache, network precheck, prompt, and local preference")

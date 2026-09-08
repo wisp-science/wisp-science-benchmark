@@ -81,19 +81,64 @@ huggingface-cli download Genentech/compbiobench-data-v1 \
 
 ### conda 环境 + Wisp 二进制
 
+warmup / harness 用 `shutil.which()` 找二进制，**不读** `alias conda=mamba` 或 `alias conda=micromamba`。micromamba `shell init` 生成的 `~/.local/share/mamba/condabin/conda` 会被当成经典 conda，warmup 会加上 `--solver libmamba`，于是报 `unrecognized arguments: --solver`，再去装对 micromamba 无用的 `conda-libmamba-solver`。
+
+每台机器只选一套（不要 miniforge 和 micromamba 混用），用 `COMPBIO_CONDA_CMD` 钉死绝对路径：
+
+| 本机有什么 | `COMPBIO_CONDA_CMD` |
+| --- | --- |
+| micromamba | `command -v micromamba`（常见 `~/.local/bin/micromamba` 或 `~/.local/share/mamba/micromamba`） |
+| miniforge / mamba | `$HOME/miniforge3/bin/mamba` |
+| 只有经典 conda | 不设；先 `conda install -n base conda-libmamba-solver -y && conda config --set solver libmamba` |
+
+```bash
+# 写入 ~/.zshrc（或评测前 export），不要依赖 alias
+export COMPBIO_CONDA_CMD="$(command -v micromamba)"
+# 例：export COMPBIO_CONDA_CMD="$HOME/.local/bin/micromamba"
+# 例：export COMPBIO_CONDA_CMD="$HOME/miniforge3/bin/mamba"
+
+cd /ABS/PATH/wisp-science-benchmark/compbiobench
+python3 -c "import conda_cli; print(conda_cli.describe_driver()); print(' '.join(conda_cli.install_command('compbio-benchmark', ['bowtie2'])))"
+# 合格：Using micromamba … 或 Using mamba …；命令里没有 --solver，CLI 不是 …/condabin/conda
+```
+
+`.condarc` 必须是 conda-forge + bioconda。`defaults` 排第一且 `channel_priority: strict` 时，bowtie2 / macs2 / STAR 等会解失败或混装。micromamba 同样读 `~/.condarc`。
+
+```bash
+[ -f ~/.condarc ] && cp ~/.condarc ~/.condarc.bak
+```
+
+```yaml
+channels:
+  - conda-forge
+  - bioconda
+channel_priority: strict
+show_channel_urls: true
+```
+
+国内镜像可再加（西交大；镜像没有 bioconda 就删掉 `custom_channels` 里对应一行）：
+
+```yaml
+default_channels:
+  - https://mirrors.westlake.edu.cn/ANACONDA/cloud/conda-forge
+custom_channels:
+  conda-forge: https://mirrors.westlake.edu.cn/ANACONDA/cloud
+  bioconda: https://mirrors.westlake.edu.cn/ANACONDA/cloud
+```
+
+然后建环境和 warmup：
+
 ```bash
 cd /ABS/PATH/wisp-science-benchmark/compbiobench
-conda env create -f environment.yml   # 名字：compbio-benchmark
-# 只有 micromamba 时：micromamba create -f environment.yml -y
-# 或 COMPBIO_CONDA_CMD=micromamba python run_benchmark.py warmup --only conda
+"$COMPBIO_CONDA_CMD" env create -f environment.yml -y   # 名字：compbio-benchmark
+# warmup 也会在 extras 之前创建 base env，可直接：
+# COMPBIO_CONDA_CMD=… python run_benchmark.py warmup --only conda
 
 # 每台机器跑一次：conda extras、Docker/Singularity 镜像、hg38、ENCODE ATAC
 # 索引、Hugging Face 模型。可重复执行，已下完/装完的会跳过。
 python run_benchmark.py warmup
 # python run_benchmark.py warmup --status
 # python run_benchmark.py warmup --only models,conda   # 只重试缺的步骤
-# conda 经典 solver 会在 Solving environment 卡住十几分钟；warmup 会加 --solver libmamba
-# 可先：conda install -n base conda-libmamba-solver -y && conda config --set solver libmamba
 # COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -236,4 +281,4 @@ python run_benchmark.py merge -i benchmark.csv --profile full -o benchmark_resul
 | `WISP_API_KEY` | 服务商 key |
 | `WISP_VISION` | `1` = 发送原生图片 part |
 
-Harness 每题 clone `compbio-benchmark`。Wisp 通过 `PATH` 使用克隆环境，其他 backend 使用 `conda run --live-stream`（没有 conda 时用 `micromamba run`）。Kernel REPL 仍是每题 uv venv（和 BiomniBench-DA 一样）。支持 conda、mamba、micromamba；用 `COMPBIO_CONDA_CMD` 指定二进制。micromamba 优先 `--clone`，没有该选项时硬链接复制环境目录。
+Harness 每题 clone `compbio-benchmark`。Wisp 通过 `PATH` 使用克隆环境，其他 backend 使用 `conda run --live-stream`（没有 conda 时用 `micromamba run`）。Kernel REPL 仍是每题 uv venv（和 BiomniBench-DA 一样）。求解器选择见上方「conda 环境」；micromamba 优先 `--clone`，没有该选项时硬链接复制环境目录。

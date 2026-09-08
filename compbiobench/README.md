@@ -87,20 +87,64 @@ Expect `compbiobench.v1.tsv` at the dump root and files under `data/`.
 
 ### Conda env + Wisp binary
 
+warmup / the harness locate binaries with `shutil.which()`, **not** `alias conda=mamba` or `alias conda=micromamba`. micromamba’s `shell init` shim at `~/.local/share/mamba/condabin/conda` is treated as classic conda, so warmup adds `--solver libmamba`, fails with `unrecognized arguments: --solver`, then tries to install `conda-libmamba-solver` (a conda plugin; useless on micromamba).
+
+Pick one stack per machine (do not mix miniforge and micromamba). Pin the absolute path:
+
+| Installed | Set `COMPBIO_CONDA_CMD` to |
+| --- | --- |
+| micromamba | `command -v micromamba` (often `~/.local/bin/micromamba` or `~/.local/share/mamba/micromamba`) |
+| miniforge / mamba | `$HOME/miniforge3/bin/mamba` |
+| classic conda only | leave unset; first `conda install -n base conda-libmamba-solver -y && conda config --set solver libmamba` |
+
+```bash
+# Put in ~/.zshrc (or export before the run). Do not rely on aliases.
+export COMPBIO_CONDA_CMD="$(command -v micromamba)"
+# e.g. export COMPBIO_CONDA_CMD="$HOME/.local/bin/micromamba"
+# e.g. export COMPBIO_CONDA_CMD="$HOME/miniforge3/bin/mamba"
+
+cd /ABS/PATH/wisp-science-benchmark/compbiobench
+python3 -c "import conda_cli; print(conda_cli.describe_driver()); print(' '.join(conda_cli.install_command('compbio-benchmark', ['bowtie2'])))"
+# OK: "Using micromamba …" or "Using mamba …"; no --solver; CLI is not …/condabin/conda
+```
+
+`.condarc` must list conda-forge + bioconda. `defaults` first with `channel_priority: strict` fails or mixed-solves bowtie2 / macs2 / STAR. micromamba reads `~/.condarc` too.
+
+```bash
+[ -f ~/.condarc ] && cp ~/.condarc ~/.condarc.bak
+```
+
+```yaml
+channels:
+  - conda-forge
+  - bioconda
+channel_priority: strict
+show_channel_urls: true
+```
+
+Optional China mirror (Westlake). Drop the `bioconda` `custom_channels` line if that mirror has no bioconda:
+
+```yaml
+default_channels:
+  - https://mirrors.westlake.edu.cn/ANACONDA/cloud/conda-forge
+custom_channels:
+  conda-forge: https://mirrors.westlake.edu.cn/ANACONDA/cloud
+  bioconda: https://mirrors.westlake.edu.cn/ANACONDA/cloud
+```
+
+Then create the env and warmup:
+
 ```bash
 cd /ABS/PATH/wisp-science-benchmark/compbiobench
-conda env create -f environment.yml   # name: compbio-benchmark
-# micromamba-only machines: micromamba create -f environment.yml -y
-# or COMPBIO_CONDA_CMD=micromamba python run_benchmark.py warmup --only conda
+"$COMPBIO_CONDA_CMD" env create -f environment.yml -y   # name: compbio-benchmark
+# warmup also creates the base env before extras:
+# COMPBIO_CONDA_CMD=… python run_benchmark.py warmup --only conda
 
 # Once per machine: conda extras, Docker/Singularity images, hg38, ENCODE ATAC
 # indexes, Hugging Face models. Safe to re-run; complete files/images/tools are skipped.
 python run_benchmark.py warmup
 # python run_benchmark.py warmup --status
 # python run_benchmark.py warmup --only models,conda   # retry only missing steps
-# Classic conda solver can sit on "Solving environment" for >15 min; warmup
-# passes --solver libmamba. One-time: conda install -n base conda-libmamba-solver -y
-# && conda config --set solver libmamba
 # COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -252,4 +296,4 @@ Same identity knobs as BiomniBench. Headless `wisp-science` does not use the des
 | `WISP_API_KEY` | Provider key |
 | `WISP_VISION` | `1` to send native image parts |
 
-The harness clones `compbio-benchmark` per question. Wisp uses the clone through `PATH`; other backends use `conda run --live-stream` (or `micromamba run` when conda is absent). The kernel REPL still uses a per-workspace uv venv (same caveat as BiomniBench-DA). conda, mamba, and micromamba are supported; set `COMPBIO_CONDA_CMD` to pick the binary. micromamba clones via `--clone` when available, otherwise a hard-link copy of the env prefix.
+The harness clones `compbio-benchmark` per question. Wisp uses the clone through `PATH`; other backends use `conda run --live-stream` (or `micromamba run` when conda is absent). The kernel REPL still uses a per-workspace uv venv (same caveat as BiomniBench-DA). Solver selection is under “Conda env” above. micromamba clones via `--clone` when available, otherwise a hard-link copy of the env prefix.

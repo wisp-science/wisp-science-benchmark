@@ -187,6 +187,20 @@ def test_download_skips_existing_and_index():
         assert not warmup.is_complete_file(empty)
 
 
+def test_singularity_falls_back_to_docker():
+    name, url, docker = warmup.SINGULARITY_IMAGES[0]
+    assert name.endswith(".sif")
+    assert docker == "encodedcc/atac-seq-pipeline:v2.2.3"
+    with TemporaryDirectory() as tmp:
+        dest = Path(tmp) / name
+        log = []
+        with patch.object(warmup, "download_url", side_effect=RuntimeError("download failed (22): 404")), \
+             patch.object(warmup, "build_sif_from_docker", return_value=True) as build:
+            warmup.pull_singularity_images(Path(tmp), logger=log.append)
+            build.assert_called_once()
+            assert build.call_args.args[1] == docker
+
+
 def test_huggingface_prefers_hf_and_skips_cache():
     def fake_which(name):
         return {"hf": "/usr/bin/hf", "huggingface-cli": "/usr/bin/huggingface-cli"}.get(name)
@@ -239,6 +253,7 @@ def main():
     test_network_precheck_marks_failures()
     test_mount_cache_and_prompt()
     test_download_skips_existing_and_index()
+    test_singularity_falls_back_to_docker()
     test_huggingface_prefers_hf_and_skips_cache()
     test_dry_run_and_runtime_cache()
     print("ok: warmup cache, network precheck, prompt, and local preference")

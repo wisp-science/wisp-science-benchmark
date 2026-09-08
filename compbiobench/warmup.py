@@ -94,11 +94,13 @@ ENCODE_HG38_TSV: list[tuple[str, str]] = [
 ]
 
 DOCKER_IMAGES = ("encodedcc/atac-seq-pipeline:v2.2.3",)
+# Official S3 SIF often 404s; docker image is the fallback source.
 SINGULARITY_IMAGES = (
     (
         "atac-seq-pipeline_v2.2.3.sif",
         "https://encode-pipeline-singularity-image.s3.us-west-2.amazonaws.com/"
         "atac-seq-pipeline_v2.2.3.sif",
+        "encodedcc/atac-seq-pipeline:v2.2.3",
     ),
 )
 HF_MODELS = (
@@ -489,6 +491,35 @@ def pull_docker_images(
             log(f"WARNING: failed to pull {image}")
 
 
+def singularity_bin() -> str | None:
+    return shutil.which("apptainer") or shutil.which("singularity")
+
+
+def build_sif_from_docker(dest: Path, docker_image: str, log: Callable[[str], None]) -> bool:
+    """Convert a local Docker image to SIF when the published SIF URL is gone."""
+    tool = singularity_bin()
+    if not tool:
+        log("  apptainer/singularity not on PATH; cannot convert docker image")
+        return False
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(dest.suffix + ".building")
+    if tmp.exists():
+        tmp.unlink()
+    sources = []
+    if docker_image_present(docker_image):
+        sources.append(f"docker-daemon://{docker_image}")
+    sources.append(f"docker://{docker_image}")
+    for source in sources:
+        log(f"  {Path(tool).name} build from {source}")
+        result = subprocess.run([tool, "build", "--force", str(tmp), source], text=True)
+        if result.returncode == 0 and is_complete_file(tmp):
+            tmp.replace(dest)
+            return True
+    if tmp.exists():
+        tmp.unlink()
+    return False
+
+
 def pull_singularity_images(
     cache_dir: Path,
     *,
@@ -498,14 +529,22 @@ def pull_singularity_images(
     log = logger or (lambda message: print(message, flush=True))
     dest_dir = cache_dir / "singularity"
     dest_dir.mkdir(parents=True, exist_ok=True)
-    for name, url in SINGULARITY_IMAGES:
+    for name, url, docker_image in SINGULARITY_IMAGES:
         dest = dest_dir / name
         log(f"singularity image {dest}")
+        if is_complete_file(dest) and not force:
+            log("  cached")
+            continue
         try:
             status = download_url(url, dest, force=force)
             log(f"  {status}")
+            continue
         except Exception as exc:
             log(f"  WARNING: {exc}")
+        if docker_image and build_sif_from_docker(dest, docker_image, log):
+            log("  built from docker")
+        else:
+            log("  WARNING: no SIF available; Docker image is enough if you run with Docker")
 
 
 def write_encode_tsv(dest_dir: Path, files: dict[str, Path]) -> Path:
@@ -681,7 +720,7 @@ def write_index(cache_dir: Path) -> Path:
     for image in DOCKER_IMAGES:
         present = "present" if docker_image_present(image) else "not pulled"
         lines.append(f"- Docker `{image}` ({present})")
-    for name, _url in SINGULARITY_IMAGES:
+    for name, _url, _docker in SINGULARITY_IMAGES:
         path = cache_dir / "singularity" / name
         state = "ready" if path.exists() else "missing"
         lines.append(f"- Singularity `{path}` ({state})")
@@ -810,7 +849,7 @@ def print_status(cache_dir: Path) -> None:
     print(f"INDEX.md: {(cache_dir / 'INDEX.md').is_file()}")
     for image in DOCKER_IMAGES:
         print(f"docker {image}: {'yes' if docker_image_present(image) else 'no'}")
-    for name, _url in SINGULARITY_IMAGES:
+    for name, _url, _docker in SINGULARITY_IMAGES:
         path = cache_dir / "singularity" / name
         print(f"sif {name}: {'yes' if is_complete_file(path) else 'no'}")
     print(f"hg38.fa: {'yes' if is_complete_file(cache_dir / 'genomes' / 'hg38' / 'hg38.fa') else 'no'}")
@@ -850,8 +889,8 @@ def cmd_warmup(args) -> None:
             log(f"  probe {probe.family}/{probe.name} {probe.url}")
         for image in DOCKER_IMAGES:
             log(f"  docker {image}")
-        for name, url in SINGULARITY_IMAGES:
-            log(f"  sif {name} {url}")
+        for name, url, docker in SINGULARITY_IMAGES:
+            log(f"  sif {name} {url} (fallback docker {docker})")
         for key, url in ENCODE_HG38_TSV:
             log(f"  genome {key} {url_filename(url)}")
         for repo in HF_MODELS:

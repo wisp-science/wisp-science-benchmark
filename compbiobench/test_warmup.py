@@ -300,6 +300,29 @@ def test_idr_uses_kundajelab_pip_not_bioconda():
     )
 
 
+def test_idr_installs_cython_before_extension_build():
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(list(cmd))
+        class Result:
+            returncode = 0
+        return Result()
+
+    def has_module(_env, module):
+        return module != "Cython"
+
+    with patch.object(warmup, "ensure_base_env"), \
+         patch.object(warmup, "conda_has_binary", return_value=False), \
+         patch.object(warmup, "conda_has_module", has_module), \
+         patch.object(warmup, "_run_conda_install", return_value=0), \
+         patch.object(warmup.subprocess, "run", fake_run):
+        warmup.install_conda_extras(lambda _m: None)
+    cython_at = next(i for i, cmd in enumerate(calls) if warmup.IDR_CYTHON_SPEC in cmd)
+    idr_at = next(i for i, cmd in enumerate(calls) if warmup.IDR_PIP_SPEC in cmd)
+    assert cython_at < idr_at
+
+
 def main():
     test_micromamba_driver_selection()
     test_conda_preferred_over_micromamba()
@@ -313,6 +336,7 @@ def main():
     test_huggingface_prefers_hf_and_skips_cache()
     test_dry_run_and_runtime_cache()
     test_idr_uses_kundajelab_pip_not_bioconda()
+    test_idr_installs_cython_before_extension_build()
     print("ok: warmup cache, network precheck, prompt, and local preference")
 
 

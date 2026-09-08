@@ -19,5 +19,6 @@ dependencies:
   - pip:
     - caper
     - huggingface_hub
-    # bioconda idr has no py3.11 build; PyPI "idr" is a different project
+    # bioconda idr has no py3.11 build; bundled inv_cdf.c is pre-3.11 Cython.
+    # warmup installs Cython<3 then pip --no-build-isolation this tarball.
     - https://github.com/kundajelab/idr/archive/refs/tags/2.0.4.2.tar.gz

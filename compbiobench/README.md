@@ -45,6 +45,8 @@ python compbiobench/reports/build_index.py --archive archive_clean.zip
 # Rebuild without the archive
 python compbiobench/reports/build_index.py
 python compbiobench/reports/test_build_index.py
+python compbiobench/test_profiles.py
+python compbiobench/test_warmup.py
 ```
 
 Outputs: `docs/compbiobench/index.html` and `docs/compbiobench/answers.csv`.
@@ -57,6 +59,8 @@ Outputs: `docs/compbiobench/index.html` and `docs/compbiobench/answers.csv`.
 | `wisp_provider.py` / `wisp-run.sh` | Drive `wisp-science run --output jsonl` |
 | `prepare_csv.py` | Rewrite `file_paths` to the local data dump |
 | `environment.yml` | Base conda env cloned per question |
+| `environment-extras.yml` | Extra tools installed into that env by `warmup` |
+| `warmup.py` | Pre-install conda extras; cache genomes, containers, models; network precheck |
 | [`Genentech/compbiobench-data-v1`](https://huggingface.co/datasets/Genentech/compbiobench-data-v1) | Questions + files (download separately) |
 | [`wisp-science`](https://github.com/xuzhougeng/wisp-science) | Agent under test |
 
@@ -85,6 +89,13 @@ Expect `compbiobench.v1.tsv` at the dump root and files under `data/`.
 ```bash
 cd /ABS/PATH/wisp-science-benchmark/compbiobench
 conda env create -f environment.yml   # name: compbio-benchmark
+
+# Once per machine: conda extras, Docker/Singularity images, hg38, ENCODE ATAC
+# indexes, Hugging Face models. Idempotent; prefers files already on disk.
+python run_benchmark.py warmup
+# python run_benchmark.py warmup --status
+# python run_benchmark.py warmup --only network,conda
+# COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
 export PATH="$HOME/.cargo/bin:$PATH"
 cd ~/benchmark/wisp-science   # or your wisp-science tree
@@ -150,6 +161,8 @@ python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv -n 1 -t
 ```
 
 Start with `-n 1`. Conda clones are expensive.
+
+`run` probes ENCODE, Hugging Face, NCBI, GEO, and EBI, then mounts `$COMPBIO_CACHE_DIR` into each workspace as `local_cache/` and points Hugging Face / Singularity env vars at it. The prompt tells the agent to use that cache before downloading. `--skip-network-check` skips the probes. `--cache-dir` overrides the location (default `~/benchmark/compbiobench-cache`).
 
 Wisp is launched by prepending the cloned env’s `bin/` to `PATH` (not `conda run`, which can sit silent for the full `-t`). If the process emits nothing for 180s, the harness kills it and retries once (`BENCH_STARTUP_SILENCE_SEC=0` disables). On a blocked PyPI, set `UV_INDEX_URL` (and `UV_HTTP_TIMEOUT`, default 30 in `wisp-run.sh`).
 

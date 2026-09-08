@@ -40,6 +40,7 @@ def main():
                  patch.object(provider, "check_model_available", return_value=(True, "test")), \
                  patch.object(rb, "use_mamba", return_value=False), \
                  patch.object(rb, "ensure_base_conda_env", return_value=True), \
+                 patch.object(rb, "prepare_runtime_cache", return_value=None), \
                  patch.object(rb, "run_question", side_effect=lambda i, row, *a: scheduled.append(row.question_id)):
                 rb.cmd_run(args)
             assert scheduled == expected
@@ -176,6 +177,7 @@ def main():
              patch.object(provider, "check_model_available", return_value=(True, "test")), \
              patch.object(rb, "use_mamba", return_value=False), \
              patch.object(rb, "ensure_base_conda_env", return_value=True), \
+             patch.object(rb, "prepare_runtime_cache", return_value=None), \
              patch.object(rb, "run_question", side_effect=execute_question):
             rb.cmd_run(promotion_args)
             assert scheduled == list(rb.FULL_ONLY_QUESTIONS) + [local_ids[0], local_ids[-1]]
@@ -220,6 +222,7 @@ def main():
              patch.object(provider, "check_model_available", return_value=(True, "test")), \
              patch.object(rb, "use_mamba", return_value=False), \
              patch.object(rb, "ensure_base_conda_env", return_value=True), \
+             patch.object(rb, "prepare_runtime_cache", return_value=None), \
              patch.object(rb, "run_question", side_effect=execute_question):
             rb.cmd_run(promotion_args)
             assert scheduled == [target]

@@ -39,6 +39,8 @@ python compbiobench/reports/build_index.py --archive archive_clean.zip
 # 后续构建无需压缩包
 python compbiobench/reports/build_index.py
 python compbiobench/reports/test_build_index.py
+python compbiobench/test_profiles.py
+python compbiobench/test_warmup.py
 ```
 
 输出为 `docs/compbiobench/index.html` 和 `docs/compbiobench/answers.csv`。
@@ -51,6 +53,8 @@ python compbiobench/reports/test_build_index.py
 | `wisp_provider.py` / `wisp-run.sh` | 驱动 `wisp-science run --output jsonl` |
 | `prepare_csv.py` | 把 `file_paths` 改成本地数据目录 |
 | `environment.yml` | 每题 clone 的基础 conda 环境 |
+| `environment-extras.yml` | 由 `warmup` 装进该环境的额外工具 |
+| `warmup.py` | 预装 conda extras、缓存基因组/容器/模型，并做网络预检 |
 | [`Genentech/compbiobench-data-v1`](https://huggingface.co/datasets/Genentech/compbiobench-data-v1) | 题目 + 数据文件（另外下载） |
 | [`wisp-science`](https://github.com/xuzhougeng/wisp-science) | 被测 agent |
 
@@ -79,6 +83,13 @@ huggingface-cli download Genentech/compbiobench-data-v1 \
 ```bash
 cd /ABS/PATH/wisp-science-benchmark/compbiobench
 conda env create -f environment.yml   # 名字：compbio-benchmark
+
+# 每台机器跑一次：conda extras、Docker/Singularity 镜像、hg38、ENCODE ATAC
+# 索引、Hugging Face 模型。可重复执行，已有文件会跳过。
+python run_benchmark.py warmup
+# python run_benchmark.py warmup --status
+# python run_benchmark.py warmup --only network,conda
+# COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
 export PATH="$HOME/.cargo/bin:$PATH"
 cd ~/benchmark/wisp-science
@@ -144,6 +155,8 @@ python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv -n 1 -t
 ```
 
 先 `-n 1`。conda clone 很重。
+
+`run` 会预检 ENCODE、Hugging Face、NCBI、GEO、EBI，并把 `$COMPBIO_CACHE_DIR` 挂进每题工作区的 `local_cache/`，同时把 Hugging Face / Singularity 的环境变量指到这份缓存。prompt 会要求模型先用缓存、再上网。`--skip-network-check` 跳过预检。`--cache-dir` 覆盖默认路径（`~/benchmark/compbiobench-cache`）。
 
 Wisp 用克隆环境的 `bin/` 拼进 `PATH` 启动（不用 `conda run`，后者可能整段 `-t` 都零输出）。进程 180 秒没有任何输出会被杀掉并重试一次（`BENCH_STARTUP_SILENCE_SEC=0` 关闭）。PyPI 不通时设 `UV_INDEX_URL`（`wisp-run.sh` 里 `UV_HTTP_TIMEOUT` 默认 30）。
 

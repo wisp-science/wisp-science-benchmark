@@ -1,0 +1,22 @@
+# Extra packages installed into compbio-benchmark by `run_benchmark.py warmup`.
+# Keep environment.yml close to the vendored runner; put timeout-prone tools here.
+name: compbio-benchmark
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bowtie2
+  - macs2
+  - idr
+  - picard
+  - cutadapt
+  - chromap
+  - kraken2
+  - star
+  - openjdk
+  - wget
+  - pigz
+  - pip
+  - pip:
+    - caper
+    - huggingface_hub

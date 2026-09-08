@@ -64,6 +64,7 @@ import uuid
 from abc import ABC, abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+from pathlib import Path
 from typing import cast
 import threading
 import pandas as pd
@@ -967,6 +968,41 @@ def get_provider(llm: str) -> LLMProvider:
         raise ValueError(f"Unknown LLM: {llm}. Available: {list(LLM_PROVIDERS.keys())}")
     return LLM_PROVIDERS[llm]
 
+
+def prepare_runtime_cache(logger: logging.Logger, skip_network_check: bool = False) -> str | None:
+    """Point the process at the local cache and optionally probe ENCODE/HF/NCBI/GEO/EBI."""
+    from warmup import (
+        apply_cache_environ,
+        cache_has_content,
+        format_network_results,
+        maybe_enable_hf_mirror,
+        network_precheck,
+        write_network_report,
+    )
+
+    cache_dir = apply_cache_environ()
+    logger.info(f"Local cache: {cache_dir}")
+    if not cache_has_content(cache_dir):
+        logger.warning(
+            "Cache is empty. Run `python run_benchmark.py warmup` to pre-install "
+            "conda extras, containers, genomes, and models."
+        )
+    if skip_network_check:
+        return str(cache_dir)
+    results = network_precheck()
+    logger.info(format_network_results(results))
+    try:
+        write_network_report(cache_dir, results)
+    except OSError as exc:
+        logger.debug(f"Could not write network-check.json: {exc}")
+    failed = [item for item in results if item.required and not item.ok]
+    if failed:
+        names = ", ".join(f"{item.family}/{item.name}" for item in failed)
+        logger.warning(f"Network precheck failed for: {names}. Prefer local_cache/.")
+    if maybe_enable_hf_mirror(results):
+        logger.warning("huggingface.co failed; using HF_ENDPOINT=https://hf-mirror.com")
+    return str(cache_dir)
+
 DEFAULT_DATA_DIR = "/data/vibe-factory/data"
 
 
@@ -997,7 +1033,8 @@ def setup_logging(run_dir: str, llm: str, model: str) -> logging.Logger:
 # PROMPT GENERATION
 # ============================================================================
 
-def generate_prompt(question: str, file_paths: str | None, workspace_file_paths: list[str] | None, timeout_minutes: int = 60) -> str:
+def generate_prompt(question: str, file_paths: str | None, workspace_file_paths: list[str] | None,
+                    timeout_minutes: int = 60, cache_mounted: bool = False) -> str:
     """Generate a standardized prompt for all LLMs."""
     prompt_parts = [f"QUESTION: {question}"]
 
@@ -1011,12 +1048,17 @@ def generate_prompt(question: str, file_paths: str | None, workspace_file_paths:
             "Note: All files are located in your current working directory (workspace)."
         ])
 
+    fetch_lines = ["- Get any files or tools you need from the internet."]
+    if cache_mounted:
+        from warmup import prompt_cache_instructions
+        fetch_lines = prompt_cache_instructions()
+
     prompt_parts.extend([
         "",
         "INSTRUCTIONS:",
         f"- You have {timeout_minutes} minutes to complete this task",
         "- Do not read/access any other files outside the workspace.",
-        "- Get any files or tools you need from the internet.",
+        *fetch_lines,
         "- You are free to modify the current conda environment as needed.",
         "- Keep all scripts and intermediate data in the workspace only.",
         "",
@@ -1718,8 +1760,16 @@ def run_question(idx: int, row: pd.Series, llm: str, model: str, timeout_seconds
     # Copy files to workspace BEFORE generating prompt
     workspace_file_paths = copy_files_to_workspace(file_paths, work_dir, logger)
 
+    from warmup import mount_cache
+    cache_mounted = mount_cache(work_dir)
+    if cache_mounted:
+        logger.debug(f"[{question_id}] Mounted local_cache/ from COMPBIO_CACHE_DIR")
+
     # Generate prompt with workspace-relative paths
-    prompt = generate_prompt(question, file_paths, workspace_file_paths, timeout_minutes)
+    prompt = generate_prompt(
+        question, file_paths, workspace_file_paths, timeout_minutes,
+        cache_mounted=cache_mounted,
+    )
 
     # Save prompt
     save_prompt_md(prompt_path, question_id, model, timeout_minutes, difficulty, file_paths, workspace_file_paths, prompt)
@@ -1936,6 +1986,8 @@ def cmd_run(args) -> None:
                 exclude=getattr(args, 'exclude', []),
                 profile=getattr(args, 'profile', None),
                 list_questions=getattr(args, 'list_questions', False),
+                cache_dir=getattr(args, 'cache_dir', None),
+                skip_network_check=getattr(args, 'skip_network_check', False),
             )
             _run_single_model(single_args)
         return
@@ -2040,11 +2092,19 @@ def _run_single_model(args) -> None:
     print("Checking base conda environment...")
     logger_init = logging.getLogger("benchmark_init")
     logger_init.setLevel(logging.INFO)
+    if not logger_init.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        logger_init.addHandler(handler)
+        logger_init.propagate = False
     if not ensure_base_conda_env(logger_init):
         print(f"ERROR: Failed to create base conda environment '{BASE_ENV_NAME}'")
         print("  Ensure environment.yml exists and conda is working")
         return
     print(f"  Base environment '{BASE_ENV_NAME}' ready (will clone for each question)")
+    if getattr(args, "cache_dir", None):
+        os.environ["COMPBIO_CACHE_DIR"] = str(Path(args.cache_dir).expanduser())
+    prepare_runtime_cache(logger_init, skip_network_check=getattr(args, "skip_network_check", False))
     if keep_envs:
         print("  Keeping cloned environments after completion")
     if resume_clean_workspace and not resume:
@@ -2094,6 +2154,7 @@ def _run_single_model(args) -> None:
             "rerun_question_ids": [r['question_id'] for _, r in questions] if rerun_ids else [],
             "skipped_questions": profile_skipped,
             "total_questions": len(df), "questions_to_run": len(questions),
+            "cache_dir": os.environ.get("COMPBIO_CACHE_DIR"),
         }, f, indent=2)
 
     # Persist an explicit profile upgrade even when all results are already present.
@@ -2179,6 +2240,8 @@ def cmd_run_all(args) -> None:
             reverse=getattr(args, 'reverse', False),
             exclude=getattr(args, 'exclude', []),
             profile=getattr(args, 'profile', None),
+            cache_dir=getattr(args, 'cache_dir', None),
+            skip_network_check=getattr(args, 'skip_network_check', False),
         )
         try:
             cmd_run(run_args)
@@ -2514,6 +2577,10 @@ def main():
                    help="default: skip listed large external references; full: all input questions. Resume inherits the profile; --profile full can expand a default run.")
     p.add_argument("--list-questions", action="store_true",
                    help="List selected/skipped questions without starting a model or preparing environments")
+    p.add_argument("--cache-dir", default=None,
+                   help="Shared local cache (default: $COMPBIO_CACHE_DIR or ~/benchmark/compbiobench-cache)")
+    p.add_argument("--skip-network-check", action="store_true",
+                   help="Skip ENCODE/Hugging Face/NCBI/GEO/EBI connectivity probes")
 
     # Merge
     p = subparsers.add_parser("merge", help="Merge results")
@@ -2545,9 +2612,26 @@ def main():
     p.add_argument("--exclude", nargs="+", default=[], help="Question IDs to exclude (e.g., --exclude q1 q2 q3)")
     p.add_argument("--profile", choices=["default", "full"], default=None,
                    help="default: skip listed large external references; full: all input questions. Resume inherits the profile; --profile full can expand a default run.")
+    p.add_argument("--cache-dir", default=None,
+                   help="Shared local cache (default: $COMPBIO_CACHE_DIR or ~/benchmark/compbiobench-cache)")
+    p.add_argument("--skip-network-check", action="store_true",
+                   help="Skip ENCODE/Hugging Face/NCBI/GEO/EBI connectivity probes")
+
+    p = subparsers.add_parser(
+        "warmup",
+        help="Pre-install conda extras and cache genomes, containers, and models",
+    )
+    from warmup import add_warmup_arguments, cmd_warmup
+    add_warmup_arguments(p)
 
     args = parser.parse_args()
-    cmds = {"prepare": cmd_prepare, "run": cmd_run, "merge": cmd_merge, "run-all": cmd_run_all}
+    cmds = {
+        "prepare": cmd_prepare,
+        "run": cmd_run,
+        "merge": cmd_merge,
+        "run-all": cmd_run_all,
+        "warmup": cmd_warmup,
+    }
     if args.command in cmds:
         cmds[args.command](args)
     else:

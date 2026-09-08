@@ -277,6 +277,26 @@ def test_dry_run_and_runtime_cache():
             assert os.environ["HF_HOME"].startswith(str(cache.resolve()))
 
 
+def test_idr_uses_kundajelab_pip_not_bioconda():
+    assert "kundajelab/idr" in warmup.IDR_PIP_SPEC
+    assert "idr" not in dict(warmup.CONDA_EXTRA_PACKAGES)
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(list(cmd))
+        class Result:
+            returncode = 0
+        return Result()
+
+    with patch.object(warmup, "ensure_base_env"), \
+         patch.object(warmup, "conda_has_binary", return_value=False), \
+         patch.object(warmup, "conda_has_module", return_value=True), \
+         patch.object(warmup, "_run_conda_install", return_value=0), \
+         patch.object(warmup.subprocess, "run", fake_run):
+        warmup.install_conda_extras(lambda _m: None)
+    assert any(warmup.IDR_PIP_SPEC in cmd for cmd in calls)
+
+
 def main():
     test_micromamba_driver_selection()
     test_conda_preferred_over_micromamba()
@@ -289,6 +309,7 @@ def main():
     test_openspliceai_skips_after_host_error()
     test_huggingface_prefers_hf_and_skips_cache()
     test_dry_run_and_runtime_cache()
+    test_idr_uses_kundajelab_pip_not_bioconda()
     print("ok: warmup cache, network precheck, prompt, and local preference")
 
 

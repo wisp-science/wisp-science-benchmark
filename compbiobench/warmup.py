@@ -140,7 +140,6 @@ STEPS = ("network", "docker", "singularity", "genomes", "models", "conda")
 CONDA_EXTRA_PACKAGES = (
     ("bowtie2", "bowtie2"),
     ("macs2", "macs2"),
-    ("idr", "idr"),
     ("picard", "picard"),
     ("cutadapt", "cutadapt"),
     ("chromap", "chromap"),
@@ -151,6 +150,8 @@ CONDA_EXTRA_PACKAGES = (
     ("pigz", "pigz"),
 )
 CONDA_EXTRA_PIP = ("caper", "huggingface_hub")
+# bioconda idr builds stop at Python 3.10; PyPI "idr" is a different project.
+IDR_PIP_SPEC = "https://github.com/kundajelab/idr/archive/refs/tags/2.0.4.2.tar.gz"
 CONDA_PACKAGE_TIMEOUT = 900
 DEFAULT_DOCKER_MIRRORS = ("docker.m.daocloud.io",)
 
@@ -466,6 +467,16 @@ def install_conda_extras(logger: Callable[[str], None] | None = None) -> None:
         )
         if pip.returncode != 0:
             log("  pip extras warning: caper/huggingface_hub install failed")
+    if not conda_has_binary(BASE_ENV_NAME, "idr"):
+        log("bioconda idr has no Python 3.11 build; pip installing kundajelab/idr")
+        pip = subprocess.run(
+            conda_cli.wrap_env_run(BASE_ENV_NAME, ["pip", "install", IDR_PIP_SPEC]),
+            text=True, timeout=CONDA_PACKAGE_TIMEOUT,
+        )
+        if pip.returncode != 0:
+            log("  skipped idr: pip install failed (needs a C compiler)")
+        else:
+            log("  installed idr")
 
 
 def docker_available() -> bool:
@@ -916,7 +927,7 @@ def print_status(cache_dir: Path) -> None:
         print(f"openspliceai {name}: {'yes' if ok else 'no'}")
     print(f"conda {BASE_ENV_NAME}: {'yes' if conda_env_exists(BASE_ENV_NAME) else 'no'}")
     if conda_env_exists(BASE_ENV_NAME):
-        for package, binary in CONDA_EXTRA_PACKAGES:
+        for package, binary in (*CONDA_EXTRA_PACKAGES, ("idr", "idr")):
             print(f"  {package}: {'yes' if conda_has_binary(BASE_ENV_NAME, binary) else 'no'}")
 
 

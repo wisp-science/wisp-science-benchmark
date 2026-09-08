@@ -7,7 +7,6 @@ channels:
 dependencies:
   - bowtie2
   - macs2
-  - idr
   - picard
   - cutadapt
   - chromap
@@ -20,3 +19,5 @@ dependencies:
   - pip:
     - caper
     - huggingface_hub
+    # bioconda idr has no py3.11 build; PyPI "idr" is a different project
+    - https://github.com/kundajelab/idr/archive/refs/tags/2.0.4.2.tar.gz

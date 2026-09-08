@@ -139,6 +139,7 @@ cd /ABS/PATH/wisp-science-benchmark/compbiobench
 python run_benchmark.py warmup
 # python run_benchmark.py warmup --status
 # python run_benchmark.py warmup --only models,conda   # 只重试缺的步骤
+# bioconda 的 idr 没有 py3.11 构建；warmup 从 kundajelab/idr 用 pip 装（不要 pip install idr）
 # COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
 export PATH="$HOME/.cargo/bin:$PATH"

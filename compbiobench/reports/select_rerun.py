@@ -9,7 +9,7 @@ as completed.
 
     python compbiobench/reports/select_rerun.py
     python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
-      --resume RUN --profile full --rerun-file reports/rerun_questions.txt
+      --resume RUN --profile full --force-rerun --rerun-file reports/rerun_questions.txt
 """
 
 from __future__ import annotations

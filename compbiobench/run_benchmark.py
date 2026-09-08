@@ -1902,6 +1902,15 @@ def run_question(idx: int, row: pd.Series, llm: str, model: str, timeout_seconds
 # ============================================================================
 
 
+def remove_question_dirs(run_dir: str, question_ids: list[str], logger: logging.Logger) -> None:
+    """Delete existing question output dirs so a force-rerun cannot reuse old results."""
+    for question_id in question_ids:
+        path = os.path.join(run_dir, "questions", safe_question_id(question_id))
+        if os.path.isdir(path):
+            logger.info(f"Force-rerun: deleting {path}")
+            shutil.rmtree(path, ignore_errors=True)
+
+
 def get_questions_to_skip(run_dir: str) -> set[str]:
     """Find completed questions to skip when resuming.
 
@@ -1953,11 +1962,17 @@ def select_questions(df: pd.DataFrame, profile: str, exclude=()) -> tuple[pd.Dat
     return df.loc[~df['question_id'].isin(skipped)].copy(), skipped
 
 
+def is_force_rerun(args) -> bool:
+    """True when --force-rerun was passed (even with IDs only in --rerun-file)."""
+    return getattr(args, "force_rerun", None) is not None
+
+
 def collect_rerun_ids(args) -> list[str]:
-    """Merge --rerun IDs with optional --rerun-file, preserving first-seen order."""
+    """Merge --force-rerun / --rerun IDs with optional --rerun-file, first-seen order."""
     ids: list[str] = []
-    for question_id in getattr(args, "rerun", []) or []:
-        ids.append(str(question_id).strip())
+    for source in (getattr(args, "force_rerun", None) or [], getattr(args, "rerun", []) or []):
+        for question_id in source:
+            ids.append(str(question_id).strip())
     path = getattr(args, "rerun_file", None)
     if path:
         with open(path, encoding="utf-8") as fh:
@@ -2000,6 +2015,7 @@ def cmd_run(args) -> None:
                 timeout=args.timeout, results_dir=args.results_dir,
                 resume=resume, keep_envs=keep_envs,
                 rerun=getattr(args, 'rerun', []),
+                force_rerun=getattr(args, 'force_rerun', None),
                 resume_clean_workspace=resume_clean_workspace,
                 model_reasoning_effort=model_reasoning_effort,
                 reverse=getattr(args, 'reverse', False),
@@ -2027,8 +2043,13 @@ def _run_single_model(args) -> None:
     model_reasoning_effort = getattr(args, 'model_reasoning_effort', None)
 
     rerun_ids = set(getattr(args, 'rerun', []) or [])
+    force = is_force_rerun(args)
+    if force and not rerun_ids:
+        raise ValueError("--force-rerun needs question IDs or --rerun-file")
     if rerun_ids and not resume:
-        raise ValueError("--rerun/--rerun-file requires --resume with an existing run directory")
+        raise ValueError(
+            "--rerun/--force-rerun/--rerun-file requires --resume with an existing run directory"
+        )
 
     profile = getattr(args, 'profile', None)
     if resume:
@@ -2060,12 +2081,14 @@ def _run_single_model(args) -> None:
     input_question_count = len(df)
     unknown = rerun_ids - set(df['question_id'])
     if unknown:
-        raise ValueError(f"Unknown --rerun question ID(s): {', '.join(sorted(unknown))}")
+        raise ValueError(f"Unknown --rerun/--force-rerun question ID(s): {', '.join(sorted(unknown))}")
     df, profile_skipped = select_questions(df, profile, getattr(args, 'exclude', []))
     excluded = rerun_ids - set(df['question_id'])
     if excluded:
-        raise ValueError(f"--rerun question(s) excluded by profile or --exclude: {', '.join(sorted(excluded))}. "
-                         "Use --profile full or remove the conflicting --exclude.")
+        raise ValueError(
+            f"--rerun/--force-rerun question(s) excluded by profile or --exclude: {', '.join(sorted(excluded))}. "
+            "Use --profile full or remove the conflicting --exclude."
+        )
     # Keep df as the complete profile population for run metadata and later resumes.
     run_df = df.loc[df['question_id'].isin(rerun_ids)] if rerun_ids else df
     label = "Benchmark-full" if profile == "full" else "Benchmark"
@@ -2073,7 +2096,8 @@ def _run_single_model(args) -> None:
     for qid, reason in profile_skipped.items():
         print(f"  [SKIP] {qid}: {reason}")
     if rerun_ids:
-        print(f"Rerun: only {len(run_df)} explicitly selected question(s), including previous successes")
+        action = "delete existing results then run" if force else "run even if previously successful"
+        print(f"Rerun: only {len(run_df)} explicitly selected question(s); {action}")
     if getattr(args, 'list_questions', False):
         for qid in run_df['question_id']:
             print(f"  [SELECT] {qid}")
@@ -2145,6 +2169,8 @@ def _run_single_model(args) -> None:
     if rerun_ids:
         questions: list[tuple[int, pd.Series]] = [(cast(int, i), r) for i, r in run_df.iterrows()]
         logger.info(f"Rerun: forcing only {len(questions)} explicitly selected question(s)")
+        if force:
+            remove_question_dirs(run_dir, [r['question_id'] for _, r in questions], logger)
     elif resume:
         skip_qids = get_questions_to_skip(run_dir)
         questions = [(cast(int, i), r) for i, r in df.iterrows() if r['question_id'] not in skip_qids]
@@ -2169,6 +2195,7 @@ def _run_single_model(args) -> None:
             "timeout_minutes": args.timeout,
             "base_env": BASE_ENV_NAME, "keep_envs": keep_envs,
             "resume_clean_workspace": resume_clean_workspace,
+            "force_rerun": force,
             "model_reasoning_effort": model_reasoning_effort,
             "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
             "benchmark_profile": profile,
@@ -2194,7 +2221,8 @@ def _run_single_model(args) -> None:
         futures = {
             executor.submit(run_question, i, r, llm, model, args.timeout * 60, run_dir,
                             version, date_run, model_reasoning_effort, progress, logger,
-                            keep_envs, permission_mode, resume and resume_clean_workspace): i
+                            keep_envs, permission_mode,
+                            force or (resume and resume_clean_workspace)): i
             for i, r in questions
         }
         for future in as_completed(futures):
@@ -2228,8 +2256,12 @@ def _run_single_model(args) -> None:
 def cmd_run_all(args) -> None:
     """Run benchmark with all LLMs and merge."""
     args.rerun = collect_rerun_ids(args)
+    if is_force_rerun(args) and not args.rerun:
+        raise ValueError("--force-rerun needs question IDs or --rerun-file")
     if args.rerun and not getattr(args, 'resume', None):
-        raise ValueError("--rerun/--rerun-file requires --resume with an existing run directory")
+        raise ValueError(
+            "--rerun/--force-rerun/--rerun-file requires --resume with an existing run directory"
+        )
     if getattr(args, 'resume', None) and getattr(args, 'profile', None) is None:
         with open(os.path.join(args.results_dir, args.resume, "run_metadata.json"), encoding='utf-8') as f:
             args.profile = json.load(f).get("benchmark_profile", "full")
@@ -2259,6 +2291,7 @@ def cmd_run_all(args) -> None:
             timeout=args.timeout, results_dir=args.results_dir,
             resume=getattr(args, 'resume', None),
             rerun=getattr(args, 'rerun', []),
+            force_rerun=getattr(args, 'force_rerun', None),
             keep_envs=getattr(args, 'keep_envs', False),
             resume_clean_workspace=getattr(args, 'resume_clean_workspace', False),
             model_reasoning_effort=getattr(args, 'model_reasoning_effort', None),
@@ -2589,6 +2622,8 @@ def main():
                    help="Resume a specific run by folder name (e.g., claude_opus-4-6_20260329_120000)")
     p.add_argument("--rerun", nargs="+", default=[], metavar="QUESTION_ID",
                    help="With --resume, run only these question IDs, even if previously successful")
+    p.add_argument("--force-rerun", nargs="*", default=None, metavar="QUESTION_ID",
+                   help="With --resume, delete these questions' existing dirs then run them. Combine with --rerun-file.")
     p.add_argument("--rerun-file", default=None, metavar="PATH",
                    help="With --resume, read extra question IDs from a text file (one ID per line)")
     p.add_argument("--resume-clean-workspace", action="store_true",
@@ -2628,6 +2663,8 @@ def main():
                    help="Resume a specific run by folder name (e.g., claude_opus-4-6_20260329_120000)")
     p.add_argument("--rerun", nargs="+", default=[], metavar="QUESTION_ID",
                    help="With --resume, run only these question IDs, even if previously successful")
+    p.add_argument("--force-rerun", nargs="*", default=None, metavar="QUESTION_ID",
+                   help="With --resume, delete these questions' existing dirs then run them. Combine with --rerun-file.")
     p.add_argument("--rerun-file", default=None, metavar="PATH",
                    help="With --resume, read extra question IDs from a text file (one ID per line)")
     p.add_argument("--resume-clean-workspace", action="store_true",

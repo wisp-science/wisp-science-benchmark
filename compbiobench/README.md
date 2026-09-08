@@ -240,11 +240,18 @@ use that metadata. Narrowing full back to default requires a new run. A changed
 default membership version still blocks default-to-default resume, but explicit
 expansion to full is allowed.
 
-To force only specific questions to run again, including previously successful ones:
+To force only specific questions to run again, including previously successful ones, use `--resume` with `--rerun`. `--rerun` overwrites result files but keeps the old workspace by default.
+
+To **delete** those questions' existing results, traces, and workspaces, then run them again (do not reuse old answers), use `--force-rerun`. You still pass `--resume` so the harness knows which run folder to wipe; other questions are left alone. Each question still gets a fresh conda clone.
 
 ```bash
 python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
   --resume wisp_<model>_<timestamp> --rerun gene-pair-ordering-fraction-q1
+
+# Inconsistent questions: wipe then rerun (add --profile full for the five default-skip IDs)
+python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
+  --resume wisp_<model>_<timestamp> --profile full \
+  --force-rerun --rerun-file reports/rerun_questions.txt
 ```
 
 Questions where fewer than 3 of the 5 models share a completed answer (timeouts,
@@ -259,16 +266,11 @@ python reports/select_rerun.py
 python reports/test_select_rerun.py
 python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
   --resume wisp_<model>_<timestamp> --profile full \
-  --rerun-file reports/rerun_questions.txt
+  --force-rerun --rerun-file reports/rerun_questions.txt
 ```
 
-Separate multiple IDs with spaces, e.g. `--rerun covid-patient-q1 lung-cancer-sc-q1`.
-Only these questions execute and replace their existing results and logs; all other
-successful, failed, or missing questions are left alone. Metadata retains the full
-selected population and records this invocation's targets in `rerun_question_ids`.
-IDs must exist and be selected by the profile and `--exclude`; add `--profile full`
-for full-only questions. Add `--list-questions` for an offline preview, or
-`--resume-clean-workspace` to clear only the target questions' old workspaces.
+Separate multiple IDs with spaces, e.g. `--force-rerun covid-patient-q1 lung-cancer-sc-q1`.
+`--force-rerun` deletes those question dirs then runs; `--rerun` overwrites results and keeps the workspace. Other questions are left alone. Metadata retains the full selected population and records this invocation's targets in `rerun_question_ids`. IDs must exist and be selected by the profile and `--exclude`; add `--profile full` for full-only questions. Add `--list-questions` for an offline preview (it does not delete).
 
 Merge profiles separately to keep result populations separate:
 

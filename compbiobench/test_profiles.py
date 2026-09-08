@@ -20,6 +20,9 @@ def main():
         ids = rb.collect_rerun_ids(argparse.Namespace(
             rerun=["beta", "gamma"], rerun_file=str(rerun_file)))
         assert ids == ["beta", "gamma", "alpha"]
+        ids = rb.collect_rerun_ids(argparse.Namespace(
+            force_rerun=["zeta", "beta"], rerun=["beta"], rerun_file=str(rerun_file)))
+        assert ids == ["zeta", "beta", "alpha"]
 
     local_ids = ["pooled-infer-donors-q1", "tissue-fibroblast-q1", "odd-one-out-q1",
                  "afgr-1000g-intersect-atac-q1", "genomic-state-q1", "cryptic-exon-q1"]
@@ -247,6 +250,23 @@ def main():
             assert scheduled == local_ids[:2], "Duplicate IDs must execute only once"
             assert not missing_path.exists()
 
+            leftover = promotion_run / "questions" / target / "old_trace.md"
+            leftover.write_text("stale")
+            (leftover.parent / "workspace").mkdir(exist_ok=True)
+            (leftover.parent / "workspace" / "junk").write_text("x")
+            untouched = {p: p.read_bytes() for p in promotion_run.glob("questions/*/result.json")
+                         if p.parent.name != target}
+            promotion_args.rerun = []
+            promotion_args.force_rerun = [target]
+            scheduled.clear()
+            rb.cmd_run(promotion_args)
+            assert scheduled == [target]
+            assert not leftover.exists()
+            assert all(p.read_bytes() == content for p, content in untouched.items())
+            meta = json.loads(metadata_path.read_text())
+            assert meta["force_rerun"] is True
+            assert meta["rerun_question_ids"] == [target]
+
         with patch.object(rb, "check_llm_installed", side_effect=AssertionError("must stay offline")):
             preview = argparse.Namespace(**{**vars(promotion_args), "list_questions": True, "rerun": [target]})
             before = metadata_path.read_bytes()
@@ -261,6 +281,8 @@ def main():
                 ({"exclude": [target]}, "excluded by profile or --exclude"),
                 ({"results_dir": args.results_dir, "resume": runs["default"].parent.name,
                   "profile": "default", "rerun": [all_ids[0]]}, "excluded by profile or --exclude"),
+                ({"force_rerun": [], "rerun": []}, "needs question IDs"),
+                ({"force_rerun": [target], "resume": None, "rerun": []}, "requires --resume"),
             ]
             for overrides, message in invalid:
                 bad_args = argparse.Namespace(**{**vars(preview), **overrides})

@@ -1953,12 +1953,34 @@ def select_questions(df: pd.DataFrame, profile: str, exclude=()) -> tuple[pd.Dat
     return df.loc[~df['question_id'].isin(skipped)].copy(), skipped
 
 
+def collect_rerun_ids(args) -> list[str]:
+    """Merge --rerun IDs with optional --rerun-file, preserving first-seen order."""
+    ids: list[str] = []
+    for question_id in getattr(args, "rerun", []) or []:
+        ids.append(str(question_id).strip())
+    path = getattr(args, "rerun_file", None)
+    if path:
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                token = line.split("#", 1)[0].strip()
+                if token:
+                    ids.append(token)
+    unique: list[str] = []
+    seen: set[str] = set()
+    for question_id in ids:
+        if question_id and question_id not in seen:
+            seen.add(question_id)
+            unique.append(question_id)
+    return unique
+
+
 def cmd_run(args) -> None:
     """Run benchmark with a specific LLM.
 
     Supports multiple models via comma-separated list (e.g., -m opus-4-6,sonnet-4-5).
     Each model runs as a separate benchmark with its own output directory.
     """
+    args.rerun = collect_rerun_ids(args)
     llm = args.llm
     keep_envs = getattr(args, 'keep_envs', False)
     resume = getattr(args, 'resume', None)
@@ -2006,7 +2028,7 @@ def _run_single_model(args) -> None:
 
     rerun_ids = set(getattr(args, 'rerun', []) or [])
     if rerun_ids and not resume:
-        raise ValueError("--rerun requires --resume with an existing run directory")
+        raise ValueError("--rerun/--rerun-file requires --resume with an existing run directory")
 
     profile = getattr(args, 'profile', None)
     if resume:
@@ -2205,8 +2227,9 @@ def _run_single_model(args) -> None:
 
 def cmd_run_all(args) -> None:
     """Run benchmark with all LLMs and merge."""
-    if getattr(args, 'rerun', []) and not getattr(args, 'resume', None):
-        raise ValueError("--rerun requires --resume with an existing run directory")
+    args.rerun = collect_rerun_ids(args)
+    if args.rerun and not getattr(args, 'resume', None):
+        raise ValueError("--rerun/--rerun-file requires --resume with an existing run directory")
     if getattr(args, 'resume', None) and getattr(args, 'profile', None) is None:
         with open(os.path.join(args.results_dir, args.resume, "run_metadata.json"), encoding='utf-8') as f:
             args.profile = json.load(f).get("benchmark_profile", "full")
@@ -2566,6 +2589,8 @@ def main():
                    help="Resume a specific run by folder name (e.g., claude_opus-4-6_20260329_120000)")
     p.add_argument("--rerun", nargs="+", default=[], metavar="QUESTION_ID",
                    help="With --resume, run only these question IDs, even if previously successful")
+    p.add_argument("--rerun-file", default=None, metavar="PATH",
+                   help="With --resume, read extra question IDs from a text file (one ID per line)")
     p.add_argument("--resume-clean-workspace", action="store_true",
                    help="With --resume, remove each rerun question workspace before execution")
     p.add_argument("--keep-envs", action="store_true", help="Keep cloned conda envs after completion (for debugging)")
@@ -2603,6 +2628,8 @@ def main():
                    help="Resume a specific run by folder name (e.g., claude_opus-4-6_20260329_120000)")
     p.add_argument("--rerun", nargs="+", default=[], metavar="QUESTION_ID",
                    help="With --resume, run only these question IDs, even if previously successful")
+    p.add_argument("--rerun-file", default=None, metavar="PATH",
+                   help="With --resume, read extra question IDs from a text file (one ID per line)")
     p.add_argument("--resume-clean-workspace", action="store_true",
                    help="With --resume, remove each rerun question workspace before execution")
     p.add_argument("--keep-envs", action="store_true", help="Keep cloned conda envs after completion")

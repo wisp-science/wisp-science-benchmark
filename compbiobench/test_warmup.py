@@ -182,6 +182,25 @@ def test_download_skips_existing_and_index():
             )
         ])
         assert json.loads(report.read_text())["results"][0]["ok"] is True
+        empty = Path(tmp) / "empty.bin"
+        empty.write_bytes(b"")
+        assert not warmup.is_complete_file(empty)
+
+
+def test_huggingface_prefers_hf_and_skips_cache():
+    def fake_which(name):
+        return {"hf": "/usr/bin/hf", "huggingface-cli": "/usr/bin/huggingface-cli"}.get(name)
+
+    with patch.object(warmup.shutil, "which", fake_which):
+        assert warmup.huggingface_bin() == "/usr/bin/hf"
+    with TemporaryDirectory() as tmp:
+        cache = Path(tmp)
+        repo = "johahi/borzoi-replicate-0"
+        assert not warmup.hf_repo_cached(cache, repo)
+        snap = cache / "models" / "huggingface" / "hub" / "models--johahi--borzoi-replicate-0" / "snapshots" / "abc"
+        snap.mkdir(parents=True)
+        (snap / "config.json").write_text("{}")
+        assert warmup.hf_repo_cached(cache, repo)
 
 
 def test_dry_run_and_runtime_cache():
@@ -220,6 +239,7 @@ def main():
     test_network_precheck_marks_failures()
     test_mount_cache_and_prompt()
     test_download_skips_existing_and_index()
+    test_huggingface_prefers_hf_and_skips_cache()
     test_dry_run_and_runtime_cache()
     print("ok: warmup cache, network precheck, prompt, and local preference")
 

@@ -41,6 +41,7 @@ python compbiobench/reports/build_index.py
 python compbiobench/reports/test_build_index.py
 python compbiobench/test_profiles.py
 python compbiobench/test_warmup.py
+python compbiobench/reports/test_select_rerun.py
 ```
 
 输出为 `docs/compbiobench/index.html` 和 `docs/compbiobench/answers.csv`。
@@ -87,10 +88,10 @@ conda env create -f environment.yml   # 名字：compbio-benchmark
 # 或 COMPBIO_CONDA_CMD=micromamba python run_benchmark.py warmup --only conda
 
 # 每台机器跑一次：conda extras、Docker/Singularity 镜像、hg38、ENCODE ATAC
-# 索引、Hugging Face 模型。可重复执行，已有文件会跳过。
+# 索引、Hugging Face 模型。可重复执行，已下完/装完的会跳过。
 python run_benchmark.py warmup
 # python run_benchmark.py warmup --status
-# python run_benchmark.py warmup --only network,conda
+# python run_benchmark.py warmup --only models,conda   # 只重试缺的步骤
 # COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -185,6 +186,19 @@ python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
 ```bash
 python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
   --resume wisp_<model>_<timestamp> --rerun gene-pair-ordering-fraction-q1
+```
+
+5 个模型里完成答案相同的不到 3 个（超时、报错、跳过、`ERROR:` 不算完成）的题目，
+以及默认 profile 跳过的 5 题（`contaminated-rna-q1/q2/q3`、`encode-atac-pipeline-q1`、
+`find-deletion-q1`，即使已经 3 个以上模型一致），记在
+[`reports/rerun_questions.txt`](reports/rerun_questions.txt)。导入新结果后重新生成：
+
+```bash
+python reports/select_rerun.py
+python reports/test_select_rerun.py
+python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
+  --resume wisp_<model>_<timestamp> --profile full \
+  --rerun-file reports/rerun_questions.txt
 ```
 
 可用空格指定多题，如 `--rerun covid-patient-q1 lung-cancer-sc-q1`。

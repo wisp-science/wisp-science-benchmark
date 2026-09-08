@@ -297,6 +297,10 @@ def maybe_enable_hf_mirror(results: Iterable[ProbeResult]) -> bool:
     return True
 
 
+def is_complete_file(path: Path) -> bool:
+    return path.is_file() and path.stat().st_size > 0
+
+
 def download_url(
     url: str,
     dest: Path,
@@ -306,7 +310,7 @@ def download_url(
 ) -> str:
     """Download url to dest, resuming when curl/wget is available. Returns status."""
     dest.parent.mkdir(parents=True, exist_ok=True)
-    if dest.exists() and dest.stat().st_size > 0 and not force:
+    if is_complete_file(dest) and not force:
         return "cached"
     tmp = dest.with_suffix(dest.suffix + ".part")
     curl = shutil.which("curl")
@@ -373,6 +377,15 @@ def conda_has_binary(env_name: str, binary: str) -> bool:
     return path.is_file() and os.access(path, os.X_OK)
 
 
+def conda_has_module(env_name: str, module: str) -> bool:
+    import conda_cli
+    result = subprocess.run(
+        conda_cli.wrap_env_run(env_name, ["python", "-c", f"import {module}"]),
+        capture_output=True, text=True, timeout=60,
+    )
+    return result.returncode == 0
+
+
 def ensure_base_env(logger: Callable[[str], None] | None = None) -> None:
     log = logger or (lambda message: print(message, flush=True))
     if conda_env_exists(BASE_ENV_NAME):
@@ -414,12 +427,16 @@ def install_conda_extras(logger: Callable[[str], None] | None = None) -> None:
         else:
             log(f"  skipped {package}: exit {pkg.returncode}")
     import conda_cli
-    pip = subprocess.run(
-        conda_cli.wrap_env_run(BASE_ENV_NAME, ["pip", "install", *CONDA_EXTRA_PIP]),
-        text=True, timeout=CONDA_PACKAGE_TIMEOUT,
-    )
-    if pip.returncode != 0:
-        log("  pip extras warning: caper/huggingface_hub install failed")
+    missing_pip = [pkg for pkg in CONDA_EXTRA_PIP if not conda_has_module(BASE_ENV_NAME, pkg.replace("-", "_"))]
+    if not missing_pip:
+        log("  pip extras already present")
+    else:
+        pip = subprocess.run(
+            conda_cli.wrap_env_run(BASE_ENV_NAME, ["pip", "install", *missing_pip]),
+            text=True, timeout=CONDA_PACKAGE_TIMEOUT,
+        )
+        if pip.returncode != 0:
+            log("  pip extras warning: caper/huggingface_hub install failed")
 
 
 def docker_available() -> bool:
@@ -576,6 +593,20 @@ def cache_genomes(
             log(f"  WARNING: {exc}")
 
 
+def huggingface_bin() -> str | None:
+    """Prefer `hf`; the old huggingface-cli stub now exits without downloading."""
+    return shutil.which("hf") or shutil.which("huggingface-cli")
+
+
+def hf_repo_cached(cache_dir: Path, repo: str) -> bool:
+    slug = "models--" + repo.replace("/", "--")
+    hub = Path(os.environ.get("HF_HOME") or cache_dir / "models" / "huggingface")
+    snapshots = hub / "hub" / slug / "snapshots"
+    if not snapshots.is_dir():
+        return False
+    return any(path.is_dir() and any(path.iterdir()) for path in snapshots.iterdir())
+
+
 def cache_models(
     cache_dir: Path,
     *,
@@ -584,18 +615,21 @@ def cache_models(
 ) -> None:
     log = logger or (lambda message: print(message, flush=True))
     apply_cache_environ(cache_dir)
-    hf_bin = shutil.which("huggingface-cli") or shutil.which("hf")
+    hf_bin = huggingface_bin()
     for repo in HF_MODELS:
         log(f"huggingface {repo}")
+        if hf_repo_cached(cache_dir, repo) and not force:
+            log("  cached")
+            continue
         if hf_bin:
             cmd = [hf_bin, "download", repo]
             if force:
                 cmd.append("--force-download")
             result = subprocess.run(cmd, text=True)
             if result.returncode != 0:
-                log(f"  WARNING: huggingface-cli failed for {repo}")
+                log(f"  WARNING: {Path(hf_bin).name} failed for {repo}")
         else:
-            log("  huggingface-cli not found; set HF_HOME and download later")
+            log("  hf not found; set HF_HOME and download later")
     splice_dir = cache_dir / "models" / "openspliceai" / "OSAIMANE-10000nt"
     splice_dir.mkdir(parents=True, exist_ok=True)
     for name, url in OPENSPLICEAI_MODELS:
@@ -778,10 +812,21 @@ def print_status(cache_dir: Path) -> None:
         print(f"docker {image}: {'yes' if docker_image_present(image) else 'no'}")
     for name, _url in SINGULARITY_IMAGES:
         path = cache_dir / "singularity" / name
-        print(f"sif {name}: {'yes' if path.exists() else 'no'}")
-    print(f"hg38.fa: {(cache_dir / 'genomes' / 'hg38' / 'hg38.fa').exists()}")
-    print(f"encode tsv: {(cache_dir / 'genomes' / 'encode-atac-hg38' / 'hg38.tsv').exists()}")
+        print(f"sif {name}: {'yes' if is_complete_file(path) else 'no'}")
+    print(f"hg38.fa: {'yes' if is_complete_file(cache_dir / 'genomes' / 'hg38' / 'hg38.fa') else 'no'}")
+    print(f"encode tsv: {'yes' if is_complete_file(cache_dir / 'genomes' / 'encode-atac-hg38' / 'hg38.tsv') else 'no'}")
+    for key, url in ENCODE_HG38_TSV:
+        path = cache_dir / "genomes" / "encode-atac-hg38" / url_filename(url)
+        print(f"genome {key}: {'yes' if is_complete_file(path) else 'no'}")
+    for repo in HF_MODELS:
+        print(f"hf {repo}: {'yes' if hf_repo_cached(cache_dir, repo) else 'no'}")
+    splice = cache_dir / "models" / "openspliceai" / "OSAIMANE-10000nt"
+    for name, _url in OPENSPLICEAI_MODELS:
+        print(f"openspliceai {name}: {'yes' if is_complete_file(splice / name) else 'no'}")
     print(f"conda {BASE_ENV_NAME}: {'yes' if conda_env_exists(BASE_ENV_NAME) else 'no'}")
+    if conda_env_exists(BASE_ENV_NAME):
+        for package, binary in CONDA_EXTRA_PACKAGES:
+            print(f"  {package}: {'yes' if conda_has_binary(BASE_ENV_NAME, binary) else 'no'}")
 
 
 def cmd_warmup(args) -> None:
@@ -830,6 +875,7 @@ def cmd_warmup(args) -> None:
     index = write_index(cache_dir)
     log(f"wrote {index}")
     log("warmup complete")
+    log("Re-run the same command to retry missing items; complete files, images, and tools are skipped.")
 
 
 def build_parser() -> argparse.ArgumentParser:

@@ -47,6 +47,7 @@ python compbiobench/reports/build_index.py
 python compbiobench/reports/test_build_index.py
 python compbiobench/test_profiles.py
 python compbiobench/test_warmup.py
+python compbiobench/reports/test_select_rerun.py
 ```
 
 Outputs: `docs/compbiobench/index.html` and `docs/compbiobench/answers.csv`.
@@ -93,10 +94,10 @@ conda env create -f environment.yml   # name: compbio-benchmark
 # or COMPBIO_CONDA_CMD=micromamba python run_benchmark.py warmup --only conda
 
 # Once per machine: conda extras, Docker/Singularity images, hg38, ENCODE ATAC
-# indexes, Hugging Face models. Idempotent; prefers files already on disk.
+# indexes, Hugging Face models. Safe to re-run; complete files/images/tools are skipped.
 python run_benchmark.py warmup
 # python run_benchmark.py warmup --status
-# python run_benchmark.py warmup --only network,conda
+# python run_benchmark.py warmup --only models,conda   # retry only missing steps
 # COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -196,6 +197,21 @@ To force only specific questions to run again, including previously successful o
 ```bash
 python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
   --resume wisp_<model>_<timestamp> --rerun gene-pair-ordering-fraction-q1
+```
+
+Questions where fewer than 3 of the 5 models share a completed answer (timeouts,
+errors, skips, and `ERROR:` outputs do not count), plus the five default-profile
+skips (`contaminated-rna-q1/q2/q3`, `encode-atac-pipeline-q1`, `find-deletion-q1`)
+even when 3+ models already agree, are listed in
+[`reports/rerun_questions.txt`](reports/rerun_questions.txt). Rebuild after importing
+new results:
+
+```bash
+python reports/select_rerun.py
+python reports/test_select_rerun.py
+python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
+  --resume wisp_<model>_<timestamp> --profile full \
+  --rerun-file reports/rerun_questions.txt
 ```
 
 Separate multiple IDs with spaces, e.g. `--rerun covid-patient-q1 lung-cancer-sc-q1`.

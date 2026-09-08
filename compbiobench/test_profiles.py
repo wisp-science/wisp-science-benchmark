@@ -14,6 +14,13 @@ import run_benchmark as rb
 
 
 def main():
+    with tempfile.TemporaryDirectory() as tmp:
+        rerun_file = Path(tmp) / "ids.txt"
+        rerun_file.write_text("alpha\n# comment\nbeta\nalpha\n")
+        ids = rb.collect_rerun_ids(argparse.Namespace(
+            rerun=["beta", "gamma"], rerun_file=str(rerun_file)))
+        assert ids == ["beta", "gamma", "alpha"]
+
     local_ids = ["pooled-infer-donors-q1", "tissue-fibroblast-q1", "odd-one-out-q1",
                  "afgr-1000g-intersect-atac-q1", "genomic-state-q1", "cryptic-exon-q1"]
     all_ids = list(rb.FULL_ONLY_QUESTIONS) + local_ids

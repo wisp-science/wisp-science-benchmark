@@ -294,7 +294,10 @@ def test_idr_uses_kundajelab_pip_not_bioconda():
          patch.object(warmup, "_run_conda_install", return_value=0), \
          patch.object(warmup.subprocess, "run", fake_run):
         warmup.install_conda_extras(lambda _m: None)
-    assert any(warmup.IDR_PIP_SPEC in cmd for cmd in calls)
+    assert any(
+        warmup.IDR_PIP_SPEC in cmd and "--no-build-isolation" in cmd
+        for cmd in calls
+    )
 
 
 def main():

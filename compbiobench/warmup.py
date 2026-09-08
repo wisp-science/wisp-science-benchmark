@@ -151,7 +151,9 @@ CONDA_EXTRA_PACKAGES = (
 )
 CONDA_EXTRA_PIP = ("caper", "huggingface_hub")
 # bioconda idr builds stop at Python 3.10; PyPI "idr" is a different project.
+# setup.py imports numpy at import time, so pip's isolated build env fails.
 IDR_PIP_SPEC = "https://github.com/kundajelab/idr/archive/refs/tags/2.0.4.2.tar.gz"
+IDR_PIP_ARGS = ("--no-build-isolation", "--no-deps", IDR_PIP_SPEC)
 CONDA_PACKAGE_TIMEOUT = 900
 DEFAULT_DOCKER_MIRRORS = ("docker.m.daocloud.io",)
 
@@ -470,11 +472,11 @@ def install_conda_extras(logger: Callable[[str], None] | None = None) -> None:
     if not conda_has_binary(BASE_ENV_NAME, "idr"):
         log("bioconda idr has no Python 3.11 build; pip installing kundajelab/idr")
         pip = subprocess.run(
-            conda_cli.wrap_env_run(BASE_ENV_NAME, ["pip", "install", IDR_PIP_SPEC]),
+            conda_cli.wrap_env_run(BASE_ENV_NAME, ["pip", "install", *IDR_PIP_ARGS]),
             text=True, timeout=CONDA_PACKAGE_TIMEOUT,
         )
         if pip.returncode != 0:
-            log("  skipped idr: pip install failed (needs a C compiler)")
+            log("  skipped idr: pip install failed")
         else:
             log("  installed idr")
 

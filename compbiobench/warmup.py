@@ -350,28 +350,19 @@ def extract_tar(archive: Path, dest: Path) -> None:
 
 
 def conda_cmd() -> list[str]:
-    if shutil.which("mamba"):
-        return ["mamba"]
-    if shutil.which("conda"):
-        return ["conda"]
-    raise RuntimeError("conda/mamba not found on PATH")
+    import conda_cli
+    return [conda_cli.solver_cli()]
 
 
 def conda_env_prefix(name: str) -> Path | None:
-    result = subprocess.run(
-        ["conda", "env", "list", "--json"],
-        capture_output=True, text=True, timeout=30, check=False,
-    )
-    if result.returncode != 0:
-        return None
-    for path in json.loads(result.stdout).get("envs", []):
-        if Path(path.rstrip(os.sep)).name == name:
-            return Path(path)
-    return None
+    import conda_cli
+    prefix = conda_cli.env_prefix(name)
+    return Path(prefix) if prefix else None
 
 
 def conda_env_exists(name: str) -> bool:
-    return conda_env_prefix(name) is not None
+    import conda_cli
+    return conda_cli.env_exists(name)
 
 
 def conda_has_binary(env_name: str, binary: str) -> bool:
@@ -390,10 +381,14 @@ def ensure_base_env(logger: Callable[[str], None] | None = None) -> None:
     if not ENV_FILE.is_file():
         raise FileNotFoundError(ENV_FILE)
     log(f"creating {BASE_ENV_NAME} from {ENV_FILE}")
-    cmd = conda_cmd() + ["env", "create", "-f", str(ENV_FILE)]
-    result = subprocess.run(cmd, text=True)
-    if result.returncode != 0:
-        raise RuntimeError(f"failed to create {BASE_ENV_NAME}")
+    import conda_cli
+    result = None
+    for cmd in conda_cli.env_create_commands(str(ENV_FILE)):
+        log(f"  {' '.join(cmd)}")
+        result = subprocess.run(cmd, text=True)
+        if result.returncode == 0:
+            return
+    raise RuntimeError(f"failed to create {BASE_ENV_NAME}")
 
 
 def install_conda_extras(logger: Callable[[str], None] | None = None) -> None:
@@ -418,8 +413,9 @@ def install_conda_extras(logger: Callable[[str], None] | None = None) -> None:
             log(f"  installed {package}")
         else:
             log(f"  skipped {package}: exit {pkg.returncode}")
+    import conda_cli
     pip = subprocess.run(
-        ["conda", "run", "-n", BASE_ENV_NAME, "pip", "install", *CONDA_EXTRA_PIP],
+        conda_cli.wrap_env_run(BASE_ENV_NAME, ["pip", "install", *CONDA_EXTRA_PIP]),
         text=True, timeout=CONDA_PACKAGE_TIMEOUT,
     )
     if pip.returncode != 0:

@@ -21,7 +21,7 @@ Key Features:
     - Resumable: Skip completed questions when resuming failed runs
 
 Prerequisites:
-    1. Conda installed (Miniconda or Anaconda)
+    1. conda, mamba, or micromamba installed
     2. Node.js installed (required for Gemini and Codex CLIs)
     3. LLM CLIs installed and authenticated:
        - Claude: Install claude-code and run `claude login`
@@ -143,8 +143,9 @@ def cleanup_all_conda_envs(logger: logging.Logger | None = None) -> None:
         try:
             if logger:
                 logger.debug(f"Cleaning up conda env: {env_name}")
+            import conda_cli
             subprocess.run(
-                ["conda", "env", "remove", "-n", env_name, "-y", "-q"],
+                conda_cli.env_remove_command(env_name),
                 capture_output=True,
                 timeout=60
             )
@@ -1259,10 +1260,10 @@ BASE_ENV_NAME = "compbio-benchmark"
 
 
 def has_mamba() -> bool:
-    """Check if mamba is available."""
+    """True if the solver CLI is mamba or micromamba."""
     try:
-        result = subprocess.run(["which", "mamba"], capture_output=True, text=True, timeout=5)
-        return result.returncode == 0
+        import conda_cli
+        return Path(conda_cli.solver_cli()).name in ("mamba", "micromamba")
     except Exception:
         return False
 
@@ -1282,41 +1283,32 @@ def use_mamba() -> bool:
 def ensure_base_conda_env(logger: logging.Logger) -> bool:
     """Ensure the base compbio conda environment exists. Creates it from environment.yml if needed.
 
-    Uses mamba for env creation if available (much faster dependency solving).
+    Uses mamba or micromamba for env creation when available.
     """
+    import conda_cli
     try:
-        # Check if base env already exists
-        result = subprocess.run(
-            ["conda", "env", "list", "--json"],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        if result.returncode == 0:
-            env_data = json.loads(result.stdout)
-            env_names = [os.path.basename(e) for e in env_data.get("envs", [])]
-            if BASE_ENV_NAME in env_names:
-                logger.debug(f"Base environment '{BASE_ENV_NAME}' already exists")
-                return True
+        if conda_cli.env_exists(BASE_ENV_NAME):
+            logger.debug(f"Base environment '{BASE_ENV_NAME}' already exists")
+            return True
 
-        # Create base environment from file - try mamba first, fall back to conda
         if not os.path.exists(COMPBIO_ENV_FILE):
             logger.error(f"Environment file not found: {COMPBIO_ENV_FILE}")
             return False
 
-        for cmd in (["mamba"] if use_mamba() else []) + ["conda"]:
-            logger.info(f"Creating base environment '{BASE_ENV_NAME}' from {COMPBIO_ENV_FILE} (using {cmd})...")
+        result = None
+        for cmd in conda_cli.env_create_commands(COMPBIO_ENV_FILE):
+            logger.info(f"Creating base environment '{BASE_ENV_NAME}' from {COMPBIO_ENV_FILE} (using {cmd[0]})...")
             result = subprocess.run(
-                [cmd, "env", "create", "-f", COMPBIO_ENV_FILE],
+                cmd,
                 capture_output=True,
                 text=True,
                 timeout=900  # 15 min for full env creation
             )
             if result.returncode == 0:
                 break
-            logger.warning(f"{cmd} failed: {result.stderr[:500]}")
+            logger.warning(f"{cmd[0]} failed: {result.stderr[:500]}")
 
-        if result.returncode != 0:
+        if result is None or result.returncode != 0:
             logger.error("Failed to create base conda env with all methods")
             return False
 
@@ -1333,25 +1325,36 @@ def ensure_base_conda_env(logger: logging.Logger) -> bool:
 def clone_conda_env(clone_name: str, logger: logging.Logger) -> bool:
     """Clone the base compbio environment for a question.
 
-    Always uses conda for cloning since mamba doesn't support --clone.
-    Uses CONDA_NO_PLUGINS=true to avoid plugin conflicts in parallel execution.
+    conda uses --clone. micromamba tries --clone, then hard-link copies the prefix
+    (micromamba lacked --clone until recent versions).
     """
+    import conda_cli
     try:
         logger.debug(f"Cloning '{BASE_ENV_NAME}' -> '{clone_name}'")
         env = os.environ.copy()
         env["CONDA_NO_PLUGINS"] = "true"
+        cmd = conda_cli.clone_command(BASE_ENV_NAME, clone_name)
         result = subprocess.run(
-            ["conda", "create", "-n", clone_name, "--clone", BASE_ENV_NAME, "-q", "-y"],
+            cmd,
             capture_output=True,
             text=True,
             timeout=300,  # 5 min for clone
             env=env
         )
-        if result.returncode != 0:
-            logger.error(f"Failed to clone conda env: {result.stderr[:500]}")
-            return False
-        logger.debug(f"Cloned environment: {clone_name}")
-        return True
+        if result.returncode == 0:
+            logger.debug(f"Cloned environment: {clone_name}")
+            return True
+        src = conda_cli.env_prefix(BASE_ENV_NAME)
+        if src:
+            dest_dir = os.path.join(os.path.dirname(src), clone_name)
+            logger.warning(
+                f"--clone failed ({result.stderr[:200]}); copying {src} -> {dest_dir}"
+            )
+            conda_cli.copy_env_prefix(src, dest_dir)
+            logger.debug(f"Copied environment: {clone_name}")
+            return True
+        logger.error(f"Failed to clone conda env: {result.stderr[:500]}")
+        return False
     except subprocess.TimeoutExpired:
         logger.error("Timeout cloning conda env")
         return False
@@ -1362,10 +1365,11 @@ def clone_conda_env(clone_name: str, logger: logging.Logger) -> bool:
 
 def cleanup_conda_env(env_name: str, logger: logging.Logger) -> None:
     """Remove a conda environment."""
+    import conda_cli
     try:
         logger.debug(f"Removing conda env: {env_name}")
         subprocess.run(
-            ["conda", "env", "remove", "-n", env_name, "-y", "-q"],
+            conda_cli.env_remove_command(env_name),
             capture_output=True,
             timeout=60
         )
@@ -1375,19 +1379,11 @@ def cleanup_conda_env(env_name: str, logger: logging.Logger) -> None:
 
 def conda_env_prefix(env_name: str) -> str | None:
     """Return the filesystem prefix of a named conda env, or None."""
+    import conda_cli
     try:
-        result = subprocess.run(
-            ["conda", "env", "list", "--json"],
-            capture_output=True, text=True, timeout=30,
-        )
-        if result.returncode != 0:
-            return None
-        for path in json.loads(result.stdout).get("envs", []):
-            if os.path.basename(path.rstrip(os.sep)) == env_name:
-                return path
+        return conda_cli.env_prefix(env_name)
     except Exception:
         return None
-    return None
 
 
 class ProcessStartupHang(Exception):
@@ -1470,9 +1466,11 @@ def _execute_llm_process_once(
 
     if conda_env:
         if conda_run:
-            # --live-stream keeps system PATH (node/CLIs) visible to Claude/Codex/Gemini.
-            launch_cmd = ["conda", "run", "-n", conda_env, "--live-stream"] + launch_cmd
-            logger.debug(f"[{question_id}] Using conda run: {conda_env}")
+            import conda_cli
+            # conda --live-stream keeps system PATH (node/CLIs) visible.
+            # micromamba/mamba run has no --live-stream flag.
+            launch_cmd = conda_cli.wrap_env_run(conda_env, launch_cmd)
+            logger.debug(f"[{question_id}] Using env run: {conda_env}")
         else:
             prefix = conda_env_prefix(conda_env)
             if not prefix:
@@ -2085,10 +2083,14 @@ def _run_single_model(args) -> None:
         print(f"  {llm} model_reasoning_effort: {model_reasoning_effort}")
 
     # Ensure base conda environment exists (will be cloned for each question)
-    if use_mamba():
-        print("Using mamba for env creation (faster!), conda for cloning")
-    else:
-        print("Using conda for environment management")
+    try:
+        import conda_cli
+        print(conda_cli.describe_driver())
+    except Exception:
+        if use_mamba():
+            print("Using mamba for env creation (faster!), conda for cloning")
+        else:
+            print("Using conda for environment management")
     print("Checking base conda environment...")
     logger_init = logging.getLogger("benchmark_init")
     logger_init.setLevel(logging.INFO)

@@ -12,6 +12,7 @@ from unittest.mock import patch
 from urllib.error import URLError
 from urllib.request import Request
 
+import conda_cli
 import run_benchmark as rb
 import warmup
 
@@ -32,6 +33,66 @@ class _FakeResponse:
 
     def getcode(self):
         return self.status
+
+
+def test_micromamba_driver_selection():
+    def fake_which(name):
+        return {
+            "micromamba": "/opt/micromamba",
+            "mamba": None,
+            "conda": None,
+        }.get(name)
+
+    with patch.dict(os.environ, {"COMPBIO_CONDA_CMD": ""}), \
+         patch.object(conda_cli.shutil, "which", fake_which):
+        os.environ.pop("COMPBIO_CONDA_CMD", None)
+        assert conda_cli.solver_cli() == "/opt/micromamba"
+        assert conda_cli.manage_cli() == "/opt/micromamba"
+        assert conda_cli.wrap_env_run("compbio-benchmark", ["python", "-V"]) == [
+            "/opt/micromamba", "run", "-n", "compbio-benchmark", "python", "-V",
+        ]
+        create = conda_cli.env_create_commands("environment.yml")
+        assert create[0][:3] == ["/opt/micromamba", "env", "create"]
+        assert "-y" in create[0]
+        assert conda_cli.clone_command("compbio-benchmark", "clone1") == [
+            "/opt/micromamba", "create", "-n", "clone1", "--clone", "compbio-benchmark", "-y",
+        ]
+
+
+def test_conda_preferred_over_micromamba():
+    def fake_which(name):
+        return {
+            "conda": "/opt/conda/bin/conda",
+            "mamba": "/opt/conda/bin/mamba",
+            "micromamba": "/opt/micromamba",
+        }.get(name)
+
+    with patch.dict(os.environ, {"COMPBIO_CONDA_CMD": "micromamba"}):
+        assert conda_cli.solver_cli() == "micromamba"
+    with patch.dict(os.environ, {"COMPBIO_CONDA_CMD": ""}), \
+         patch.object(conda_cli.shutil, "which", fake_which):
+        os.environ.pop("COMPBIO_CONDA_CMD", None)
+        assert conda_cli.solver_cli() == "/opt/conda/bin/mamba"
+        assert conda_cli.manage_cli() == "/opt/conda/bin/conda"
+        wrapped = conda_cli.wrap_env_run("e", ["x"])
+        assert wrapped[:4] == ["/opt/conda/bin/conda", "run", "-n", "e"]
+        assert "--live-stream" in wrapped
+
+
+def test_parse_env_paths_and_copy():
+    assert conda_cli.parse_env_paths({
+        "envs": ["/root", "/root/envs/compbio-benchmark"]
+    })[-1].endswith("compbio-benchmark")
+    assert conda_cli.parse_env_paths({
+        "environments": [{"prefix": "/mm/envs/foo", "name": "foo"}]
+    }) == ["/mm/envs/foo"]
+    with TemporaryDirectory() as tmp:
+        src = Path(tmp) / "src"
+        dest = Path(tmp) / "dest"
+        (src / "bin").mkdir(parents=True)
+        (src / "bin" / "bowtie2").write_text("#!/bin/sh\n")
+        conda_cli.copy_env_prefix(str(src), str(dest))
+        assert (dest / "bin" / "bowtie2").is_file()
 
 
 def test_cache_dir_and_environ():
@@ -152,6 +213,9 @@ def test_dry_run_and_runtime_cache():
 
 
 def main():
+    test_micromamba_driver_selection()
+    test_conda_preferred_over_micromamba()
+    test_parse_env_paths_and_copy()
     test_cache_dir_and_environ()
     test_network_precheck_marks_failures()
     test_mount_cache_and_prompt()

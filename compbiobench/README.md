@@ -89,6 +89,8 @@ Expect `compbiobench.v1.tsv` at the dump root and files under `data/`.
 ```bash
 cd /ABS/PATH/wisp-science-benchmark/compbiobench
 conda env create -f environment.yml   # name: compbio-benchmark
+# micromamba-only machines: micromamba create -f environment.yml -y
+# or COMPBIO_CONDA_CMD=micromamba python run_benchmark.py warmup --only conda
 
 # Once per machine: conda extras, Docker/Singularity images, hg38, ENCODE ATAC
 # indexes, Hugging Face models. Idempotent; prefers files already on disk.
@@ -231,4 +233,4 @@ Same identity knobs as BiomniBench. Headless `wisp-science` does not use the des
 | `WISP_API_KEY` | Provider key |
 | `WISP_VISION` | `1` to send native image parts |
 
-The harness clones `compbio-benchmark` per question. Wisp uses the clone through `PATH`; other backends use `conda run --live-stream`. The kernel REPL still uses a per-workspace uv venv (same caveat as BiomniBench-DA).
+The harness clones `compbio-benchmark` per question. Wisp uses the clone through `PATH`; other backends use `conda run --live-stream` (or `micromamba run` when conda is absent). The kernel REPL still uses a per-workspace uv venv (same caveat as BiomniBench-DA). conda, mamba, and micromamba are supported; set `COMPBIO_CONDA_CMD` to pick the binary. micromamba clones via `--clone` when available, otherwise a hard-link copy of the env prefix.

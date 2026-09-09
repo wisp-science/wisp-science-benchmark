@@ -132,6 +132,21 @@ def test_cache_dir_and_environ():
             assert warmup.cache_environ(root)["HF_ENDPOINT"] == "https://hf-mirror.com"
 
 
+def test_link_kraken_db_from_env():
+    with TemporaryDirectory() as tmp:
+        src = Path(tmp) / "host-db"
+        src.mkdir()
+        (src / "hash.k2d").write_bytes(b"x")
+        cache = Path(tmp) / "cache"
+        with patch.dict(os.environ, {"COMPBIO_KRAKEN_DB": str(src)}), \
+             patch.object(warmup, "DEFAULT_KRAKEN_DB", Path(tmp) / "missing"):
+            dest = warmup.link_kraken_db(cache)
+        assert dest is not None
+        assert (dest / "hash.k2d").is_file()
+        assert dest.is_symlink()
+        assert dest.resolve() == src.resolve()
+
+
 def test_network_precheck_marks_failures():
     def fake_open(request, timeout=0):
         url = request.full_url if isinstance(request, Request) else request
@@ -175,6 +190,7 @@ def test_mount_cache_and_prompt():
         rb.install_workspace_instructions(str(work))
         agents = (work / "AGENTS.md").read_text()
         assert "Caper / Cromwell" in agents and "5 minutes" in agents
+        assert "kraken2 --db local_cache/kraken2/db" in agents
         assert (work / ".wisp" / "WISP.md").is_file()
         plain = rb.generate_prompt("q", None, ["a.fq"], 120, cache_mounted=False)
         assert "Get any files or tools you need from the internet." in plain
@@ -192,6 +208,7 @@ def test_download_skips_existing_and_index():
         (cache / "genomes" / "hg38").mkdir(parents=True)
         (cache / "genomes" / "hg38" / "hg38.fa").write_text(">chr1\nA\n")
         text = warmup.write_index(cache).read_text()
+        assert "Kraken2" in text
         assert "hg38 FASTA" in text
         assert "encodedcc/atac-seq-pipeline:v2.2.3" in text
         assert "ENCODE ATAC / Caper" in text
@@ -366,6 +383,7 @@ def main():
     test_conda_preferred_over_micromamba()
     test_parse_env_paths_and_copy()
     test_cache_dir_and_environ()
+    test_link_kraken_db_from_env()
     test_network_precheck_marks_failures()
     test_mount_cache_and_prompt()
     test_download_skips_existing_and_index()

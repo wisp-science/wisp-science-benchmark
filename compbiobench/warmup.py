@@ -134,6 +134,8 @@ EBI_FILES = (
 KRAKEN_STANDARD_8GB = (
     "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20240605.tar.gz"
 )
+DEFAULT_KRAKEN_DB = Path("/data/public_data/KRAKEN/DB")
+KRAKEN_CACHE_NAME = "kraken2/db"
 # Conda extras last: a full env update can stall for hours. Docker/genomes
 # are what encode-atac-pipeline-q1 and find-deletion-q1 actually block on.
 STEPS = ("network", "docker", "singularity", "genomes", "models", "conda", "caper")
@@ -262,7 +264,50 @@ def apply_cache_environ(cache_dir: Path | None = None) -> Path:
     cache_dir = cache_dir or default_cache_dir()
     for key, value in cache_environ(cache_dir).items():
         os.environ[key] = value
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    link_kraken_db(cache_dir)
     return cache_dir
+
+
+def kraken_db_source() -> Path | None:
+    raw = os.environ.get("COMPBIO_KRAKEN_DB", "").strip()
+    candidates = []
+    if raw:
+        candidates.append(Path(raw).expanduser())
+    candidates.append(DEFAULT_KRAKEN_DB)
+    for path in candidates:
+        if (path / "hash.k2d").is_file():
+            return path.resolve()
+    return None
+
+
+def kraken_db_path(cache_dir: Path | None = None) -> Path:
+    cache_dir = cache_dir or default_cache_dir()
+    return cache_dir / KRAKEN_CACHE_NAME
+
+
+def link_kraken_db(
+    cache_dir: Path | None = None,
+    logger: Callable[[str], None] | None = None,
+) -> Path | None:
+    """Expose a host Kraken2 DB under the cache as kraken2/db (hash.k2d)."""
+    log = logger or (lambda message: None)
+    cache_dir = cache_dir or default_cache_dir()
+    dest = kraken_db_path(cache_dir)
+    if (dest / "hash.k2d").is_file():
+        return dest
+    src = kraken_db_source()
+    if src is None:
+        return None
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.is_symlink() or dest.exists():
+        dest.unlink() if dest.is_symlink() else None
+        if dest.exists() and not dest.is_symlink():
+            log(f"kraken2 db exists at {dest}; not replacing")
+            return dest if (dest / "hash.k2d").is_file() else None
+    dest.symlink_to(src, target_is_directory=True)
+    log(f"kraken2 db -> {src} ({dest})")
+    return dest
 
 
 def url_filename(url: str) -> str:
@@ -859,6 +904,10 @@ def cache_kraken(
     logger: Callable[[str], None] | None = None,
 ) -> None:
     log = logger or (lambda message: print(message, flush=True))
+    linked = link_kraken_db(cache_dir, logger=log)
+    if linked is not None and (linked / "hash.k2d").is_file() and not force:
+        log(f"kraken2 using existing db {linked}")
+        return
     dest = cache_dir / "kraken2" / "k2_standard_08gb_20240605.tar.gz"
     log(f"kraken2 {dest}")
     try:
@@ -885,6 +934,17 @@ def write_index(cache_dir: Path) -> Path:
         "",
         f"- Absolute path: `{cache_dir}`",
         f"- `COMPBIO_CACHE_DIR` and Hugging Face / Singularity cache env vars point here.",
+        "",
+        "## Kraken2",
+        "",
+    ]
+    kdb = kraken_db_path(cache_dir)
+    if (kdb / "hash.k2d").is_file():
+        lines.append(f"- Ready at `{CACHE_LINK_NAME}/kraken2/db` (`kraken2 --db {CACHE_LINK_NAME}/kraken2/db`).")
+        lines.append("  Do not download genome-idx tarballs.")
+    else:
+        lines.append("- No local DB. Set `COMPBIO_KRAKEN_DB` to a directory that contains `hash.k2d`.")
+    lines += [
         "",
         "## Containers",
         "",
@@ -1069,6 +1129,8 @@ def print_status(cache_dir: Path) -> None:
         ok = path.is_file() and path.stat().st_size == OPENSPLICEAI_PT_SIZE
         print(f"openspliceai {name}: {'yes' if ok else 'no'}")
     print(f"conda {BASE_ENV_NAME}: {'yes' if conda_env_exists(BASE_ENV_NAME) else 'no'}")
+    kdb = kraken_db_path(cache_dir)
+    print(f"kraken2 db: {'yes' if (kdb / 'hash.k2d').is_file() else 'no'}")
     if conda_env_exists(BASE_ENV_NAME):
         for package, binary in (*CONDA_EXTRA_PACKAGES, ("idr", "idr")):
             print(f"  {package}: {'yes' if conda_has_binary(BASE_ENV_NAME, binary) else 'no'}")

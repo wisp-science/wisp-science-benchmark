@@ -12,6 +12,13 @@ A read-only cache is mounted at `local_cache/` (same tree as
 containers, and models. See `local_cache/INDEX.md`. Hugging Face and
 Singularity cache environment variables already point there.
 
+## Kraken2
+
+If `local_cache/kraken2/db/hash.k2d` exists, classify with
+`kraken2 --db local_cache/kraken2/db`. That is a host-provided database
+already on this machine. Do **not** `axel`/`wget` `k2_pluspf_*.tar.gz` or
+other genome-idx Kraken tarballs.
+
 ## Caper / Cromwell
 
 Timeouts on ENCODE ATAC (`encode-atac-pipeline-q1`) were Caper/Cromwell

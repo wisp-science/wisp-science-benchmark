@@ -139,6 +139,7 @@ cd /ABS/PATH/wisp-science-benchmark/compbiobench
 python run_benchmark.py warmup
 # python run_benchmark.py warmup --status
 # python run_benchmark.py warmup --only models,conda   # 只重试缺的步骤
+# python run_benchmark.py warmup --only caper          # 最小 hello.wdl 探测 Caper/Cromwell 启动
 # bioconda 的 idr 没有 py3.11 构建；warmup 先装 Cython 再从 .pyx 重编 kundajelab/idr（不要 pip install idr）
 # COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
@@ -171,7 +172,7 @@ python prepare_csv.py \
 | 暂时仅在 full 运行 | 额外资源；题目输入已下载 |
 | --- | --- |
 | `contaminated-rna-q1/q2/q3` | 未知污染物分类所用的综合参考库，例如 Kraken2 数据库 |
-| `encode-atac-pipeline-q1` | ENCODE ATAC 管线的参考数据包和比对索引 |
+| `encode-atac-pipeline-q1` | ENCODE ATAC 管线的参考数据包和比对索引。近期超时多半是 Caper/Cromwell **没启动**（没有 workflow UUID、没有 `cromwell-executions/`），不是比对算不完；Kimi/Grok 真正跑起来大约 25–30 分钟。不要加长外层 `-t`。重跑必须 `--force-rerun`，否则会复用旧 workspace 里的 `qc.json`。prompt / `local_cache/INDEX.md` 要求独立 HSQLDB、保存 Cromwell stderr、5 分钟无 UUID 就判启动失败。 |
 | `find-deletion-q1` | hg38 基因组序列和比对索引 |
 
 这是一份暂定的资源筛选名单，不代表这些题的所有解法都必须下载大文件，也不保证默认集完全离线或不会超时。`pooled-infer-donors-q1`、`tissue-fibroblast-q1`、`odd-one-out-q1` 的 BAM/RDS/压缩包已经提供，保留在默认集；API 查询、元数据检索、长计算和安装等待不作为自动排除理由。后续需核对原始工具调用再扩充名单，不根据某个模型是否答对或超时来选题。

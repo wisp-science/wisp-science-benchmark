@@ -136,7 +136,7 @@ KRAKEN_STANDARD_8GB = (
 )
 # Conda extras last: a full env update can stall for hours. Docker/genomes
 # are what encode-atac-pipeline-q1 and find-deletion-q1 actually block on.
-STEPS = ("network", "docker", "singularity", "genomes", "models", "conda")
+STEPS = ("network", "docker", "singularity", "genomes", "models", "conda", "caper")
 CONDA_EXTRA_PACKAGES = (
     ("bowtie2", "bowtie2"),
     ("macs2", "macs2"),
@@ -157,6 +157,17 @@ IDR_PIP_SPEC = "https://github.com/kundajelab/idr/archive/refs/tags/2.0.4.2.tar.
 IDR_CYTHON_SPEC = "Cython>=0.29.32,<3"
 IDR_PIP_ARGS = ("--no-build-isolation", "--no-deps", IDR_PIP_SPEC)
 CONDA_PACKAGE_TIMEOUT = 900
+CAPER_SMOKE_TIMEOUT = 300
+CAPER_SMOKE_DIR = "caper-smoke"
+HELLO_WDL = """version 1.0
+workflow hello_probe {
+  call echo
+}
+task echo {
+  command { echo ok }
+  output { String out = read_string(stdout()) }
+}
+"""
 DEFAULT_DOCKER_MIRRORS = ("docker.m.daocloud.io",)
 
 
@@ -490,6 +501,93 @@ def install_conda_extras(logger: Callable[[str], None] | None = None) -> None:
             log("  skipped idr: pip install failed")
         else:
             log("  installed idr")
+
+
+def caper_smoke_marker(cache_dir: Path) -> Path:
+    return cache_dir / CAPER_SMOKE_DIR / "SUCCEEDED"
+
+
+def caper_smoke_ok(work: Path, result: subprocess.CompletedProcess) -> bool:
+    parts = [result.stdout or "", result.stderr or ""]
+    for name in ("caper.stderr", "cromwell.stdout"):
+        path = work / name
+        if path.is_file():
+            parts.append(path.read_text(encoding="utf-8", errors="replace"))
+    combined = "\n".join(parts)
+    if "status=Succeeded" in combined or "Cromwell finished successfully" in combined:
+        return True
+    meta = work / "metadata.json"
+    if not meta.is_file() or meta.stat().st_size == 0:
+        return False
+    try:
+        data = json.loads(meta.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return False
+    status = str(data.get("status") or "").lower()
+    return status == "succeeded" or bool(data.get("id") and data.get("outputs"))
+
+
+def probe_caper_launch(
+    cache_dir: Path,
+    logger: Callable[[str], None] | None = None,
+    *,
+    force: bool = False,
+) -> None:
+    """Run a hello.wdl through Caper local backend to catch Cromwell start failures."""
+    log = logger or (lambda message: print(message, flush=True))
+    marker = caper_smoke_marker(cache_dir)
+    if marker.is_file() and not force:
+        log(f"caper smoke already succeeded ({marker})")
+        return
+    if not conda_env_exists(BASE_ENV_NAME):
+        log("  skip caper smoke: conda env missing")
+        return
+    if not conda_has_binary(BASE_ENV_NAME, "java"):
+        log("  skip caper smoke: java not in env")
+        return
+    if not conda_has_module(BASE_ENV_NAME, "caper"):
+        log("  skip caper smoke: caper not installed")
+        return
+    import conda_cli
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    work = cache_dir / CAPER_SMOKE_DIR / stamp
+    work.mkdir(parents=True, exist_ok=True)
+    wdl = work / "hello.wdl"
+    wdl.write_text(HELLO_WDL)
+    db = work / "cromwell-db"
+    out = work / "out"
+    cromwell_out = work / "cromwell.stdout"
+    meta = work / "metadata.json"
+    cmd = conda_cli.wrap_env_run(BASE_ENV_NAME, [
+        "caper", "run", str(wdl),
+        "-b", "local",
+        "--ignore-womtool",
+        "--disable-call-caching",
+        "--file-db", str(db),
+        "--local-out-dir", str(out),
+        "--cromwell-stdout", str(cromwell_out),
+        "-m", str(meta),
+    ])
+    log(f"  {' '.join(cmd)}")
+    try:
+        result = subprocess.run(
+            cmd, cwd=str(work), text=True, timeout=CAPER_SMOKE_TIMEOUT,
+            capture_output=True,
+        )
+    except subprocess.TimeoutExpired as exc:
+        (work / "caper.stdout").write_text(exc.stdout or "")
+        (work / "caper.stderr").write_text(
+            f"{exc.stderr or ''}\nTIMEOUT after {CAPER_SMOKE_TIMEOUT}s\n"
+        )
+        log(f"  caper smoke timed out after {CAPER_SMOKE_TIMEOUT}s; logs in {work}")
+        return
+    (work / "caper.stdout").write_text(result.stdout or "")
+    (work / "caper.stderr").write_text(result.stderr or "")
+    if caper_smoke_ok(work, result):
+        marker.write_text(f"{stamp}\n{work}\n", encoding="utf-8")
+        log(f"  caper smoke succeeded: {work}")
+        return
+    log(f"  caper smoke failed (exit {result.returncode}); logs in {work}")
 
 
 def docker_available() -> bool:
@@ -826,6 +924,25 @@ def write_index(cache_dir: Path) -> Path:
         f"- Base env `{BASE_ENV_NAME}` is cloned per question. Warmup installs bowtie2,",
         "  macs2, idr, picard, cutadapt, chromap, kraken2, STAR, and caper into it.",
         "",
+        "## ENCODE ATAC / Caper",
+        "",
+        "Timeouts on encode-atac-pipeline-q1 have been Caper/Cromwell **launch**",
+        "failures (HSQLDB init, no workflow UUID, no `cromwell-executions/`), not",
+        "alignment runtime. Successful runs finished in about 25–30 minutes once",
+        "Cromwell started. Do not sit on a hung launch until the question timeout.",
+        "",
+        "- Use a unique Cromwell/HSQLDB file and output directory in this workspace.",
+        "- Persist Caper and Cromwell stderr to files here; a killed run otherwise",
+        "  leaves no error log.",
+        "- If there is no workflow UUID and no `cromwell-executions/` within 5",
+        "  minutes, abort that launch and retry with a fresh DB.",
+        "- Keep the pipeline timeout several minutes below the question limit so",
+        "  you can extract `qc.json` and emit the final answer.",
+        "- Do not treat leftover `atac_out/` or `qc.json` as success unless this",
+        "  attempt produced them.",
+        "",
+        f"- Warmup `caper` step: {caper_smoke_status(cache_dir)}.",
+        "",
         "If a file is missing, fetch it from the internet as usual.",
         "",
     ]
@@ -863,6 +980,12 @@ def prompt_cache_instructions() -> list[str]:
         "genomes, aligner indexes, containers, and models. See "
         f"{CACHE_LINK_NAME}/INDEX.md.",
         "- If a needed file is missing from the cache, get it from the internet.",
+        "- If you launch Caper/Cromwell: unique HSQLDB + output dir in this "
+        "workspace; persist stderr to a file; if there is no workflow UUID or "
+        "cromwell-executions/ within 5 minutes, treat it as a launch failure "
+        "and retry with a fresh DB instead of waiting out the full timeout. "
+        "Leave several minutes to extract the answer. Do not submit leftover "
+        "outputs from an earlier attempt unless this run produced them.",
     ]
 
 
@@ -887,6 +1010,17 @@ def format_network_results(results: list[ProbeResult]) -> str:
             f"  [{mark}] {item.family}/{item.name}{extra} {item.elapsed_ms}ms{err}"
         )
     return "\n".join(lines)
+
+
+def caper_smoke_status(cache_dir: Path) -> str:
+    marker = caper_smoke_marker(cache_dir)
+    if marker.is_file():
+        first = marker.read_text(encoding="utf-8").splitlines()[:1]
+        return f"succeeded {first[0]}" if first else "succeeded"
+    root = cache_dir / CAPER_SMOKE_DIR
+    if root.is_dir() and any(root.iterdir()):
+        return f"failed or incomplete; see {root}"
+    return "not run"
 
 
 def selected_steps(only: str, skip: str) -> set[str]:
@@ -942,6 +1076,7 @@ def print_status(cache_dir: Path) -> None:
     if conda_env_exists(BASE_ENV_NAME):
         for package, binary in (*CONDA_EXTRA_PACKAGES, ("idr", "idr")):
             print(f"  {package}: {'yes' if conda_has_binary(BASE_ENV_NAME, binary) else 'no'}")
+    print(f"caper smoke: {caper_smoke_status(cache_dir)}")
 
 
 def cmd_warmup(args) -> None:
@@ -971,6 +1106,7 @@ def cmd_warmup(args) -> None:
             log(f"  genome {key} {url_filename(url)}")
         for repo in HF_MODELS:
             log(f"  hf {repo}")
+        log("  caper run hello.wdl -b local (unique HSQLDB, 5 min timeout)")
         return
 
     runners = {
@@ -980,6 +1116,7 @@ def cmd_warmup(args) -> None:
         "genomes": lambda: cache_genomes(cache_dir, force=force, logger=log),
         "models": lambda: cache_models(cache_dir, force=force, logger=log),
         "conda": lambda: install_conda_extras(log),
+        "caper": lambda: probe_caper_launch(cache_dir, logger=log, force=force),
     }
     for step in STEPS:
         if step in steps:
@@ -1005,7 +1142,7 @@ def add_warmup_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--cache-dir", default=None, help="Override COMPBIO_CACHE_DIR")
     parser.add_argument(
         "--only", default="",
-        help="Comma-separated steps: network,conda,docker,singularity,genomes,models",
+        help="Comma-separated steps: network,conda,docker,singularity,genomes,models,caper",
     )
     parser.add_argument("--skip", default="", help="Comma-separated steps to skip")
     parser.add_argument("--with-kraken", action="store_true", help="Also cache an 8GB Kraken2 DB")

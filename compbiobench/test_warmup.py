@@ -171,6 +171,7 @@ def test_mount_cache_and_prompt():
         prompt = rb.generate_prompt("q", None, ["a.fq"], 120, cache_mounted=True)
         assert "local_cache/" in prompt and "INDEX.md" in prompt
         assert "Prefer it over re-downloading" in prompt
+        assert "Caper/Cromwell" in prompt and "5 minutes" in prompt
         plain = rb.generate_prompt("q", None, ["a.fq"], 120, cache_mounted=False)
         assert "Get any files or tools you need from the internet." in plain
         assert "local_cache/" not in plain
@@ -189,6 +190,9 @@ def test_download_skips_existing_and_index():
         text = warmup.write_index(cache).read_text()
         assert "hg38 FASTA" in text
         assert "encodedcc/atac-seq-pipeline:v2.2.3" in text
+        assert "ENCODE ATAC / Caper" in text
+        assert "cromwell-executions" in text
+        assert "not run" in text
         assert json.loads((cache / "manifest.json").read_text())["cache_dir"] == str(cache)
         report = warmup.write_network_report(cache, [
             warmup.ProbeResult(
@@ -260,7 +264,8 @@ def test_dry_run_and_runtime_cache():
         assert "kuleshov-group/caduceus" in out
         assert "ENCFF110MCL" in out
         assert "johahi/borzoi-replicate-0" in out
-        assert "dry-run steps: network, docker, singularity, genomes, models, conda" in out
+        assert "dry-run steps: network, docker, singularity, genomes, models, conda, caper" in out
+        assert "caper run hello.wdl" in out
 
         cache = Path(tmp) / "ready"
         cache.mkdir()
@@ -275,6 +280,35 @@ def test_dry_run_and_runtime_cache():
             path = rb.prepare_runtime_cache(logger)
             assert path == str(cache.resolve())
             assert os.environ["HF_HOME"].startswith(str(cache.resolve()))
+
+
+def test_caper_smoke_uses_unique_file_db_and_skips_success():
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(list(cmd))
+        class Result:
+            returncode = 0
+            stdout = ""
+            stderr = (
+                "Workflow: id=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee, status=Succeeded\n"
+                "Cromwell finished successfully.\n"
+            )
+        return Result()
+
+    with TemporaryDirectory() as tmp:
+        cache = Path(tmp)
+        with patch.object(warmup, "conda_env_exists", return_value=True), \
+             patch.object(warmup, "conda_has_binary", return_value=True), \
+             patch.object(warmup, "conda_has_module", return_value=True), \
+             patch.object(warmup.subprocess, "run", fake_run):
+            warmup.probe_caper_launch(cache, logger=lambda _m: None)
+            warmup.probe_caper_launch(cache, logger=lambda _m: None)
+        assert len(calls) == 1
+        cmd = calls[0]
+        assert "caper" in cmd and "--file-db" in cmd and "--cromwell-stdout" in cmd
+        assert cmd[cmd.index("-b") + 1] == "local"
+        assert (cache / "caper-smoke" / "SUCCEEDED").is_file()
 
 
 def test_idr_uses_kundajelab_pip_not_bioconda():
@@ -335,6 +369,7 @@ def main():
     test_openspliceai_skips_after_host_error()
     test_huggingface_prefers_hf_and_skips_cache()
     test_dry_run_and_runtime_cache()
+    test_caper_smoke_uses_unique_file_db_and_skips_success()
     test_idr_uses_kundajelab_pip_not_bioconda()
     test_idr_installs_cython_before_extension_build()
     print("ok: warmup cache, network precheck, prompt, and local preference")

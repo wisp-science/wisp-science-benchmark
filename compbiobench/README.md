@@ -145,6 +145,7 @@ cd /ABS/PATH/wisp-science-benchmark/compbiobench
 python run_benchmark.py warmup
 # python run_benchmark.py warmup --status
 # python run_benchmark.py warmup --only models,conda   # retry only missing steps
+# python run_benchmark.py warmup --only caper          # hello.wdl probe of Caper/Cromwell startup
 # bioconda idr has no py3.11 build; warmup installs Cython then rebuilds kundajelab/idr from .pyx (not PyPI "idr")
 # COMPBIO_DOCKER_MIRRORS=docker.m.daocloud.io python run_benchmark.py warmup
 
@@ -177,7 +178,7 @@ The initial manual list is in [`FULL_ONLY_QUESTIONS`](run_benchmark.py), based o
 | Full only for now | Additional resources; question inputs are already downloaded |
 | --- | --- |
 | `contaminated-rna-q1/q2/q3` | Broad taxonomic reference data, such as a Kraken2 database, for unknown contaminants |
-| `encode-atac-pipeline-q1` | ENCODE ATAC reference bundle and alignment indexes |
+| `encode-atac-pipeline-q1` | ENCODE ATAC reference bundle and alignment indexes. Recent timeouts were Caper/Cromwell **launch** failures (no workflow UUID, no `cromwell-executions/`), not alignment runtime; Kimi/Grok finished in ~25–30 min once Cromwell started. Do not raise `-t`. Reruns need `--force-rerun` or leftover `qc.json` is reused. The prompt and `local_cache/INDEX.md` require a unique HSQLDB, persisted Cromwell stderr, and treating a 5-minute UUID-less launch as failure. |
 | `find-deletion-q1` | hg38 genome sequence and alignment index |
 
 This provisional list does not claim that every solution requires large downloads, or that the default profile is offline or timeout-free. `pooled-infer-donors-q1`, `tissue-fibroblast-q1`, and `odd-one-out-q1` remain in default because their BAM/RDS/archives are supplied. API queries, metadata retrieval, long computation, and installation waits are not automatic exclusion criteria. Extend the list after reviewing raw tool calls, independently of a model's correctness or timeout outcomes.

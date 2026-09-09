@@ -1,6 +1,6 @@
 question_id	max_agree	reason	missing_models	answer_counts
 ml-model-track-overlap-q1	2	agreement-below-3		2×3600; 1×1300; 1×1,300; 1×100
-reverse-search-gwas-q1	2	agreement-below-3		2×28628107; 1×Systematically fetch harmonised `.h.tsv.gz` files for immune/Ig-trait studies (f; 1×The safest next action is to resume exact numerical matching against original su; 1×I'll pull the All of Us lab-GWAS papers and the GAMUT supplementary lead SNPs ne
+reverse-search-gwas-q1	2	agreement-below-3		2×28628107; 1×Systematically fetch harmonised `.h.tsv.gz` files for immune/Ig-trait studies (f; 1×The iteration limit was reached before the PMID could be verified. The file cont; 1×I'll keep matching the file against published globulin/IgG studies and look up C
 contaminated-rna-q3	2	agreement-below-3	GLM-5.3	2×pan; 1×mesomycoplasma; 1×mycoplasma
 encode-atac-pipeline-q1	1	no-shared-answer	GLM-5.3,gpt-5.6-sol,gpt-6-astra,grok-4.6	1×29597
 conservation-lookup-q1	2	agreement-below-3		2×9,16,0,20,5,24,35; 2×0,7,0,20,5,24,27; 1×12,19,3,23,17,27,38

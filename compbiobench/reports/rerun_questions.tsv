@@ -1,14 +1,12 @@
 question_id	max_agree	reason	missing_models	answer_counts
-ml-model-track-overlap-q1	2	agreement-below-3	GLM-5.3	2×1300; 2×3600
-reverse-search-gwas-q1	1	no-shared-answer	GLM-5.3,grok-4.6,kimi-k3	1×37164013; 1×The safest next action is to resume exact numerical matching against original su
-contaminated-rna-q3	2	agreement-below-3	gpt-6-astra	2×mesomycoplasma; 2×pan
-encode-atac-pipeline-q1	1	no-shared-answer	gpt-5.6-sol,gpt-6-astra,grok-4.6	1×All intermediate files are inside the workspace; nothing scientific was deleted.; 1×29597
-conservation-lookup-q1	2	agreement-below-3		2×9,16,0,20,5,24,35; 2×0,7,0,20,5,24,27; 1×9,16,0,29,14,24,35
-finding-geo-q1	2	agreement-below-3	grok-4.6	2×GSE114176; 1×Run the exact fingerprint test (barcode + total-UMI + detected-gene-count triple; 1×Strong neuroblast signature — likely developing/embryonic brain. Let me refine.
-contaminated-rna-q2	1	no-shared-answer	GLM-5.3,gpt-6-astra,kimi-k3	1×macaca mulatta; 1×lymphocryptovirus humangamma4
-reverse-encode-q1	1	no-shared-answer	GLM-5.3,gpt-5.6-sol,grok-4.6,kimi-k3	1×ENCSR597URK
-find-deletion-q1	2	agreement-below-3	GLM-5.3,gpt-6-astra,kimi-k3	2×chr22:20000000-21000000
-gwas-ancestry-q1	2	agreement-below-3		2×AFR; 1×- Safest next action: finish/fix downloads (EAS=2/2a, EUR=f/f7, plus verify AA/H; 1×HIS; 1×EAS
-phase-chain-q1	2	agreement-below-3		2×A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A; 1×C-D-G-D-A-G-T|T-I-C-I-T-A-G; 1×A-C-T-T-C-A-C-G|C-T-A-I-G-D-I-A; 1×A-C-T-D-C-A-G-C-G|C-T-A-G-G-G-C-G-A
-reverse-search-gwas-q2	2	agreement-below-3	GLM-5.3	2×36224396; 1×25865494; 1×34128465
-contaminated-rna-q1	1	no-shared-answer	GLM-5.3,gpt-6-astra	1×mus musculus; 1×hydra vulgaris; 1×human gammaherpesvirus 4
+ml-model-track-overlap-q1	2	agreement-below-3		2×3600; 1×1300; 1×1,300; 1×100
+reverse-search-gwas-q1	2	agreement-below-3		2×28628107; 1×Systematically fetch harmonised `.h.tsv.gz` files for immune/Ig-trait studies (f; 1×The safest next action is to resume exact numerical matching against original su; 1×I'll pull the All of Us lab-GWAS papers and the GAMUT supplementary lead SNPs ne
+contaminated-rna-q3	1	no-shared-answer	GLM-5.3,gpt-6-astra	1×mesomycoplasma; 1×pan; 1×mycoplasma
+encode-atac-pipeline-q1	1	no-shared-answer	GLM-5.3,gpt-5.6-sol,gpt-6-astra,grok-4.6	1×29597
+conservation-lookup-q1	2	agreement-below-3		2×9,16,0,20,5,24,35; 2×0,7,0,20,5,24,27; 1×12,19,3,23,17,27,38
+finding-geo-q1	2	agreement-below-3	GLM-5.3,grok-4.6	2×GSE114176; 1×GSE178931
+contaminated-rna-q2	1	no-shared-answer	gpt-6-astra,kimi-k3	1×Resume with the already-downloaded mouse transcriptome: finish `bwa index mouse_; 1×sus scrofa; 1×human gammaherpesvirus 4
+reverse-encode-q1	1	no-shared-answer	GLM-5.3,gpt-5.6-sol,grok-4.6	1×ENCSR597URK; 1×Please approve internet access for ENCODE API/file downloads so I can identify a
+find-deletion-q1	4	default-skipped	gpt-6-astra	4×chr22:20000000-21000000
+gwas-ancestry-q1	2	agreement-below-3	GLM-5.3,kimi-k3	2×HIS; 1×AFR
+contaminated-rna-q1	3	default-skipped	GLM-5.3,gpt-6-astra	3×hydra vulgaris

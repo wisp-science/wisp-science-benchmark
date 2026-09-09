@@ -8,6 +8,4 @@ contaminated-rna-q2
 reverse-encode-q1
 find-deletion-q1
 gwas-ancestry-q1
-phase-chain-q1
-reverse-search-gwas-q2
 contaminated-rna-q1

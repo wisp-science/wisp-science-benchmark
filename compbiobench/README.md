@@ -20,15 +20,15 @@ Copy [`.env.example`](.env.example).
 
 The [answer table](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/)
 contains 100 questions each for GLM-5.3, gpt-5.6-sol, grok-4.6, and kimi-k3,
-plus 95 for gpt-6-astra, imported from the 2026-09-07 `archive_clean.zip` update.
+plus 95 for gpt-6-astra, imported from the 2026-09-09 `archive_clean.zip` update.
 GPT-6 Astra's default run configuration skipped 5 questions requiring external
 reference resources; the original reasons are retained in the metadata. Rows are
 question names, columns are models, and cells are original answers. CSV download
-is available. All answers and execution timestamps come from the latest archive;
-all 95 GPT-6 Astra records have returned output. The remaining 29 timeouts and
-5 skipped cells display `NA`.
-Model-authored `NA` answers and one API error remain unchanged. Original errors
-are retained in `reports/results.json`.
+is available. Eight GPT-6 Astra force-rerun questions had no new `result.json` in
+the archive, so those cells keep the previous completed answers. The remaining 22
+timeouts and 5 skipped cells display `NA`.
+Model-authored `NA` answers remain unchanged. Original errors are retained in
+`reports/results.json`.
 No correctness grading or performance ranking is applied.
 
 `reports/results.json` retains question text, original answers, statuses, and run

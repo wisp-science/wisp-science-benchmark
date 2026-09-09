@@ -19,12 +19,12 @@ flowchart LR
 ## 已整理的运行结果
 
 [在线答案表](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/) 来自
-2026-09-07 更新的 `archive_clean.zip`，包含 GLM-5.3、gpt-5.6-sol、grok-4.6、kimi-k3
+2026-09-09 更新的 `archive_clean.zip`，包含 GLM-5.3、gpt-5.6-sol、grok-4.6、kimi-k3
 各 100 题，以及 gpt-6-astra 的 95 题，共 495 条运行记录。gpt-6-astra 的 default
 配置因外部参考数据依赖预先跳过了 5 题，原始跳过原因保存在结果元数据中。
-全部答案和运行时间均来自最新压缩包，其中 gpt-6-astra 的 95 条记录均已返回输出。
-行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。当前 29 条 timeout
-和 5 格未运行显示为 `NA`；模型本身输出的 `NA` 和 1 条 API 中断错误保留原样。
+压缩包里 gpt-6-astra 有 8 题正在 force-rerun、没有新的 `result.json`，这 8 格沿用上一版已完成答案。
+行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。当前 22 条 timeout
+和 5 格未运行显示为 `NA`；模型本身输出的 `NA` 保留原样。
 原始错误信息仍保存在 `reports/results.json` 中。
 未进行正确性评分，也不按答案排序模型。
 

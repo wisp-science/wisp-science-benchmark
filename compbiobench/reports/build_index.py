@@ -19,8 +19,19 @@ OUT = HERE.parents[1] / "docs" / "compbiobench"
 RESULTS = HERE / "results.json"
 
 
-def import_archive(path):
+def previous_result(previous, model, qid):
+    if not previous:
+        return None
+    for question in previous.get("questions") or []:
+        if question.get("id") == qid:
+            return (question.get("results") or {}).get(model)
+    return None
+
+
+def import_archive(path, previous=None):
     models, questions = {}, {}
+    if previous is None and RESULTS.is_file():
+        previous = json.loads(RESULTS.read_text(encoding="utf-8"))
     with ZipFile(path) as archive:
         for name in sorted(archive.namelist()):
             if not name.endswith("/run_metadata.json"):
@@ -69,13 +80,30 @@ def import_archive(path):
         raise ValueError("No benchmark results found in archive")
     for model, meta in models.items():
         actual = {qid for qid, question in questions.items() if model in question["results"]}
+        selected = meta["selected_question_ids"]
+        skipped = set(meta["skipped_questions"])
+        unexplained = (set(selected) - actual - skipped) if selected is not None else set()
+        reused = []
+        for qid in sorted(unexplained):
+            result = previous_result(previous, model, qid)
+            if not result:
+                continue
+            question = questions.get(qid)
+            if question is None:
+                continue
+            question["results"][model] = result
+            actual.add(qid)
+            reused.append(qid)
+        if reused:
+            print(f"warning: reused {len(reused)} previous {model} result(s) missing from archive:")
+            for qid in reused:
+                print(f"  {qid}")
         if len(actual) != meta["total_questions"]:
             raise ValueError(f"Incomplete question set for {model}: {len(actual)} results")
-        selected = meta["selected_question_ids"]
         if selected is not None and (set(selected) != actual or len(selected) != len(actual)):
             raise ValueError(f"Selected question IDs do not match results for {model}")
         missing = set(questions) - actual
-        if missing != set(meta["skipped_questions"]):
+        if missing != skipped:
             raise ValueError(f"Missing questions are not explained by run metadata for {model}")
         for qid in missing:
             questions[qid]["results"][model] = {

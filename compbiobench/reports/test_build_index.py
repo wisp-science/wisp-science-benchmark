@@ -107,6 +107,30 @@ def check():
             else:
                 raise AssertionError("Missing results or inconsistent selection metadata must be rejected")
 
+        previous = {
+            "questions": [{
+                "id": "first-in-zip", "index": 1, "question": "Question <&>",
+                "results": {"model-b": {"answer": "kept", "status": "success", "timestamp": "old"}},
+            }]
+        }
+        reuse_meta = {
+            **meta, "total_questions": 2,
+            "selected_question_ids": ["first-in-zip", "second-in-zip"],
+            "skipped_questions": {},
+        }
+        with ZipFile(subset_path, "w") as archive:
+            for name, content in entries.items():
+                archive.writestr(name, json.dumps(reuse_meta) if name == meta_name else content)
+        try:
+            import_archive(subset_path, previous=None)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("Unexplained missing results must be rejected without a previous snapshot")
+        reused = import_archive(subset_path, previous=previous)
+        kept = reused["questions"][1]["results"]["model-b"]
+        assert kept["answer"] == "kept" and kept["timestamp"] == "old"
+
         with ZipFile(path, "a") as archive:
             archive.writestr("benchmark_runs/model-b/questions/duplicate/result.json", json.dumps(result))
         try:

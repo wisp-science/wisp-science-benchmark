@@ -210,6 +210,8 @@ python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv -n 1 -t
 
 `run` 会预检 ENCODE、Hugging Face、NCBI、GEO、EBI，并把 `$COMPBIO_CACHE_DIR` 挂进每题工作区的 `local_cache/`，同时把 Hugging Face / Singularity 的环境变量指到这份缓存。prompt 会要求模型先用缓存、再上网。`--skip-network-check` 跳过预检。`--cache-dir` 覆盖默认路径（`~/benchmark/compbiobench-cache`）。
 
+每题 workspace 会写入 `AGENTS.md` 和 `.wisp/WISP.md`（同一份内容，来自本目录 `AGENTS.md`）。Wisp 开会话时读取它们（有 `WISP.md` 时优先），Codex 一类 backend 读 `AGENTS.md`。缓存路径、conda PATH、Caper/Cromwell 启动规则都在这里，不必指望模型去翻 `local_cache/INDEX.md`。
+
 Wisp 用克隆环境的 `bin/` 拼进 `PATH` 启动（不用 `conda run`，后者可能整段 `-t` 都零输出）。进程 180 秒没有任何输出会被杀掉并重试一次（`BENCH_STARTUP_SILENCE_SEC=0` 关闭）。PyPI 不通时设 `UV_INDEX_URL`（`wisp-run.sh` 里 `UV_HTTP_TIMEOUT` 默认 30）。
 
 续跑：

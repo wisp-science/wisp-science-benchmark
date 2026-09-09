@@ -171,7 +171,11 @@ def test_mount_cache_and_prompt():
         prompt = rb.generate_prompt("q", None, ["a.fq"], 120, cache_mounted=True)
         assert "local_cache/" in prompt and "INDEX.md" in prompt
         assert "Prefer it over re-downloading" in prompt
-        assert "Caper/Cromwell" in prompt and "5 minutes" in prompt
+        assert "AGENTS.md" in prompt and ".wisp/WISP.md" in prompt
+        rb.install_workspace_instructions(str(work))
+        agents = (work / "AGENTS.md").read_text()
+        assert "Caper / Cromwell" in agents and "5 minutes" in agents
+        assert (work / ".wisp" / "WISP.md").is_file()
         plain = rb.generate_prompt("q", None, ["a.fq"], 120, cache_mounted=False)
         assert "Get any files or tools you need from the internet." in plain
         assert "local_cache/" not in plain

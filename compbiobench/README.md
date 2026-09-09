@@ -216,6 +216,8 @@ Start with `-n 1`. Conda clones are expensive.
 
 `run` probes ENCODE, Hugging Face, NCBI, GEO, and EBI, then mounts `$COMPBIO_CACHE_DIR` into each workspace as `local_cache/` and points Hugging Face / Singularity env vars at it. The prompt tells the agent to use that cache before downloading. `--skip-network-check` skips the probes. `--cache-dir` overrides the location (default `~/benchmark/compbiobench-cache`).
 
+Each question workspace gets `AGENTS.md` and `.wisp/WISP.md` (the same text, from this directory’s `AGENTS.md`). Wisp loads them at session start (`WISP.md` wins if both exist); Codex-style backends read `AGENTS.md`. Cache paths, conda PATH, and Caper/Cromwell launch rules live there so the model does not have to discover `local_cache/INDEX.md`.
+
 Wisp is launched by prepending the cloned env’s `bin/` to `PATH` (not `conda run`, which can sit silent for the full `-t`). If the process emits nothing for 180s, the harness kills it and retries once (`BENCH_STARTUP_SILENCE_SEC=0` disables). On a blocked PyPI, set `UV_INDEX_URL` (and `UV_HTTP_TIMEOUT`, default 30 in `wisp-run.sh`).
 
 Resume:

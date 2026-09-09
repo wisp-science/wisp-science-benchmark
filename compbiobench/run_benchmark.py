@@ -1145,6 +1145,28 @@ def safe_question_id(question_id: str) -> str:
     return question_id.replace('/', '_').replace(' ', '_')[:50]
 
 
+WORKSPACE_AGENTS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "AGENTS.md")
+
+
+def install_workspace_instructions(work_dir: str, logger: logging.Logger | None = None) -> None:
+    """Copy session-start rules Wisp loads from the workspace root.
+
+    Headless Wisp injects `AGENTS.md` and, if present, `.wisp/WISP.md`
+    (WISP.md wins when both exist). Codex-style backends also read AGENTS.md.
+    """
+    if not os.path.isfile(WORKSPACE_AGENTS_FILE):
+        if logger:
+            logger.debug("No AGENTS.md next to run_benchmark.py; skipping workspace instructions")
+        return
+    dest_agents = os.path.join(work_dir, "AGENTS.md")
+    shutil.copy2(WORKSPACE_AGENTS_FILE, dest_agents)
+    wisp_dir = os.path.join(work_dir, ".wisp")
+    os.makedirs(wisp_dir, exist_ok=True)
+    shutil.copy2(WORKSPACE_AGENTS_FILE, os.path.join(wisp_dir, "WISP.md"))
+    if logger:
+        logger.debug(f"Installed workspace instructions: {dest_agents} and .wisp/WISP.md")
+
+
 def copy_files_to_workspace(file_paths: str | None, workspace_dir: str, logger: logging.Logger) -> list[str]:
     """Copy files/dirs to workspace root using only their basename.
 
@@ -1757,6 +1779,7 @@ def run_question(idx: int, row: pd.Series, llm: str, model: str, timeout_seconds
 
     # Copy files to workspace BEFORE generating prompt
     workspace_file_paths = copy_files_to_workspace(file_paths, work_dir, logger)
+    install_workspace_instructions(work_dir, logger)
 
     from warmup import mount_cache
     cache_mounted = mount_cache(work_dir)

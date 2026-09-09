@@ -980,12 +980,8 @@ def prompt_cache_instructions() -> list[str]:
         "genomes, aligner indexes, containers, and models. See "
         f"{CACHE_LINK_NAME}/INDEX.md.",
         "- If a needed file is missing from the cache, get it from the internet.",
-        "- If you launch Caper/Cromwell: unique HSQLDB + output dir in this "
-        "workspace; persist stderr to a file; if there is no workflow UUID or "
-        "cromwell-executions/ within 5 minutes, treat it as a launch failure "
-        "and retry with a fresh DB instead of waiting out the full timeout. "
-        "Leave several minutes to extract the answer. Do not submit leftover "
-        "outputs from an earlier attempt unless this run produced them.",
+        "- Session rules for this workspace are in AGENTS.md and .wisp/WISP.md "
+        "(Caper/Cromwell launch, local_cache, one-line answer).",
     ]
 
 

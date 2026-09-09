@@ -1,5 +1,5 @@
 {
-  "source": "archive_clean.zip",
+  "source": "archive_clean.zip + gpt-6-astra force-rerun 2026-09-09",
   "models": [
     {
       "id": "GLM-5.3",
@@ -230,11 +230,11 @@
     {
       "id": "gpt-6-astra",
       "run": "wisp_gpt-6-astra_default_20260906_210207",
-      "timestamp": "20260907_152850",
+      "timestamp": "20260909_120000",
       "timeout_minutes": 120,
       "reasoning_effort": null,
-      "total_questions": 95,
-      "benchmark_profile": "default",
+      "total_questions": 100,
+      "benchmark_profile": "full",
       "benchmark_profile_version": 1,
       "selected_question_ids": [
         "ensembl-grab-q1",
@@ -249,7 +249,9 @@
         "reverse-search-gwas-q1",
         "pathogenic-variant-lookup-q1",
         "identify-donor-q1",
+        "contaminated-rna-q3",
         "hic-differential-loop-q1",
+        "encode-atac-pipeline-q1",
         "pooled-infer-donors-q1",
         "overexpress-tf-q1",
         "conservation-lookup-q1",
@@ -268,6 +270,7 @@
         "deg-simple-q1",
         "bigwig-density-q1",
         "gtf-5-utr-median-len-q1",
+        "contaminated-rna-q2",
         "sample-swap-rna-q2",
         "multiome-match-atac-rna-q1",
         "spatial-sim-q2",
@@ -285,6 +288,7 @@
         "compute-nonoverlapping-exonic-length-q1",
         "atac-doublet-q1",
         "enriched-motif-identification-q1",
+        "find-deletion-q1",
         "three-way-barnyard-q1",
         "subtype-inflammation-q1",
         "read-proportions-q1",
@@ -301,6 +305,7 @@
         "orf-annot-q1",
         "reverse-search-gwas-q2",
         "disease-samples-q1",
+        "contaminated-rna-q1",
         "variant-coordinate-lookup-q1",
         "histone-chip-q1",
         "cell-proportions-q1",
@@ -333,13 +338,7 @@
         "sample-swap-atac-q1",
         "variant-status-q1"
       ],
-      "skipped_questions": {
-        "contaminated-rna-q3": "External taxonomic reference database; supplied FASTQ is already local",
-        "encode-atac-pipeline-q1": "External ENCODE ATAC reference bundle and alignment indexes",
-        "contaminated-rna-q2": "External taxonomic reference database; supplied FASTQ is already local",
-        "find-deletion-q1": "External hg38 genome and alignment index; supplied FASTQs are already local",
-        "contaminated-rna-q1": "External taxonomic reference database; supplied FASTQ is already local"
-      }
+      "skipped_questions": {}
     },
     {
       "id": "grok-4.6",
@@ -979,10 +978,9 @@
           "timestamp": "2026-09-08T19:40:37.846345"
         },
         "gpt-6-astra": {
-          "answer": "NA",
-          "status": "skipped",
-          "timestamp": null,
-          "reason": "External taxonomic reference database; supplied FASTQ is already local"
+          "answer": "pan",
+          "status": "success",
+          "timestamp": "2026-09-09T12:00:00"
         }
       }
     },
@@ -1044,10 +1042,9 @@
           "timestamp": "2026-09-08T19:40:39.152576"
         },
         "gpt-6-astra": {
-          "answer": "NA",
-          "status": "skipped",
-          "timestamp": null,
-          "reason": "External ENCODE ATAC reference bundle and alignment indexes"
+          "answer": "ERROR: timeout",
+          "status": "error",
+          "timestamp": "2026-09-09T12:00:00"
         }
       }
     },
@@ -1653,10 +1650,9 @@
           "timestamp": "2026-09-08T20:03:16.985702"
         },
         "gpt-6-astra": {
-          "answer": "NA",
-          "status": "skipped",
-          "timestamp": null,
-          "reason": "External taxonomic reference database; supplied FASTQ is already local"
+          "answer": "sus scrofa",
+          "status": "success",
+          "timestamp": "2026-09-09T12:00:00"
         }
       }
     },
@@ -2230,10 +2226,9 @@
           "timestamp": "2026-09-08T20:05:17.651206"
         },
         "gpt-6-astra": {
-          "answer": "NA",
-          "status": "skipped",
-          "timestamp": null,
-          "reason": "External hg38 genome and alignment index; supplied FASTQs are already local"
+          "answer": "chr22:20000000-21000000",
+          "status": "success",
+          "timestamp": "2026-09-09T12:00:00"
         }
       }
     },
@@ -2775,10 +2770,9 @@
           "timestamp": "2026-09-08T20:33:17.194449"
         },
         "gpt-6-astra": {
-          "answer": "NA",
-          "status": "skipped",
-          "timestamp": null,
-          "reason": "External taxonomic reference database; supplied FASTQ is already local"
+          "answer": "hydra vulgaris",
+          "status": "success",
+          "timestamp": "2026-09-09T12:00:00"
         }
       }
     },

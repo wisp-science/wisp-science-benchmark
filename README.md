@@ -11,10 +11,9 @@ The homepage introduces the benchmark suites and links to their project pages:
 [CompBioBench answers](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/), and
 [NatureBench](https://wisp-science.github.io/wisp-science-benchmark/naturebench/).
 
-CompBioBench currently displays 100 questions × 5 models (495 run records and 5
-questions skipped by the GPT-6 Astra run configuration). Cells show original answers;
-timeouts, repeated-tool-loop aborts, and skipped questions display `NA`
-(22 timeouts and 5 skipped cells in the latest table).
+CompBioBench currently displays 100 questions × 5 models (500 run records).
+Cells show original answers; timeouts, repeated-tool-loop aborts, and skipped
+questions display `NA` (23 timeouts in the latest table).
 Correctness has not been evaluated.
 
 Rebuild the project pages (the homepage is maintained separately):

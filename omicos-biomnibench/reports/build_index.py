@@ -34,6 +34,7 @@ LABELS = {
     "wisp-glm-5.3": "GLM-5.3",
     "wisp-glm-5.3-flash": "GLM-5.3 Flash",
     "wisp-deepseek-flash-vision": "DeepSeek Flash",
+    "wisp-deepseek-4.1-flash-high": "DeepSeek 4.1 Flash High",
     "wisp-deepseek-v4-pro": "DeepSeek v4-pro",
     "wisp-gpt-5.6-sol": "GPT-5.6",
     "wisp-gemini-3.8-flash": "Gemini 3.8 Flash",

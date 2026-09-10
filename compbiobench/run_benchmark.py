@@ -1347,8 +1347,8 @@ def ensure_base_conda_env(logger: logging.Logger) -> bool:
 def clone_conda_env(clone_name: str, logger: logging.Logger) -> bool:
     """Clone the base compbio environment for a question.
 
-    conda uses --clone. micromamba tries --clone, then hard-link copies the prefix
-    (micromamba lacked --clone until recent versions).
+    conda/mamba use `create --clone`. micromamba has no --clone, so the prefix
+    is hard-link copied. If `create --clone` fails, the same copy is the fallback.
     """
     import conda_cli
     try:
@@ -1356,26 +1356,34 @@ def clone_conda_env(clone_name: str, logger: logging.Logger) -> bool:
         env = os.environ.copy()
         env["CONDA_NO_PLUGINS"] = "true"
         cmd = conda_cli.clone_command(BASE_ENV_NAME, clone_name)
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300,  # 5 min for clone
-            env=env
-        )
-        if result.returncode == 0:
-            logger.debug(f"Cloned environment: {clone_name}")
-            return True
+        clone_err = ""
+        if cmd:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300,  # 5 min for clone
+                env=env
+            )
+            if result.returncode == 0:
+                logger.debug(f"Cloned environment: {clone_name}")
+                return True
+            clone_err = (result.stderr or result.stdout or "")[:200]
         src = conda_cli.env_prefix(BASE_ENV_NAME)
         if src:
             dest_dir = os.path.join(os.path.dirname(src), clone_name)
-            logger.warning(
-                f"--clone failed ({result.stderr[:200]}); copying {src} -> {dest_dir}"
-            )
+            if cmd:
+                logger.warning(
+                    f"--clone failed ({clone_err}); copying {src} -> {dest_dir}"
+                )
+            else:
+                logger.debug(f"Copying env prefix {src} -> {dest_dir}")
             conda_cli.copy_env_prefix(src, dest_dir)
             logger.debug(f"Copied environment: {clone_name}")
             return True
-        logger.error(f"Failed to clone conda env: {result.stderr[:500]}")
+        logger.error(
+            f"Failed to clone conda env: {clone_err or 'base env prefix not found'}"
+        )
         return False
     except subprocess.TimeoutExpired:
         logger.error("Timeout cloning conda env")

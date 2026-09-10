@@ -299,4 +299,4 @@ Same identity knobs as BiomniBench. Headless `wisp-science` does not use the des
 | `WISP_API_KEY` | Provider key |
 | `WISP_VISION` | `1` to send native image parts |
 
-The harness clones `compbio-benchmark` per question. Wisp uses the clone through `PATH`; other backends use `conda run --live-stream` (or `micromamba run` when conda is absent). The kernel REPL still uses a per-workspace uv venv (same caveat as BiomniBench-DA). Solver selection is under “Conda env” above. micromamba clones via `--clone` when available, otherwise a hard-link copy of the env prefix.
+The harness clones `compbio-benchmark` per question. Wisp uses the clone through `PATH`; other backends use `conda run --live-stream` (or `micromamba run` when conda is absent). The kernel REPL still uses a per-workspace uv venv (same caveat as BiomniBench-DA). Solver selection is under “Conda env” above. conda/mamba use `create --clone`; micromamba has no `--clone`, so the env prefix is hard-link copied.

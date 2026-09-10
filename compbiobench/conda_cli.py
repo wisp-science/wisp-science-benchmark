@@ -182,9 +182,17 @@ def copy_env_prefix(src: str, dest: str) -> None:
     shutil.copytree(src_path, dest_path, symlinks=True, copy_function=link_or_copy)
 
 
-def clone_command(src_name: str, dest_name: str) -> list[str]:
+def supports_clone() -> bool:
+    """conda create --clone exists; micromamba create does not."""
+    return _tool_name(manage_cli()) != "micromamba"
+
+
+def clone_command(src_name: str, dest_name: str) -> list[str] | None:
+    """conda/mamba `create --clone`, or None when the CLI has no --clone."""
+    if not supports_clone():
+        return None
     cli = manage_cli()
-    name = _tool_name(cli)
-    if name == "conda":
-        return [cli, "create", "-n", dest_name, "--clone", src_name, "-q", "-y"]
-    return [cli, "create", "-n", dest_name, "--clone", src_name, "-y"]
+    cmd = [cli, "create", "-n", dest_name, "--clone", src_name, "-y"]
+    if _tool_name(cli) == "conda":
+        cmd.insert(-1, "-q")
+    return cmd

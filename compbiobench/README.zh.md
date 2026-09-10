@@ -290,4 +290,4 @@ python run_benchmark.py merge -i benchmark.csv --profile full -o benchmark_resul
 | `WISP_API_KEY` | 服务商 key |
 | `WISP_VISION` | `1` = 发送原生图片 part |
 
-Harness 每题 clone `compbio-benchmark`。Wisp 通过 `PATH` 使用克隆环境，其他 backend 使用 `conda run --live-stream`（没有 conda 时用 `micromamba run`）。Kernel REPL 仍是每题 uv venv（和 BiomniBench-DA 一样）。求解器选择见上方「conda 环境」；micromamba 优先 `--clone`，没有该选项时硬链接复制环境目录。
+Harness 每题 clone `compbio-benchmark`。Wisp 通过 `PATH` 使用克隆环境，其他 backend 使用 `conda run --live-stream`（没有 conda 时用 `micromamba run`）。Kernel REPL 仍是每题 uv venv（和 BiomniBench-DA 一样）。求解器选择见上方「conda 环境」；conda/mamba 用 `create --clone`，micromamba 没有该选项，直接硬链接复制环境目录。

@@ -51,12 +51,12 @@ def test_micromamba_driver_selection():
         assert conda_cli.wrap_env_run("compbio-benchmark", ["python", "-V"]) == [
             "/opt/micromamba", "run", "-n", "compbio-benchmark", "python", "-V",
         ]
+        # micromamba has no create --clone; harness copies the prefix instead.
         create = conda_cli.env_create_commands("environment.yml")
         assert create[0][:3] == ["/opt/micromamba", "env", "create"]
         assert "-y" in create[0]
-        assert conda_cli.clone_command("compbio-benchmark", "clone1") == [
-            "/opt/micromamba", "create", "-n", "clone1", "--clone", "compbio-benchmark", "-y",
-        ]
+        assert conda_cli.supports_clone() is False
+        assert conda_cli.clone_command("compbio-benchmark", "clone1") is None
         install = conda_cli.install_command("compbio-benchmark", ["bowtie2", "macs2"])
         assert install[:3] == ["/opt/micromamba", "install", "-n"]
         assert "--solver" not in install
@@ -80,6 +80,11 @@ def test_conda_preferred_over_micromamba():
         wrapped = conda_cli.wrap_env_run("e", ["x"])
         assert wrapped[:4] == ["/opt/conda/bin/conda", "run", "-n", "e"]
         assert "--live-stream" in wrapped
+        assert conda_cli.supports_clone() is True
+        assert conda_cli.clone_command("compbio-benchmark", "clone1") == [
+            "/opt/conda/bin/conda", "create", "-n", "clone1", "--clone",
+            "compbio-benchmark", "-q", "-y",
+        ]
 
     def conda_only(name):
         return {"conda": "/opt/conda/bin/conda"}.get(name)
@@ -107,6 +112,31 @@ def test_parse_env_paths_and_copy():
         (src / "bin" / "bowtie2").write_text("#!/bin/sh\n")
         conda_cli.copy_env_prefix(str(src), str(dest))
         assert (dest / "bin" / "bowtie2").is_file()
+
+
+def test_clone_conda_env_copies_when_cli_has_no_clone():
+    with TemporaryDirectory() as tmp:
+        src = Path(tmp) / "compbio-benchmark"
+        (src / "bin").mkdir(parents=True)
+        (src / "bin" / "kraken2").write_text("#!/bin/sh\n")
+        logs = []
+
+        class Logger:
+            def debug(self, msg):
+                logs.append(("debug", msg))
+
+            def warning(self, msg):
+                logs.append(("warning", msg))
+
+            def error(self, msg):
+                logs.append(("error", msg))
+
+        with patch.object(conda_cli, "clone_command", return_value=None), \
+             patch.object(conda_cli, "env_prefix", return_value=str(src)):
+            assert rb.clone_conda_env("benchmark_wisp_q1_abc", Logger())
+        dest = Path(tmp) / "benchmark_wisp_q1_abc"
+        assert (dest / "bin" / "kraken2").is_file()
+        assert not any(level == "warning" for level, _ in logs)
 
 
 def test_cache_dir_and_environ():
@@ -382,6 +412,7 @@ def main():
     test_micromamba_driver_selection()
     test_conda_preferred_over_micromamba()
     test_parse_env_paths_and_copy()
+    test_clone_conda_env_copies_when_cli_has_no_clone()
     test_cache_dir_and_environ()
     test_link_kraken_db_from_env()
     test_network_precheck_marks_failures()

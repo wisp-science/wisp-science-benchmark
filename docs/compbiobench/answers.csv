@@ -2,18 +2,18 @@
 ensembl-grab-q1,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373,ENSG00000140254;ENSG00000167014;ENSG00000140263;ENSG00000138606;ENSG00000137860;ENSG00000166920;ENSG00000137767;ENSG00000162373
 bam-infer-read-length-q1,2x101,2x101,2x101,2x101,2x101
 differential-composition-q1,horizontal cell,horizontal cell,horizontal cell,horizontal cell,horizontal cell
-genomic-state-q1,"**Safest next action:** query ENCODE chromatin-state segmentations (search `type=Annotation searchTerm=ChromHMM`, brain frontal lobe / liver / H1) and overlap chr11:124,738,681-124,738,772 to confirm the state+biosample before finalizing the single-letter answer.",B,B,B,B
+genomic-state-q1,B,B,B,B,B
 cryptic-exon-q1,GNG10,GNG10,GNG10,GNG10,GNG10
 read-paper-download-file-parse-q1,6907,6907,6907,6907,6907
 huggingface-entropy-q1,GTCTCTACTAAAAATACAAAATTAGCC,GTCTCTACTAAAAATACAAAATTAGCC,GTCTCTACTAAAAATACAAAATTAGCC,GTCTCTACTAAAAATACAAAATTAGCC,GTCTCTACTAAAAATACAAAATTAGCC
 ml-model-track-overlap-q1,1300,"1,300",3600,3600,100
 compute-gc-content-interval-q1,"83.17,101,0,c94c827d740a77064d0d8e35bb54f686","83.17,101,0,c94c827d740a77064d0d8e35bb54f686","83.17,101,0,c94c827d740a77064d0d8e35bb54f686","83.17,101,0,c94c827d740a77064d0d8e35bb54f686","83.17,101,0,c94c827d740a77064d0d8e35bb54f686"
-reverse-search-gwas-q1,"Systematically fetch harmonised `.h.tsv.gz` files for immune/Ig-trait studies (from `work/gwas-studies-alt.tsv`, col 15 accession + col 19 location, cross-referenced with `work/harmonised_list.txt`) and compare p-values at our lead SNPs (chr1:161530617 p=7.81e-23; chr17:16939677 p=1.42e-16; chr6:32067917 p=4.86e-19; chr19:49525049 p=1.04e-10; chr13:108308034; chr4:102486185). The true source will match at **multiple** loci within ~0.1 log10 — the definitive test, since the query file is itself almost certainly one of these harmonised files with columns renamed.",28628107,"The iteration limit was reached before the PMID could be verified. The file contains 12,774,703 variants across chromosomes 1–21. Its strongest associations involve the FCGR region, HLA region, and TNFRSF13B, suggesting a serum protein–related trait, but no source study was conclusively matched. The safest next action is to compare exact variant P values against candidate studies’ original summary statistics before reporting a PMID.",I'll keep matching the file against published globulin/IgG studies and look up CompBioBench metadata.,28628107
+reverse-search-gwas-q1,NA,28628107,"The iteration limit was reached before the PMID could be verified. The file contains 12,774,703 variants across chromosomes 1–21. Its strongest associations involve the FCGR region, HLA region, and TNFRSF13B, suggesting a serum protein–related trait, but no source study was conclusively matched. The safest next action is to compare exact variant P values against candidate studies’ original summary statistics before reporting a PMID.",I'll keep matching the file against published globulin/IgG studies and look up CompBioBench metadata.,28628107
 pathogenic-variant-lookup-q1,chr7:155811860,chr7:155811860,chr7:155811860,chr7:155811860,chr7:155806509
 identify-donor-q1,HG03861,HG03861,HG03861,HG03861,HG03861
 contaminated-rna-q3,NA,mesomycoplasma,pan,pan,mycoplasma
 hic-differential-loop-q1,7720000;7800000,7720000;7800000,7720000;7800000,7720000;7800000,7640000;7760000
-encode-atac-pipeline-q1,NA,NA,NA,NA,29597
+encode-atac-pipeline-q1,"Let the running Cromwell process finish (it is independent of this session's tool budget). Then locate the final report under `atac_out/atac/59602808-.../call-qc_report/.../qc.json` (or via metadata), extract the value of the IDR reproducibility block's `N_opt` field (from the `idr` reproducibility QC, single-replicate case → equals N of rep1-pr1_vs_rep1-pr2 pseudo-replicate IDR peaks), and emit that single number as the one-line answer. If a stage failed, check `logs/cromwell_stdout_20260910_100559.out` and `cromwell-workflow-logs/` before re-running with a fresh in-memory DB conf.",NA,NA,NA,29597
 pooled-infer-donors-q1,4,4,4,4,4
 overexpress-tf-q1,KLF4,KLF4,KLF4,KLF4,TCF7
 conservation-lookup-q1,"9,16,0,20,5,24,35","9,16,0,20,5,24,35","0,7,0,20,5,24,27","0,7,0,20,5,24,27","12,19,3,23,17,27,38"
@@ -21,18 +21,18 @@ splice-pred-q1,7,7,7,7,8
 borzoi-rnaseq-q1,9380,2810,9380,8870,9380
 calculate-average-gene-expression-q1,-0.14,-0.14,-0.14,-0.14,-0.14
 covid-patient-q1,"1,5,11,12,17,21,24,27,29,32","1,5,11,12,17,21,24,27,29,32","1,5,11,12,17,21,24,27,29,32","1,5,11,12,17,21,24,27,29,32","1,2,4,5,6,7,8,9,10,11,12,15,16,17,19,20,21,22,23,24,25,27,28,29,32"
-saluki-setup-optimize-q1,"**Safest next action:** read `vf.out` from the validation run; if predictions match the published values, the answer stands; if not, re-run the evolution with the corrected encoding before reporting.",GCCGCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT,GCCGCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT,GCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT,GCCGCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT
+saluki-setup-optimize-q1,NA,GCCGCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT,GCCGCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT,GCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT,GCCGCCACCATGGTGAGCAAGGGCGAGTAGTATAAATAATAAGGGCT
 identify-related-q1,"SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155","SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155","SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155","SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155","SAMPLE_081,SAMPLE_109,SAMPLE_137,SAMPLE_155"
 ep-interactions-q1,C,C,C,C,A
 sample-swap-rna-q1,"epidermal_neural,tailbud_neural","epidermis,tailbud_neural","epidermal_neural,tailbud_neural","epidermal_neural,tailbud_neural","epidermal_neural,tailbud_neural"
 gene-fusion-q2,MYC-SP1-ZIC2-SP1-CATSPER4,MYC-SP1-ZIC2-SP1-CATSPER4,MYC-SP1-ZIC2-SP1-CATSPER4,MYC-SP1-ZIC2-SP1-CATSPER4,CATSPER4-SP1-ZIC2-SP1-MYC
 retina-score-snps-q1,0.67,0.67,0.67,NA,NA
-atac-tn5-shift-q1,"Exact-coordinate tests rule out 10x derivation. The signal is synthetic, so let me extract the precise motif logo geometry around both ends with base resolution:",2;-1,2;-1,2;-1,2;-1
+atac-tn5-shift-q1,"Key insight: identical coordinates repeat (6 fragments ending at exactly chr11:10509394, none starting there) — fragments were simulated from a shared pool of underlying insertion sites. Unique starts = pool + a, unique ends = pool + b, so the sets should align at exactly d = b − a.",2;-1,2;-1,2;-1,2;-1
 finding-geo-q1,NA,GSE114176,GSE114176,NA,GSE178931
 deg-simple-q1,KLF4,KLF4,KLF4,KLF4,KLF4
 bigwig-density-q1,chr8:70000000-71000000,chr8:70000000-71000000,chr8:70000000-71000000,chr8:70000000-71000000,chr8:70000000-71000000
 gtf-5-utr-median-len-q1,133;1296;1050,133;1296;1050,133;1296;1050,133;1296;1050,133;1296;1050
-contaminated-rna-q2,"Resume with the already-downloaded mouse transcriptome: finish `bwa index mouse_cdna.fa`, then `bwa mem` the **full** FASTQ (not just unmapped) and count full-length 100 %-identity uniquely mapped reads; repeat for rat/E. coli/S. cerevisiae if mouse is negative. I will not output a one-line species answer yet because current evidence does not prove any single contaminant species.",sus scrofa,sus scrofa,human gammaherpesvirus 4,NA
+contaminated-rna-q2,"9971 reads are ambiguously classified at ""cellular organisms"" level — that's a big chunk. Let me check if they map to human or are a divergent species.",sus scrofa,sus scrofa,human gammaherpesvirus 4,NA
 sample-swap-rna-q2,None,None,None,None,"cortex,epidermis"
 multiome-match-atac-rna-q1,5;1;4;0;6;3;7;2,5;1;4;0;6;3;7;2,5;1;4;0;6;3;7;2,5;1;4;0;6;3;7;2,5;1;4;0;6;3;7;2
 spatial-sim-q2,"Fibroblast_Stroma,Macrophage","Fibroblast_Stroma,Macrophage","Fibroblast_Stroma,Macrophage","Fibroblast_Stroma,Macrophage","Fibroblast_Stroma,Macrophage"
@@ -60,14 +60,14 @@ perturb-seq-align-q1,"guide18,guide13,guide10","guide18,guide13,guide14","guide1
 gwas-ancestry-q1,NA,AFR,HIS,HIS,NA
 gene-info-grab-q1,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331,ENSMUSG00000037335;216;fewer;ENSMUSG00000037331
 genome-coords-q1,D,D,E,D,D
-mystery-peak-set-q1,NA,S5,S5,S5,S5
+mystery-peak-set-q1,S5,S5,S5,S5,S5
 phase-chain-q1,A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A,A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A,A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A,A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A,A-C-T-D-C-A-D-G|C-T-A-G-G-D-G-A
 enformer-basic-q1,251221292,251221292,251221292,251221292,251221292
 bedtools-ops-q1,111423829,111423829,111423829,111423829,111424282
 orf-annot-q1,282;351,282;351,282;351,282;351,282;351
 reverse-search-gwas-q2,36224396,19343178,36224396,36224396,NA
 disease-samples-q1,"Sample_1,Sample_4,Sample_6,Sample_8,Sample_9","Sample_1,Sample_4,Sample_6,Sample_8,Sample_9","Sample_1,Sample_4,Sample_6,Sample_8,Sample_9","Sample_1,Sample_4,Sample_6,Sample_8,Sample_9","Sample_1,Sample_4,Sample_6,Sample_8,Sample_9"
-contaminated-rna-q1,NA,hydra vulgaris,hydra vulgaris,hydra vulgaris,hydra vulgaris
+contaminated-rna-q1,Odd — the fly-mapping reads come from the kraken-*classified* subset. Let me check what kraken called them.,hydra vulgaris,hydra vulgaris,hydra vulgaris,hydra vulgaris
 variant-coordinate-lookup-q1,chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261,chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261,chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261,chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261,chrX:47574285;chr1:228858538;chr1:110061565;chr3:181712343;chr10:102685872;chr16:3523261
 histone-chip-q1,H3K9me3,H3K9me3,H3K9me3,H3K9me3,H3K27me3
 cell-proportions-q1,50;35;15,50;35;15,50;35;15,50;35;15,50;35;15
@@ -79,7 +79,7 @@ perturb-seq-effect-q1,STAT1,ISG15,ISG15,ISG15,STAT1
 exogenous-mix-reads-q2,90,90,NA,NA,90
 align-one-sequence-to-reference-q1,NT_033779.5:4280595-4280608,NT_033779.5:4280595-4280609,NT_033779.5:4280595-4280609,NT_033779.5:4280595-4280609,NT_033779.5:4280595-4280609
 promoter-sequence-retrieval-q1,TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC,TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC,TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC,TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC,TTTACTGCAGAAAGCACAATAAATTTGATGTAAGATCTGAGTGTTTTTAAAACACAAAAAACTAATTCGTCTGGCTTCTGTAACCGAGTTGTTCAGGTTAGAGGCTGATGGGACAACAAGTGATCAATCTGACAGGAATGTGACTGAAGCGATTAAAAAGTTGTCATATTTGGAAACGCTGTTATTCTGTGATTAATTCGGGTGATGGTGAACGCGCACATTCCGCACTTGCTGTGATAAATGAAGTTTCGAAAGTTGTATAATTGATTCAACCTTACGTGCAGCAACGCAAATGACTTGAGAAATAATGGTTCATTAGCGGGTCACACACGGATGTAAGAAAGTGAGCACACATGCACGTCGCAGCCTCACACAGACAGCAGTGGGAGAAACTGATGCGTTCACATCTCACCGCGTCCCTCCCCTGAAACCCACCTTCTTTAAAGGTTTTTTGCGCGTCTGTTTTGTGGGATAACATCAGAAGTGTTCGTCCCGTCGAGCCAATCAGGTCCCTCCCTACCTCAGATCGCAGCTATAATACATAGGAGTAAAGAGGCTTCTCGCATTAAGTGGCTGTGGCTTGAAGTAACGTTGTGATTTC
-bedtools-chromhmm-q1,36543965 / 227344497 × 100 = 16.07% → **16**,16,16,16,16
+bedtools-chromhmm-q1,16,16,16,16,16
 lung-cancer-sc-q1,Patient_018;40,Patient_005;40,Patient_018;40,Patient_018;40,Patient_005;40
 tissue-fibroblast-q1,"Lung,Bone","Lung,Bone","Lung,Bone","Lung,Bone","Lung,Adipose"
 characterize-response-q1,c;v,a;i,c;i,c;v,c;v
@@ -87,8 +87,8 @@ geo-lookup-read-matrix-market-q1,20,20,20,20,20
 annotate-variant-gene-impact-q1,pathogenic,pathogenic,pathogenic,pathogenic,pathogenic
 vcf-infer-build-q1,hg19,hg19,hg19,hg19,hg19
 gene-pair-ordering-fraction-q1,37;20;37,37;20;37,37;20;37,29;23;42,37;20;37
-1000G-retrieve-genotype-q2,NA,296;864b06501a76b44b3037072e25c99725,296;864b06501a76b44b3037072e25c99725,296;864b06501a76b44b3037072e25c99725,NA
-odd-one-out-q1,NA,4,4,4,NA
+1000G-retrieve-genotype-q2,"The SNP table is downloaded (exit 141 = SIGPIPE from the `head` pipeline, download itself finished at 805MB). Let me verify it and filter:",296;864b06501a76b44b3037072e25c99725,296;864b06501a76b44b3037072e25c99725,296;864b06501a76b44b3037072e25c99725,NA
+odd-one-out-q1,Autocorrelation is confounded by cell-line copy number. The definitive assay discriminator for ATAC-seq vs ChIP-seq is Tn5 insertion sequence bias at tag 5' ends. Let me extract sequence context from the cached hg38 FASTA.,4,4,4,NA
 gene-expression-query-q1,604,604,604,604,604
 afgr-1000g-intersect-atac-q1,"83,1127bd47e06e7c19e8f0d5b5458a244a","83,1127bd47e06e7c19e8f0d5b5458a244a","83,1127bd47e06e7c19e8f0d5b5458a244a","83,1127bd47e06e7c19e8f0d5b5458a244a","83,1127bd47e06e7c19e8f0d5b5458a244a"
 borzoi-basic-q1,190902667,190902667,190902667,190902667,190902667
@@ -97,5 +97,5 @@ gene-fusion-q1,GAPDH-SOX2,GAPDH-SOX2,GAPDH-SOX2,GAPDH-SOX2,GAPDH-SOX2
 compute-gccontent-promoter-q1,17;7686990;7687589;-;600;331;0.55,17;7687391;7687990;-;600;292;0.49,17;7687391;7687990;-;600;292;0.49,17;7687391;7687990;-;600;292;0.49,17;7687391;7687990;-;600;292;0.49
 vcf-infer-ancestry-q1,"AFR,AFR,SAS,EUR","AFR,AFR,SAS,EUR","AFR,AFR,SAS,EUR","AFR,AFR,SAS,EUR","AFR,AFR,SAS,EUR"
 find-amplification-q1,"chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5","chr22:36000000-36400000,1.5"
-sample-swap-atac-q1,NA,"Cloaca,Stomach","Cloaca,Stomach","Cloaca,Stomach","Heart,Lung"
+sample-swap-atac-q1,"Strong signals for most samples. Now let me examine the ambiguous ones (Bladder, Cloaca, GallBladder, Gill, Spleen, Stomach) with full alias names:","Cloaca,Stomach","Cloaca,Stomach","Cloaca,Stomach","Heart,Lung"
 variant-status-q1,C/T,C/T,C/C,C/C,C/T

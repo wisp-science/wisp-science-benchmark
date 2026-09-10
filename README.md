@@ -13,7 +13,7 @@ The homepage introduces the benchmark suites and links to their project pages:
 
 CompBioBench currently displays 100 questions × 5 models (500 run records).
 Cells show original answers; timeouts, repeated-tool-loop aborts, and skipped
-questions display `NA` (23 timeouts in the latest table).
+questions display `NA` (17 timeouts in the latest table).
 Correctness has not been evaluated.
 
 Rebuild the project pages (the homepage is maintained separately):

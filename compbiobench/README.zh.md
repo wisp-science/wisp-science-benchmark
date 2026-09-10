@@ -19,10 +19,9 @@ flowchart LR
 ## 已整理的运行结果
 
 [在线答案表](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/) 来自
-2026-09-09 的 `archive_clean.zip` 以及之后从 `benchmark_runs` 抽出的 force-rerun 结果。
-五个模型各 100 题，共 500 条运行记录。原先 default 跳过的 5 题中，4 题已跑出答案，
-`encode-atac-pipeline-q1` 仍为 timeout。行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。
-当前 23 条 timeout 显示为 `NA`，没有未运行的格子；模型本身输出的 `NA` 保留原样。
+2026-09-09 的 `archive_clean.zip`、之后从 `benchmark_runs` 抽出的 force-rerun 结果，以及
+2026-09-10 的 GLM-5.3 答案表。五个模型各 100 题，共 500 条运行记录。行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。
+当前 17 条 timeout 显示为 `NA`，没有未运行的格子；模型本身输出的 `NA` 保留原样。
 原始错误信息仍保存在 `reports/results.json` 中。
 未进行正确性评分，也不按答案排序模型。
 

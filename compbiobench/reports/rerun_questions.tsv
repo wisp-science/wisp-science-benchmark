@@ -1,12 +1,12 @@
 question_id	max_agree	reason	missing_models	answer_counts
 ml-model-track-overlap-q1	2	agreement-below-3		2×3600; 1×1300; 1×1,300; 1×100
-reverse-search-gwas-q1	2	agreement-below-3		2×28628107; 1×Systematically fetch harmonised `.h.tsv.gz` files for immune/Ig-trait studies (f; 1×The iteration limit was reached before the PMID could be verified. The file cont; 1×I'll keep matching the file against published globulin/IgG studies and look up C
+reverse-search-gwas-q1	2	agreement-below-3		2×28628107; 1×NA; 1×The iteration limit was reached before the PMID could be verified. The file cont; 1×I'll keep matching the file against published globulin/IgG studies and look up C
 contaminated-rna-q3	2	agreement-below-3	GLM-5.3	2×pan; 1×mesomycoplasma; 1×mycoplasma
-encode-atac-pipeline-q1	1	no-shared-answer	GLM-5.3,gpt-5.6-sol,gpt-6-astra,grok-4.6	1×29597
+encode-atac-pipeline-q1	1	no-shared-answer	gpt-5.6-sol,gpt-6-astra,grok-4.6	1×Let the running Cromwell process finish (it is independent of this session's too; 1×29597
 conservation-lookup-q1	2	agreement-below-3		2×9,16,0,20,5,24,35; 2×0,7,0,20,5,24,27; 1×12,19,3,23,17,27,38
 finding-geo-q1	2	agreement-below-3	GLM-5.3,grok-4.6	2×GSE114176; 1×GSE178931
-contaminated-rna-q2	2	agreement-below-3	kimi-k3	2×sus scrofa; 1×Resume with the already-downloaded mouse transcriptome: finish `bwa index mouse_; 1×human gammaherpesvirus 4
+contaminated-rna-q2	2	agreement-below-3	kimi-k3	"2×sus scrofa; 1×9971 reads are ambiguously classified at ""cellular organisms"" level — that's a b; 1×human gammaherpesvirus 4"
 reverse-encode-q1	1	no-shared-answer	GLM-5.3,gpt-5.6-sol,grok-4.6	1×ENCSR597URK; 1×Please approve internet access for ENCODE API/file downloads so I can identify a
 find-deletion-q1	5	default-skipped		5×chr22:20000000-21000000
 gwas-ancestry-q1	2	agreement-below-3	GLM-5.3,kimi-k3	2×HIS; 1×AFR
-contaminated-rna-q1	4	default-skipped	GLM-5.3	4×hydra vulgaris
+contaminated-rna-q1	4	default-skipped		4×hydra vulgaris; 1×Odd — the fly-mapping reads come from the kraken-*classified* subset. Let me che

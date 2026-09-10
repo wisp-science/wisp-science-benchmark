@@ -20,10 +20,10 @@ Copy [`.env.example`](.env.example).
 
 The [answer table](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/)
 contains 100 questions × 5 models (500 run records) from the 2026-09-09
-`archive_clean.zip` plus later force-reruns extracted from `benchmark_runs`. Four of the five previously skipped default-profile questions now
-have answers; `encode-atac-pipeline-q1` timed out. Rows are question names,
+`archive_clean.zip` plus later force-reruns extracted from `benchmark_runs`, and a
+2026-09-10 GLM-5.3 answer table. Rows are question names,
 columns are models, and cells are original answers. CSV download is available.
-23 timeouts display `NA`; no cells remain skipped.
+17 timeouts display `NA`; no cells remain skipped.
 Model-authored `NA` answers remain unchanged. Original errors are retained in
 `reports/results.json`.
 No correctness grading or performance ranking is applied.

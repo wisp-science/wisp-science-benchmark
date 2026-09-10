@@ -19,9 +19,9 @@ Copy [`.env.example`](.env.example).
 ## Published run results
 
 The [answer table](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/)
-contains 100 questions × 5 models (500 run records) from the 2026-09-09
-`archive_clean.zip` plus later force-reruns extracted from `benchmark_runs`, and a
-2026-09-10 GLM-5.3 answer table. Rows are question names,
+contains 100 questions × 6 models (600 run records) from the 2026-09-09
+`archive_clean.zip` plus later force-reruns extracted from `benchmark_runs`, a
+2026-09-10 GLM-5.3 answer table, and a 2026-09-10 deepseek-v4.1-flash answer table. Rows are question names,
 columns are models, and cells are original answers. CSV download is available.
 17 timeouts display `NA`; no cells remain skipped.
 Model-authored `NA` answers remain unchanged. Original errors are retained in
@@ -254,7 +254,7 @@ python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
   --force-rerun --rerun-file reports/rerun_questions.txt
 ```
 
-Questions where fewer than 3 of the 5 models share a completed answer (timeouts,
+Questions where fewer than 3 models share a completed answer (timeouts,
 errors, skips, and `ERROR:` outputs do not count), plus the five default-profile
 skips (`contaminated-rna-q1/q2/q3`, `encode-atac-pipeline-q1`, `find-deletion-q1`)
 even when 3+ models already agree, are listed in

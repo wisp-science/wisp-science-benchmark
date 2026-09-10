@@ -11,7 +11,7 @@ The homepage introduces the benchmark suites and links to their project pages:
 [CompBioBench answers](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/), and
 [NatureBench](https://wisp-science.github.io/wisp-science-benchmark/naturebench/).
 
-CompBioBench currently displays 100 questions × 5 models (500 run records).
+CompBioBench currently displays 100 questions × 6 models (600 run records).
 Cells show original answers; timeouts, repeated-tool-loop aborts, and skipped
 questions display `NA` (17 timeouts in the latest table).
 Correctness has not been evaluated.

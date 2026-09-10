@@ -11,7 +11,7 @@ Benchmark 首页（GitHub Pages）：https://wisp-science.github.io/wisp-science
 [CompBioBench 答案表](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/)、
 [NatureBench](https://wisp-science.github.io/wisp-science-benchmark/naturebench/)。
 
-CompBioBench 目前展示 100 道题、5 个模型的原始答案，共 500 条运行记录。超时、重复工具调用中断和未运行的题目显示为 `NA`（当前 17 条 timeout），暂不评判正确性。
+CompBioBench 目前展示 100 道题、6 个模型的原始答案，共 600 条运行记录。超时、重复工具调用中断和未运行的题目显示为 `NA`（当前 17 条 timeout），暂不评判正确性。
 
 重建项目页面（首页独立维护，不会被构建脚本覆盖）：
 

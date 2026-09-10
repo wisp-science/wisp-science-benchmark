@@ -20,7 +20,7 @@ flowchart LR
 
 [在线答案表](https://wisp-science.github.io/wisp-science-benchmark/compbiobench/) 来自
 2026-09-09 的 `archive_clean.zip`、之后从 `benchmark_runs` 抽出的 force-rerun 结果，以及
-2026-09-10 的 GLM-5.3 答案表。五个模型各 100 题，共 500 条运行记录。行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。
+2026-09-10 的 GLM-5.3 答案表，以及 2026-09-10 的 deepseek-v4.1-flash 答案表。六个模型各 100 题，共 600 条运行记录。行是原始题目名称，列是模型，单元格是答案，支持下载 CSV。
 当前 17 条 timeout 显示为 `NA`，没有未运行的格子；模型本身输出的 `NA` 保留原样。
 原始错误信息仍保存在 `reports/results.json` 中。
 未进行正确性评分，也不按答案排序模型。
@@ -243,7 +243,7 @@ python run_benchmark.py run --llm wisp -m "$WISP_MODEL" -i benchmark.csv \
   --force-rerun --rerun-file reports/rerun_questions.txt
 ```
 
-5 个模型里完成答案相同的不到 3 个（超时、报错、跳过、`ERROR:` 不算完成）的题目，
+完成答案相同的不到 3 个模型（超时、报错、跳过、`ERROR:` 不算完成）的题目，
 以及默认 profile 跳过的 5 题（`contaminated-rna-q1/q2/q3`、`encode-atac-pipeline-q1`、
 `find-deletion-q1`，即使已经 3 个以上模型一致），记在
 [`reports/rerun_questions.txt`](reports/rerun_questions.txt)。导入新结果后重新生成：
